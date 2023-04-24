@@ -45,11 +45,12 @@ shapely = ["shapely"]
 [tool.poetry.dev-dependencies]
 aioresponses = "^0.7.4"
 black = "^23.3.0"
+codecov = "^2.1.13"
 folium = "^0.14.0"
 invoke = "^2.0.0"
 isort = "^5.12.0"
 jupyterlab = "^3.6.3"
-pdoc = "^13.1.0"
+pdoc = "^13.1.1"
 pytest = "^7.3.1"
 pytest-asyncio = "^0.21.0"
 pytest-cov = "^4.0.0"
