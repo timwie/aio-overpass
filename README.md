@@ -1,9 +1,11 @@
-# aio-overpass
+<h1 align="center">
+aio-overpass
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/timwie/aio-overpass/ci.yml)](https://github.com/timwie/aio-overpass/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/timwie/aio-overpass/branch/main/graph/badge.svg?token=YX1218U740)](https://codecov.io/gh/timwie/aio-overpass)
 [![PyPI version](https://badge.fury.io/py/aio_overpass.svg)](https://badge.fury.io/py/aio_overpass)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/aio-overpass)
+</h1>
 
 A client for the [Overpass API], a read-only API that serves up custom selected
 parts of [OpenStreetMap] data. It is optimized for data consumers that need a few
@@ -16,7 +18,6 @@ with [Overpass QL], the query language used to select the elements that you want
 - [Features](#features)
 - [Getting Started](#getting-started)
   - [Choosing Extras](#choosing-extras)
-  - [Dependencies](#dependencies)
 - [Basic Usage](#basic-usage)
   - [Example](#example)
 - [Motivation](#motivation)
@@ -223,6 +224,8 @@ json.dumps(elems[0].geojson, indent=4)
 - [overpy], another Python client for the Overpass API
 - [OSMPythonTools], a Python client for OSM-related services 
 - [overpassify], a Python to Overpass QL transpiler
+
+<br>
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
