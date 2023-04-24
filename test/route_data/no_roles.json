@@ -1,0 +1,1488 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.56.7 b85c4387",
+  "osm3s": {
+    "timestamp_osm_base": "2020-11-21T12:36:03Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 7924525,
+  "bounds": {
+    "minlat": 25.6812520,
+    "minlon": -80.3172170,
+    "maxlat": 25.8126923,
+    "maxlon": -80.1954805
+  },
+  "members": [
+    {
+      "type": "node",
+      "ref": 6416386202,
+      "role": "stop",
+      "lat": 25.7971811,
+      "lon": -80.2585657
+    },
+    {
+      "type": "way",
+      "ref": 684803674,
+      "role": "platform",
+      "geometry": [
+         { "lat": 25.7973338, "lon": -80.2586529 },
+         { "lat": 25.7985456, "lon": -80.2586822 }
+      ]
+    },
+    {
+      "type": "node",
+      "ref": 462658627,
+      "role": "",
+      "lat": 25.8124373,
+      "lon": -80.2300665
+    },
+    {
+      "type": "node",
+      "ref": 462648893,
+      "role": "",
+      "lat": 25.8087362,
+      "lon": -80.2154581
+    },
+    {
+      "type": "node",
+      "ref": 462639220,
+      "role": "",
+      "lat": 25.7957388,
+      "lon": -80.2151835
+    },
+    {
+      "type": "node",
+      "ref": 462636623,
+      "role": "",
+      "lat": 25.7897109,
+      "lon": -80.2150204
+    },
+    {
+      "type": "node",
+      "ref": 462625340,
+      "role": "",
+      "lat": 25.7845484,
+      "lon": -80.2075016
+    },
+    {
+      "type": "node",
+      "ref": 462599402,
+      "role": "",
+      "lat": 25.7809311,
+      "lon": -80.1963077
+    },
+    {
+      "type": "node",
+      "ref": 6708437582,
+      "role": "stop",
+      "lat": 25.7760635,
+      "lon": -80.1962056
+    },
+    {
+      "type": "node",
+      "ref": 462517397,
+      "role": "stop",
+      "lat": 25.7637901,
+      "lon": -80.1954805
+    },
+    {
+      "type": "node",
+      "ref": 462429749,
+      "role": "",
+      "lat": 25.7496960,
+      "lon": -80.2117282
+    },
+    {
+      "type": "node",
+      "ref": 462354527,
+      "role": "",
+      "lat": 25.7398164,
+      "lon": -80.2388468
+    },
+    {
+      "type": "node",
+      "ref": 462351565,
+      "role": "",
+      "lat": 25.7327497,
+      "lon": -80.2548799
+    },
+    {
+      "type": "node",
+      "ref": 462347481,
+      "role": "",
+      "lat": 25.7147949,
+      "lon": -80.2769470
+    },
+    {
+      "type": "node",
+      "ref": 462341030,
+      "role": "",
+      "lat": 25.7050818,
+      "lon": -80.2890491
+    },
+    {
+      "type": "node",
+      "ref": 462237456,
+      "role": "",
+      "lat": 25.6919572,
+      "lon": -80.3050706
+    },
+    {
+      "type": "node",
+      "ref": 462234896,
+      "role": "",
+      "lat": 25.6850336,
+      "lon": -80.3136848
+    },
+    {
+      "type": "way",
+      "ref": 113569564,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7961226, "lon": -80.2585267 },
+         { "lat": 25.7970267, "lon": -80.2585603 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 684803671,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7970267, "lon": -80.2585603 },
+         { "lat": 25.7971811, "lon": -80.2585657 },
+         { "lat": 25.7986039, "lon": -80.2586136 },
+         { "lat": 25.7995207, "lon": -80.2586382 },
+         { "lat": 25.8006340, "lon": -80.2586749 },
+         { "lat": 25.8020043, "lon": -80.2587240 },
+         { "lat": 25.8023641, "lon": -80.2587303 },
+         { "lat": 25.8026572, "lon": -80.2587189 },
+         { "lat": 25.8028469, "lon": -80.2587038 },
+         { "lat": 25.8033398, "lon": -80.2586371 },
+         { "lat": 25.8047913, "lon": -80.2584406 },
+         { "lat": 25.8051390, "lon": -80.2583869 },
+         { "lat": 25.8061962, "lon": -80.2582490 },
+         { "lat": 25.8071911, "lon": -80.2580747 },
+         { "lat": 25.8078503, "lon": -80.2578950 },
+         { "lat": 25.8082632, "lon": -80.2577206 },
+         { "lat": 25.8088645, "lon": -80.2573183 },
+         { "lat": 25.8092025, "lon": -80.2569696 },
+         { "lat": 25.8095599, "lon": -80.2564976 },
+         { "lat": 25.8098546, "lon": -80.2559168 },
+         { "lat": 25.8100937, "lon": -80.2553750 },
+         { "lat": 25.8105002, "lon": -80.2531331 },
+         { "lat": 25.8107346, "lon": -80.2520759 },
+         { "lat": 25.8110646, "lon": -80.2512312 },
+         { "lat": 25.8115906, "lon": -80.2503706 },
+         { "lat": 25.8120053, "lon": -80.2497267 },
+         { "lat": 25.8122966, "lon": -80.2489957 },
+         { "lat": 25.8124476, "lon": -80.2481609 },
+         { "lat": 25.8124907, "lon": -80.2469706 },
+         { "lat": 25.8125698, "lon": -80.2444941 },
+         { "lat": 25.8126094, "lon": -80.2429323 },
+         { "lat": 25.8126669, "lon": -80.2414385 },
+         { "lat": 25.8126454, "lon": -80.2402322 },
+         { "lat": 25.8125267, "lon": -80.2391337 },
+         { "lat": 25.8124108, "lon": -80.2373179 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 113695482,
+      "role": "",
+      "geometry": [
+         { "lat": 25.8124108, "lon": -80.2373179 },
+         { "lat": 25.8124100, "lon": -80.2373110 },
+         { "lat": 25.8123890, "lon": -80.2371180 },
+         { "lat": 25.8123660, "lon": -80.2367660 },
+         { "lat": 25.8123446, "lon": -80.2363236 },
+         { "lat": 25.8123369, "lon": -80.2353623 },
+         { "lat": 25.8123410, "lon": -80.2334600 },
+         { "lat": 25.8123400, "lon": -80.2332190 },
+         { "lat": 25.8123446, "lon": -80.2325899 },
+         { "lat": 25.8123600, "lon": -80.2317402 },
+         { "lat": 25.8123678, "lon": -80.2312853 },
+         { "lat": 25.8123755, "lon": -80.2306502 },
+         { "lat": 25.8123987, "lon": -80.2293455 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38927385,
+      "role": "",
+      "geometry": [
+         { "lat": 25.8123987, "lon": -80.2293455 },
+         { "lat": 25.8124296, "lon": -80.2280581 },
+         { "lat": 25.8124759, "lon": -80.2262041 },
+         { "lat": 25.8125377, "lon": -80.2237665 },
+         { "lat": 25.8125996, "lon": -80.2217409 },
+         { "lat": 25.8126536, "lon": -80.2199471 },
+         { "lat": 25.8126768, "lon": -80.2193291 },
+         { "lat": 25.8126923, "lon": -80.2187540 },
+         { "lat": 25.8126923, "lon": -80.2185309 },
+         { "lat": 25.8126768, "lon": -80.2183077 },
+         { "lat": 25.8126459, "lon": -80.2181103 },
+         { "lat": 25.8125996, "lon": -80.2178871 },
+         { "lat": 25.8125455, "lon": -80.2176726 },
+         { "lat": 25.8124837, "lon": -80.2175009 },
+         { "lat": 25.8123987, "lon": -80.2172949 },
+         { "lat": 25.8123137, "lon": -80.2171232 },
+         { "lat": 25.8122055, "lon": -80.2169172 },
+         { "lat": 25.8120432, "lon": -80.2166855 },
+         { "lat": 25.8119042, "lon": -80.2165053 },
+         { "lat": 25.8117805, "lon": -80.2163851 },
+         { "lat": 25.8116414, "lon": -80.2162478 },
+         { "lat": 25.8115255, "lon": -80.2161448 },
+         { "lat": 25.8113942, "lon": -80.2160504 },
+         { "lat": 25.8112397, "lon": -80.2159559 },
+         { "lat": 25.8110542, "lon": -80.2158529 },
+         { "lat": 25.8108920, "lon": -80.2157757 },
+         { "lat": 25.8105823, "lon": -80.2156622 },
+         { "lat": 25.8103020, "lon": -80.2156040 },
+         { "lat": 25.8099956, "lon": -80.2155697 },
+         { "lat": 25.8092770, "lon": -80.2155354 },
+         { "lat": 25.8082030, "lon": -80.2154925 },
+         { "lat": 25.8073067, "lon": -80.2154581 },
+         { "lat": 25.8060781, "lon": -80.2154066 },
+         { "lat": 25.8055372, "lon": -80.2153895 },
+         { "lat": 25.8048108, "lon": -80.2153551 },
+         { "lat": 25.8041154, "lon": -80.2153294 },
+         { "lat": 25.8033349, "lon": -80.2152950 },
+         { "lat": 25.8023381, "lon": -80.2152607 },
+         { "lat": 25.8019826, "lon": -80.2152607 },
+         { "lat": 25.8015499, "lon": -80.2152693 },
+         { "lat": 25.8009858, "lon": -80.2153036 },
+         { "lat": 25.8005685, "lon": -80.2153294 },
+         { "lat": 25.8001744, "lon": -80.2153551 },
+         { "lat": 25.7998576, "lon": -80.2153723 },
+         { "lat": 25.7994558, "lon": -80.2153723 },
+         { "lat": 25.7990230, "lon": -80.2153551 },
+         { "lat": 25.7986057, "lon": -80.2153380 },
+         { "lat": 25.7980880, "lon": -80.2153122 },
+         { "lat": 25.7977325, "lon": -80.2152950 },
+         { "lat": 25.7971143, "lon": -80.2152693 },
+         { "lat": 25.7961715, "lon": -80.2152350 },
+         { "lat": 25.7953524, "lon": -80.2151920 },
+         { "lat": 25.7948037, "lon": -80.2151749 },
+         { "lat": 25.7939382, "lon": -80.2151406 },
+         { "lat": 25.7930958, "lon": -80.2151234 },
+         { "lat": 25.7917512, "lon": -80.2150891 },
+         { "lat": 25.7903215, "lon": -80.2150633 },
+         { "lat": 25.7890850, "lon": -80.2150290 },
+         { "lat": 25.7885250, "lon": -80.2150330 },
+         { "lat": 25.7882390, "lon": -80.2150100 },
+         { "lat": 25.7880648, "lon": -80.2149775 },
+         { "lat": 25.7879025, "lon": -80.2149431 },
+         { "lat": 25.7877325, "lon": -80.2149002 },
+         { "lat": 25.7875990, "lon": -80.2148560 },
+         { "lat": 25.7874929, "lon": -80.2148058 },
+         { "lat": 25.7873461, "lon": -80.2147371 },
+         { "lat": 25.7871915, "lon": -80.2146513 },
+         { "lat": 25.7869674, "lon": -80.2145054 },
+         { "lat": 25.7867974, "lon": -80.2143681 },
+         { "lat": 25.7866430, "lon": -80.2142360 },
+         { "lat": 25.7864960, "lon": -80.2140591 },
+         { "lat": 25.7863011, "lon": -80.2138096 },
+         { "lat": 25.7861388, "lon": -80.2136036 },
+         { "lat": 25.7858451, "lon": -80.2132088 },
+         { "lat": 25.7856072, "lon": -80.2128918 },
+         { "lat": 25.7848390, "lon": -80.2118910 },
+         { "lat": 25.7847360, "lon": -80.2117390 },
+         { "lat": 25.7846400, "lon": -80.2115810 },
+         { "lat": 25.7845090, "lon": -80.2113360 },
+         { "lat": 25.7844690, "lon": -80.2112520 },
+         { "lat": 25.7843690, "lon": -80.2109860 },
+         { "lat": 25.7843320, "lon": -80.2108576 },
+         { "lat": 25.7842856, "lon": -80.2107031 },
+         { "lat": 25.7842393, "lon": -80.2104799 },
+         { "lat": 25.7842161, "lon": -80.2103254 },
+         { "lat": 25.7842006, "lon": -80.2101452 },
+         { "lat": 25.7841929, "lon": -80.2099993 },
+         { "lat": 25.7842030, "lon": -80.2097840 },
+         { "lat": 25.7842210, "lon": -80.2095210 },
+         { "lat": 25.7842393, "lon": -80.2092611 },
+         { "lat": 25.7843410, "lon": -80.2086360 },
+         { "lat": 25.7843630, "lon": -80.2084850 },
+         { "lat": 25.7844170, "lon": -80.2080681 },
+         { "lat": 25.7846180, "lon": -80.2066691 },
+         { "lat": 25.7847184, "lon": -80.2059910 },
+         { "lat": 25.7847493, "lon": -80.2056477 },
+         { "lat": 25.7847725, "lon": -80.2053044 },
+         { "lat": 25.7847974, "lon": -80.2041594 },
+         { "lat": 25.7847830, "lon": -80.2035860 },
+         { "lat": 25.7847510, "lon": -80.2029664 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38927289,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7847510, "lon": -80.2029664 },
+         { "lat": 25.7847258, "lon": -80.2025819 },
+         { "lat": 25.7846949, "lon": -80.2017923 },
+         { "lat": 25.7846930, "lon": -80.2012860 },
+         { "lat": 25.7847335, "lon": -80.1998439 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38927282,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7847335, "lon": -80.1998439 },
+         { "lat": 25.7847413, "lon": -80.1996207 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38927279,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7847413, "lon": -80.1996207 },
+         { "lat": 25.7847413, "lon": -80.1992002 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38926594,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7847413, "lon": -80.1992002 },
+         { "lat": 25.7847104, "lon": -80.1988740 },
+         { "lat": 25.7846717, "lon": -80.1986594 },
+         { "lat": 25.7846176, "lon": -80.1984363 },
+         { "lat": 25.7845481, "lon": -80.1982217 },
+         { "lat": 25.7844862, "lon": -80.1980844 },
+         { "lat": 25.7843935, "lon": -80.1979041 },
+         { "lat": 25.7842776, "lon": -80.1977153 },
+         { "lat": 25.7841700, "lon": -80.1975580 },
+         { "lat": 25.7840070, "lon": -80.1973490 },
+         { "lat": 25.7838757, "lon": -80.1972261 },
+         { "lat": 25.7836516, "lon": -80.1970201 },
+         { "lat": 25.7834815, "lon": -80.1968913 },
+         { "lat": 25.7832883, "lon": -80.1967626 },
+         { "lat": 25.7831028, "lon": -80.1966596 },
+         { "lat": 25.7828787, "lon": -80.1965652 },
+         { "lat": 25.7826932, "lon": -80.1965051 },
+         { "lat": 25.7824845, "lon": -80.1964536 },
+         { "lat": 25.7822527, "lon": -80.1964192 },
+         { "lat": 25.7820826, "lon": -80.1964021 },
+         { "lat": 25.7818121, "lon": -80.1963935 },
+         { "lat": 25.7813871, "lon": -80.1963763 },
+         { "lat": 25.7804596, "lon": -80.1963420 },
+         { "lat": 25.7797408, "lon": -80.1963163 },
+         { "lat": 25.7787704, "lon": -80.1962878 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38923447,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7787704, "lon": -80.1962878 },
+         { "lat": 25.7774024, "lon": -80.1962534 },
+         { "lat": 25.7768768, "lon": -80.1962363 },
+         { "lat": 25.7760635, "lon": -80.1962056 },
+         { "lat": 25.7752846, "lon": -80.1961762 },
+         { "lat": 25.7748951, "lon": -80.1961379 },
+         { "lat": 25.7736039, "lon": -80.1960205 },
+         { "lat": 25.7731684, "lon": -80.1959682 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38923098,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7731684, "lon": -80.1959682 },
+         { "lat": 25.7730590, "lon": -80.1959395 },
+         { "lat": 25.7725240, "lon": -80.1958611 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38923027,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7725240, "lon": -80.1958611 },
+         { "lat": 25.7719612, "lon": -80.1957839 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38921982,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7719612, "lon": -80.1957839 },
+         { "lat": 25.7716015, "lon": -80.1957563 },
+         { "lat": 25.7712646, "lon": -80.1957603 },
+         { "lat": 25.7697187, "lon": -80.1956964 },
+         { "lat": 25.7691578, "lon": -80.1956728 },
+         { "lat": 25.7688385, "lon": -80.1956699 },
+         { "lat": 25.7684001, "lon": -80.1956503 },
+         { "lat": 25.7673672, "lon": -80.1955959 },
+         { "lat": 25.7668278, "lon": -80.1955717 },
+         { "lat": 25.7661807, "lon": -80.1955725 },
+         { "lat": 25.7654935, "lon": -80.1955352 },
+         { "lat": 25.7651572, "lon": -80.1955138 },
+         { "lat": 25.7643590, "lon": -80.1955611 },
+         { "lat": 25.7634325, "lon": -80.1955399 },
+         { "lat": 25.7632227, "lon": -80.1955354 },
+         { "lat": 25.7625038, "lon": -80.1955268 },
+         { "lat": 25.7622642, "lon": -80.1955268 },
+         { "lat": 25.7620942, "lon": -80.1955354 },
+         { "lat": 25.7619473, "lon": -80.1955525 },
+         { "lat": 25.7616999, "lon": -80.1955955 },
+         { "lat": 25.7613444, "lon": -80.1956727 },
+         { "lat": 25.7611511, "lon": -80.1957328 },
+         { "lat": 25.7609733, "lon": -80.1958015 },
+         { "lat": 25.7607801, "lon": -80.1958787 },
+         { "lat": 25.7603781, "lon": -80.1960761 },
+         { "lat": 25.7601926, "lon": -80.1961877 },
+         { "lat": 25.7600302, "lon": -80.1963079 },
+         { "lat": 25.7598447, "lon": -80.1964366 },
+         { "lat": 25.7596592, "lon": -80.1965997 },
+         { "lat": 25.7594582, "lon": -80.1967799 },
+         { "lat": 25.7592108, "lon": -80.1970374 },
+         { "lat": 25.7590576, "lon": -80.1972227 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38921753,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7590576, "lon": -80.1972227 },
+         { "lat": 25.7589416, "lon": -80.1973772 },
+         { "lat": 25.7587638, "lon": -80.1976175 },
+         { "lat": 25.7581764, "lon": -80.1984501 },
+         { "lat": 25.7578130, "lon": -80.1989651 },
+         { "lat": 25.7575620, "lon": -80.1993260 },
+         { "lat": 25.7575116, "lon": -80.1994028 },
+         { "lat": 25.7570168, "lon": -80.2001238 },
+         { "lat": 25.7568375, "lon": -80.2003861 },
+         { "lat": 25.7567480, "lon": -80.2005170 },
+         { "lat": 25.7556795, "lon": -80.2020807 },
+         { "lat": 25.7551847, "lon": -80.2027931 },
+         { "lat": 25.7546745, "lon": -80.2034883 },
+         { "lat": 25.7541334, "lon": -80.2042179 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 11158705,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7541334, "lon": -80.2042179 },
+         { "lat": 25.7535381, "lon": -80.2050505 },
+         { "lat": 25.7531361, "lon": -80.2056341 },
+         { "lat": 25.7528346, "lon": -80.2060804 },
+         { "lat": 25.7513040, "lon": -80.2083120 },
+         { "lat": 25.7509020, "lon": -80.2089472 },
+         { "lat": 25.7507165, "lon": -80.2092819 },
+         { "lat": 25.7505850, "lon": -80.2095394 },
+         { "lat": 25.7504381, "lon": -80.2098742 },
+         { "lat": 25.7502681, "lon": -80.2103119 },
+         { "lat": 25.7499743, "lon": -80.2111101 },
+         { "lat": 25.7497269, "lon": -80.2117796 },
+         { "lat": 25.7493945, "lon": -80.2126980 },
+         { "lat": 25.7491085, "lon": -80.2134876 },
+         { "lat": 25.7489384, "lon": -80.2138824 },
+         { "lat": 25.7486833, "lon": -80.2145004 },
+         { "lat": 25.7481034, "lon": -80.2160797 },
+         { "lat": 25.7467196, "lon": -80.2198648 },
+         { "lat": 25.7459852, "lon": -80.2218819 },
+         { "lat": 25.7445248, "lon": -80.2258777 },
+         { "lat": 25.7439913, "lon": -80.2273369 },
+         { "lat": 25.7432569, "lon": -80.2293453 },
+         { "lat": 25.7427466, "lon": -80.2307873 },
+         { "lat": 25.7416178, "lon": -80.2338857 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 174286980,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7416178, "lon": -80.2338857 },
+         { "lat": 25.7408988, "lon": -80.2358513 },
+         { "lat": 25.7407597, "lon": -80.2362718 },
+         { "lat": 25.7404968, "lon": -80.2371130 },
+         { "lat": 25.7403422, "lon": -80.2375507 },
+         { "lat": 25.7401102, "lon": -80.2382030 },
+         { "lat": 25.7396850, "lon": -80.2393532 },
+         { "lat": 25.7393989, "lon": -80.2401514 },
+         { "lat": 25.7391283, "lon": -80.2408466 },
+         { "lat": 25.7388809, "lon": -80.2414818 },
+         { "lat": 25.7387263, "lon": -80.2419023 },
+         { "lat": 25.7379918, "lon": -80.2439108 },
+         { "lat": 25.7377985, "lon": -80.2444429 },
+         { "lat": 25.7372109, "lon": -80.2460480 },
+         { "lat": 25.7364300, "lon": -80.2481851 },
+         { "lat": 25.7360744, "lon": -80.2491550 },
+         { "lat": 25.7355486, "lon": -80.2506056 },
+         { "lat": 25.7353708, "lon": -80.2510776 },
+         { "lat": 25.7352239, "lon": -80.2514467 },
+         { "lat": 25.7351311, "lon": -80.2516527 },
+         { "lat": 25.7350538, "lon": -80.2518158 },
+         { "lat": 25.7349687, "lon": -80.2519874 },
+         { "lat": 25.7347754, "lon": -80.2523393 },
+         { "lat": 25.7345744, "lon": -80.2526741 },
+         { "lat": 25.7343811, "lon": -80.2529487 },
+         { "lat": 25.7340873, "lon": -80.2533264 },
+         { "lat": 25.7336621, "lon": -80.2538414 },
+         { "lat": 25.7332832, "lon": -80.2543049 },
+         { "lat": 25.7324559, "lon": -80.2553263 },
+         { "lat": 25.7323993, "lon": -80.2553966 },
+         { "lat": 25.7319997, "lon": -80.2558927 },
+         { "lat": 25.7311183, "lon": -80.2569828 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 174286981,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7311183, "lon": -80.2569828 },
+         { "lat": 25.7299430, "lon": -80.2584333 },
+         { "lat": 25.7293554, "lon": -80.2591543 },
+         { "lat": 25.7292010, "lon": -80.2593280 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 11158793,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7292010, "lon": -80.2593280 },
+         { "lat": 25.7287987, "lon": -80.2598409 },
+         { "lat": 25.7284275, "lon": -80.2602701 },
+         { "lat": 25.7278476, "lon": -80.2609224 },
+         { "lat": 25.7274997, "lon": -80.2613344 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 11106837,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7274997, "lon": -80.2613344 },
+         { "lat": 25.7271517, "lon": -80.2617550 },
+         { "lat": 25.7259764, "lon": -80.2631969 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 11158654,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7259764, "lon": -80.2631969 },
+         { "lat": 25.7245382, "lon": -80.2649479 },
+         { "lat": 25.7242134, "lon": -80.2653427 },
+         { "lat": 25.7238500, "lon": -80.2657890 },
+         { "lat": 25.7236180, "lon": -80.2660723 },
+         { "lat": 25.7233938, "lon": -80.2663469 },
+         { "lat": 25.7230845, "lon": -80.2667246 },
+         { "lat": 25.7195197, "lon": -80.2711191 },
+         { "lat": 25.7172308, "lon": -80.2739429 },
+         { "lat": 25.7167205, "lon": -80.2745695 },
+         { "lat": 25.7165349, "lon": -80.2748270 },
+         { "lat": 25.7162951, "lon": -80.2751446 },
+         { "lat": 25.7159394, "lon": -80.2756252 },
+         { "lat": 25.7152280, "lon": -80.2765093 },
+         { "lat": 25.7145939, "lon": -80.2772903 },
+         { "lat": 25.7134958, "lon": -80.2786379 },
+         { "lat": 25.7126993, "lon": -80.2796163 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38910197,
+      "role": "",
+      "geometry": [
+         { "lat": 25.7126993, "lon": -80.2796163 },
+         { "lat": 25.7125059, "lon": -80.2798567 },
+         { "lat": 25.7121657, "lon": -80.2802858 },
+         { "lat": 25.7116475, "lon": -80.2809467 },
+         { "lat": 25.7105726, "lon": -80.2822857 },
+         { "lat": 25.7080361, "lon": -80.2854185 },
+         { "lat": 25.7075411, "lon": -80.2860193 },
+         { "lat": 25.7069456, "lon": -80.2867574 },
+         { "lat": 25.7066827, "lon": -80.2871008 },
+         { "lat": 25.7062110, "lon": -80.2877273 },
+         { "lat": 25.7059635, "lon": -80.2880449 },
+         { "lat": 25.7057315, "lon": -80.2883282 },
+         { "lat": 25.7054840, "lon": -80.2886371 },
+         { "lat": 25.7049194, "lon": -80.2893238 },
+         { "lat": 25.7045482, "lon": -80.2897873 },
+         { "lat": 25.7041306, "lon": -80.2903023 },
+         { "lat": 25.7037980, "lon": -80.2906799 },
+         { "lat": 25.7032953, "lon": -80.2912550 },
+         { "lat": 25.7027076, "lon": -80.2919760 },
+         { "lat": 25.7015707, "lon": -80.2933664 },
+         { "lat": 25.6986318, "lon": -80.2969885 },
+         { "lat": 25.6983998, "lon": -80.2972803 },
+         { "lat": 25.6964648, "lon": -80.2996085 },
+         { "lat": 25.6952350, "lon": -80.3011278 },
+         { "lat": 25.6943843, "lon": -80.3021749 },
+         { "lat": 25.6938119, "lon": -80.3028787 },
+         { "lat": 25.6934639, "lon": -80.3032907 },
+         { "lat": 25.6931854, "lon": -80.3036512 },
+         { "lat": 25.6928993, "lon": -80.3039945 },
+         { "lat": 25.6924867, "lon": -80.3045203 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 190854595,
+      "role": "",
+      "geometry": [
+         { "lat": 25.6924867, "lon": -80.3045203 },
+         { "lat": 25.6914590, "lon": -80.3057620 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 190854598,
+      "role": "",
+      "geometry": [
+         { "lat": 25.6914590, "lon": -80.3057620 },
+         { "lat": 25.6908419, "lon": -80.3065437 },
+         { "lat": 25.6902850, "lon": -80.3072732 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 11103463,
+      "role": "",
+      "geometry": [
+         { "lat": 25.6902850, "lon": -80.3072732 },
+         { "lat": 25.6898982, "lon": -80.3077539 },
+         { "lat": 25.6889623, "lon": -80.3088954 },
+         { "lat": 25.6887690, "lon": -80.3091443 },
+         { "lat": 25.6881425, "lon": -80.3099168 },
+         { "lat": 25.6869049, "lon": -80.3114360 },
+         { "lat": 25.6867188, "lon": -80.3116915 },
+         { "lat": 25.6860429, "lon": -80.3125302 },
+         { "lat": 25.6854399, "lon": -80.3132731 },
+         { "lat": 25.6847279, "lon": -80.3141396 },
+         { "lat": 25.6843934, "lon": -80.3145538 },
+         { "lat": 25.6841499, "lon": -80.3148385 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 38917324,
+      "role": "",
+      "geometry": [
+         { "lat": 25.6841499, "lon": -80.3148385 },
+         { "lat": 25.6836407, "lon": -80.3153928 },
+         { "lat": 25.6833730, "lon": -80.3156960 },
+         { "lat": 25.6832840, "lon": -80.3158020 },
+         { "lat": 25.6830420, "lon": -80.3160380 },
+         { "lat": 25.6827600, "lon": -80.3162850 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 417655732,
+      "role": "",
+      "geometry": [
+         { "lat": 25.6827600, "lon": -80.3162850 },
+         { "lat": 25.6824400, "lon": -80.3165350 },
+         { "lat": 25.6822490, "lon": -80.3166860 },
+         { "lat": 25.6820510, "lon": -80.3168220 },
+         { "lat": 25.6817750, "lon": -80.3169780 },
+         { "lat": 25.6812520, "lon": -80.3172170 }
+      ]
+    }
+  ],
+  "tags": {
+    "wikidata": "Q55734269",
+    "type": "route",
+    "colour": "#f78f1e",
+    "route": "subway",
+    "ref": "Orange",
+    "name": "Orange Line: Airport → Dadeland",
+    "network": "Metrorail",
+    "public_transport:version": "2",
+    "passenger": "urban",
+    "operator": "Miami-Dade Transit",
+    "wikipedia": "en:Orange Line"
+  }
+},
+{
+  "type": "way",
+  "id": 11103463,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL"
+  }
+},
+{
+  "type": "way",
+  "id": 11106837,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL"
+  }
+},
+{
+  "type": "way",
+  "id": 11158654,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tiger:name_base": "Florida East Coast Railway"
+  }
+},
+{
+  "type": "way",
+  "id": 11158705,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tiger:name_base": "Florida East Coast Railway"
+  }
+},
+{
+  "type": "way",
+  "id": 11158793,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tiger:name_base": "Florida East Coast Railway"
+  }
+},
+{
+  "type": "way",
+  "id": 38910197,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tiger:name_base": "Florida East Coast Railway"
+  }
+},
+{
+  "type": "way",
+  "id": 38917324,
+  "tags": {
+    "electrified": "yes",
+    "gauge": "1435",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "service": "siding",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tunnel": "no"
+  }
+},
+{
+  "type": "way",
+  "id": 38921753,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tiger:name_base": "Florida East Coast Railway"
+  }
+},
+{
+  "type": "way",
+  "id": 38921982,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tiger:name_base": "Florida East Coast Railway"
+  }
+},
+{
+  "type": "way",
+  "id": 38923027,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "2",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tiger:name_base": "Florida East Coast Railway"
+  }
+},
+{
+  "type": "way",
+  "id": 38923098,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "3",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tiger:name_base": "Florida East Coast Railway"
+  }
+},
+{
+  "type": "way",
+  "id": 38923447,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "2",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL"
+  }
+},
+{
+  "type": "way",
+  "id": 38926594,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL"
+  }
+},
+{
+  "type": "way",
+  "id": 38927279,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL"
+  }
+},
+{
+  "type": "way",
+  "id": 38927282,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL"
+  }
+},
+{
+  "type": "way",
+  "id": 38927289,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL"
+  }
+},
+{
+  "type": "way",
+  "id": 38927385,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "2",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL"
+  }
+},
+{
+  "type": "way",
+  "id": 113569564,
+  "tags": {
+    "source": "Bing",
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "2",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway"
+  }
+},
+{
+  "type": "way",
+  "id": 113695482,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "2",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL"
+  }
+},
+{
+  "type": "way",
+  "id": 174286980,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL"
+  }
+},
+{
+  "type": "way",
+  "id": 174286981,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tiger:name_base": "Florida East Coast Railway"
+  }
+},
+{
+  "type": "way",
+  "id": 190854595,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "2",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway"
+  }
+},
+{
+  "type": "way",
+  "id": 190854598,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "1",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tiger:name_base": "Florida East Coast Railway"
+  }
+},
+{
+  "type": "way",
+  "id": 417655732,
+  "tags": {
+    "electrified": "yes",
+    "gauge": "1435",
+    "name": "Metrorail",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "service": "siding",
+    "tiger:cfcc": "B11",
+    "tiger:county": "Miami-Dade, FL",
+    "tunnel": "no"
+  }
+},
+{
+  "type": "way",
+  "id": 684803671,
+  "tags": {
+    "bridge": "yes",
+    "electrified": "yes",
+    "gauge": "1435",
+    "layer": "2",
+    "name": "Metrorail",
+    "oneway": "yes",
+    "operator": "Miami-Dade Transit",
+    "railway": "subway",
+    "source": "Bing"
+  }
+},
+{
+  "type": "way",
+  "id": 684803674,
+  "tags": {
+    "subway": "yes",
+    "level": "1",
+    "public_transport": "platform",
+    "railway": "platform",
+    "ref": "1;2"
+  }
+},
+{
+  "type": "node",
+  "id": 462234896,
+  "lat": 25.6850336,
+  "lon": -80.3136848,
+  "tags": {
+    "subway": "yes",
+    "gtfs_id": "6",
+    "ntd_id": "4034",
+    "railway": "station",
+    "name": "Dadeland South",
+    "operator": "Miami-Dade Transit",
+    "public_transport": "station"
+  }
+},
+{
+  "type": "node",
+  "id": 462237456,
+  "lat": 25.6919572,
+  "lon": -80.3050706,
+  "tags": {
+    "wheelchair": "yes",
+    "name": "Dadeland North",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway"
+  }
+},
+{
+  "type": "node",
+  "id": 462341030,
+  "lat": 25.7050818,
+  "lon": -80.2890491,
+  "tags": {
+    "station": "subway",
+    "name": "South Miami",
+    "public_transport": "station",
+    "railway": "station"
+  }
+},
+{
+  "type": "node",
+  "id": 462347481,
+  "lat": 25.7147949,
+  "lon": -80.2769470,
+  "tags": {
+    "station": "subway",
+    "name": "University",
+    "public_transport": "station",
+    "railway": "station"
+  }
+},
+{
+  "type": "node",
+  "id": 462351565,
+  "lat": 25.7327497,
+  "lon": -80.2548799,
+  "tags": {
+    "name": "Douglas Road",
+    "note": "former location of the FEC Coconut Grove station",
+    "old_name": "Coconut Grove",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway",
+    "wikidata": "Q5301934"
+  }
+},
+{
+  "type": "node",
+  "id": 462354527,
+  "lat": 25.7398164,
+  "lon": -80.2388468,
+  "tags": {
+    "name": "Coconut Grove",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway",
+    "wikidata": "Q5139824"
+  }
+},
+{
+  "type": "node",
+  "id": 462429749,
+  "lat": 25.7496960,
+  "lon": -80.2117282,
+  "tags": {
+    "name": "Vizcaya",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway",
+    "wikidata": "Q7938003"
+  }
+},
+{
+  "type": "node",
+  "id": 462517397,
+  "lat": 25.7637901,
+  "lon": -80.1954805,
+  "tags": {
+    "name": "Brickell",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway",
+    "subway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 462599402,
+  "lat": 25.7809311,
+  "lon": -80.1963077,
+  "tags": {
+    "wikidata": "Q14685898",
+    "name": "Historic Overtown/Lyric Theatre",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway",
+    "train": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 462625340,
+  "lat": 25.7845484,
+  "lon": -80.2075016,
+  "tags": {
+    "wikidata": "Q5193079",
+    "name": "Culmer",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway",
+    "train": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 462636623,
+  "lat": 25.7897109,
+  "lon": -80.2150204,
+  "tags": {
+    "wikidata": "Q5124277",
+    "name": "Civic Center",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway"
+  }
+},
+{
+  "type": "node",
+  "id": 462639220,
+  "lat": 25.7957388,
+  "lon": -80.2151835,
+  "tags": {
+    "wikidata": "Q7419305",
+    "name": "Santa Clara",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway"
+  }
+},
+{
+  "type": "node",
+  "id": 462648893,
+  "lat": 25.8087362,
+  "lon": -80.2154581,
+  "tags": {
+    "wikidata": "Q4731124",
+    "name": "Allapattah",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway"
+  }
+},
+{
+  "type": "node",
+  "id": 462658627,
+  "lat": 25.8124373,
+  "lon": -80.2300665,
+  "tags": {
+    "station": "subway",
+    "name": "Earlington Heights",
+    "public_transport": "station",
+    "railway": "station"
+  }
+},
+{
+  "type": "node",
+  "id": 6416386202,
+  "lat": 25.7971811,
+  "lon": -80.2585657,
+  "tags": {
+    "subway": "yes",
+    "railway": "stop",
+    "local_ref": "1",
+    "name": "Miami International Airport",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6708437582,
+  "lat": 25.7760635,
+  "lon": -80.1962056,
+  "tags": {
+    "name": "Government Center",
+    "public_transport": "stop_position",
+    "railway": "stop",
+    "subway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 684803674,
+  "bounds": {
+    "minlat": 25.7973338,
+    "minlon": -80.2586822,
+    "maxlat": 25.7985456,
+    "maxlon": -80.2586529
+  },
+  "nodes": [
+    6416386209,
+    6416386200
+  ],
+  "geometry": [
+    { "lat": 25.7973338, "lon": -80.2586529 },
+    { "lat": 25.7985456, "lon": -80.2586822 }
+  ],
+  "tags": {
+    "subway": "yes",
+    "level": "1",
+    "public_transport": "platform",
+    "railway": "platform",
+    "ref": "1;2"
+  }
+},
+{
+  "type": "relation",
+  "id": 9501578,
+  "members": [
+    {
+      "type": "way",
+      "ref": 684803674,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 6416386201,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 1289960165,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 6416386202,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 3526028441,
+      "role": ""
+    }
+  ],
+  "tags": {
+    "name": "Miami Intermodal Center (Metrorail)",
+    "type": "public_transport",
+    "public_transport:version": "2",
+    "subway": "yes",
+    "public_transport": "stop_area"
+  }
+},
+{
+  "type": "relation",
+  "id": 9791218,
+  "members": [
+    {
+      "type": "node",
+      "ref": 6612182883,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 6612182884,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 6708437582,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 6708456885,
+      "role": ""
+    }
+  ],
+  "tags": {
+    "type": "public_transport",
+    "public_transport": "stop_area",
+    "name": "Government Center (Metrorail)"
+  }
+},
+{
+  "type": "relation",
+  "id": 9791297,
+  "members": [
+    {
+      "type": "node",
+      "ref": 462517397,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 6612264313,
+      "role": ""
+    },
+    {
+      "type": "way",
+      "ref": 540293040,
+      "role": ""
+    }
+  ],
+  "tags": {
+    "type": "public_transport",
+    "public_transport": "stop_area",
+    "name": "Brickell (Metrorail)"
+  }
+},
+{
+  "type": "node",
+  "id": 1289960165,
+  "lat": 25.7971796,
+  "lon": -80.2587194,
+  "tags": {
+    "subway": "yes",
+    "railway": "stop",
+    "local_ref": "2",
+    "name": "Miami International Airport",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6416386202,
+  "lat": 25.7971811,
+  "lon": -80.2585657,
+  "tags": {
+    "subway": "yes",
+    "railway": "stop",
+    "local_ref": "1",
+    "name": "Miami International Airport",
+    "public_transport": "stop_position"
+  }
+}
+
+  ]
+}

@@ -1,0 +1,1969 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.56.7 b85c4387",
+  "osm3s": {
+    "timestamp_osm_base": "2020-11-21T12:32:02Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 302230,
+  "bounds": {
+    "minlat": 53.5768130,
+    "minlon": 10.0591328,
+    "maxlat": 53.5920984,
+    "maxlon": 10.1084256
+  },
+  "members": [
+    {
+      "type": "node",
+      "ref": 91858924,
+      "role": "stop",
+      "lat": 53.5920636,
+      "lon": 10.1084256
+    },
+    {
+      "type": "node",
+      "ref": 540330978,
+      "role": "platform",
+      "lat": 53.5920984,
+      "lon": 10.1083123
+    },
+    {
+      "type": "node",
+      "ref": 19471868,
+      "role": "stop",
+      "lat": 53.5902589,
+      "lon": 10.1047325
+    },
+    {
+      "type": "node",
+      "ref": 540332711,
+      "role": "platform",
+      "lat": 53.5903120,
+      "lon": 10.1047073
+    },
+    {
+      "type": "node",
+      "ref": 5506700130,
+      "role": "stop",
+      "lat": 53.5888385,
+      "lon": 10.0979508
+    },
+    {
+      "type": "node",
+      "ref": 91855922,
+      "role": "platform",
+      "lat": 53.5889053,
+      "lon": 10.0979217
+    },
+    {
+      "type": "node",
+      "ref": 91854715,
+      "role": "stop",
+      "lat": 53.5878336,
+      "lon": 10.0927912
+    },
+    {
+      "type": "node",
+      "ref": 91854067,
+      "role": "stop",
+      "lat": 53.5864552,
+      "lon": 10.0860885
+    },
+    {
+      "type": "node",
+      "ref": 91851786,
+      "role": "stop",
+      "lat": 53.5847437,
+      "lon": 10.0776652
+    },
+    {
+      "type": "node",
+      "ref": 480994655,
+      "role": "stop",
+      "lat": 53.5834900,
+      "lon": 10.0725972
+    },
+    {
+      "type": "node",
+      "ref": 5656829198,
+      "role": "stop",
+      "lat": 53.5822017,
+      "lon": 10.0663475
+    },
+    {
+      "type": "node",
+      "ref": 253619955,
+      "role": "platform",
+      "lat": 53.5822785,
+      "lon": 10.0663041
+    },
+    {
+      "type": "node",
+      "ref": 607008003,
+      "role": "stop",
+      "lat": 53.5811478,
+      "lon": 10.0619006
+    },
+    {
+      "type": "node",
+      "ref": 862934989,
+      "role": "stop",
+      "lat": 53.5768130,
+      "lon": 10.0591328
+    },
+    {
+      "type": "way",
+      "ref": 43127442,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5920636, "lon": 10.1084256 },
+         { "lat": 53.5919885, "lon": 10.1083381 },
+         { "lat": 53.5916576, "lon": 10.1079030 },
+         { "lat": 53.5915532, "lon": 10.1077542 },
+         { "lat": 53.5914094, "lon": 10.1075052 },
+         { "lat": 53.5913850, "lon": 10.1074594 },
+         { "lat": 53.5913006, "lon": 10.1073011 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 592807762,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5913006, "lon": 10.1073011 },
+         { "lat": 53.5912158, "lon": 10.1071389 },
+         { "lat": 53.5909043, "lon": 10.1065626 },
+         { "lat": 53.5906942, "lon": 10.1061356 },
+         { "lat": 53.5905350, "lon": 10.1057745 },
+         { "lat": 53.5904694, "lon": 10.1055859 },
+         { "lat": 53.5904161, "lon": 10.1054062 },
+         { "lat": 53.5903974, "lon": 10.1053366 },
+         { "lat": 53.5903492, "lon": 10.1051370 },
+         { "lat": 53.5903150, "lon": 10.1049945 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 592815876,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5903150, "lon": 10.1049945 },
+         { "lat": 53.5902589, "lon": 10.1047325 },
+         { "lat": 53.5902451, "lon": 10.1046677 },
+         { "lat": 53.5901302, "lon": 10.1041313 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 593914294,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5901302, "lon": 10.1041313 },
+         { "lat": 53.5900158, "lon": 10.1035897 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 593914287,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5900158, "lon": 10.1035897 },
+         { "lat": 53.5899829, "lon": 10.1034338 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 593914278,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5899829, "lon": 10.1034338 },
+         { "lat": 53.5898979, "lon": 10.1030231 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 593914268,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5898979, "lon": 10.1030231 },
+         { "lat": 53.5897679, "lon": 10.1024033 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 592815885,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5897679, "lon": 10.1024033 },
+         { "lat": 53.5896766, "lon": 10.1019640 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 593914253,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5896766, "lon": 10.1019640 },
+         { "lat": 53.5896285, "lon": 10.1017325 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 593914256,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5896285, "lon": 10.1017325 },
+         { "lat": 53.5895413, "lon": 10.1013145 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 593914257,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5895413, "lon": 10.1013145 },
+         { "lat": 53.5895269, "lon": 10.1012458 },
+         { "lat": 53.5893882, "lon": 10.1005822 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 593914261,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5893882, "lon": 10.1005822 },
+         { "lat": 53.5893452, "lon": 10.1003639 },
+         { "lat": 53.5892690, "lon": 10.1000431 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 592807761,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5892690, "lon": 10.1000431 },
+         { "lat": 53.5892173, "lon": 10.0997829 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 592807760,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5892173, "lon": 10.0997829 },
+         { "lat": 53.5892087, "lon": 10.0997405 },
+         { "lat": 53.5891472, "lon": 10.0994249 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 592807759,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5891472, "lon": 10.0994249 },
+         { "lat": 53.5890851, "lon": 10.0991233 },
+         { "lat": 53.5890559, "lon": 10.0989815 },
+         { "lat": 53.5890159, "lon": 10.0987908 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 593914808,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5890159, "lon": 10.0987908 },
+         { "lat": 53.5889819, "lon": 10.0986293 },
+         { "lat": 53.5888559, "lon": 10.0980331 },
+         { "lat": 53.5888385, "lon": 10.0979508 },
+         { "lat": 53.5887259, "lon": 10.0973869 },
+         { "lat": 53.5886699, "lon": 10.0971090 },
+         { "lat": 53.5886050, "lon": 10.0968022 },
+         { "lat": 53.5885146, "lon": 10.0963639 },
+         { "lat": 53.5884722, "lon": 10.0961579 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 593914807,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5884722, "lon": 10.0961579 },
+         { "lat": 53.5883647, "lon": 10.0956349 },
+         { "lat": 53.5883110, "lon": 10.0953686 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 175507277,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5883110, "lon": 10.0953686 },
+         { "lat": 53.5882576, "lon": 10.0951005 },
+         { "lat": 53.5881180, "lon": 10.0944007 },
+         { "lat": 53.5879146, "lon": 10.0934729 },
+         { "lat": 53.5877701, "lon": 10.0928384 },
+         { "lat": 53.5876909, "lon": 10.0924556 },
+         { "lat": 53.5876188, "lon": 10.0920797 },
+         { "lat": 53.5875588, "lon": 10.0917748 },
+         { "lat": 53.5874386, "lon": 10.0911886 },
+         { "lat": 53.5871944, "lon": 10.0899534 },
+         { "lat": 53.5871113, "lon": 10.0895272 },
+         { "lat": 53.5869606, "lon": 10.0888195 },
+         { "lat": 53.5868440, "lon": 10.0882622 },
+         { "lat": 53.5867622, "lon": 10.0878653 },
+         { "lat": 53.5865680, "lon": 10.0869168 },
+         { "lat": 53.5864605, "lon": 10.0865137 },
+         { "lat": 53.5863850, "lon": 10.0861384 },
+         { "lat": 53.5863510, "lon": 10.0859133 },
+         { "lat": 53.5863059, "lon": 10.0856641 },
+         { "lat": 53.5862648, "lon": 10.0854399 },
+         { "lat": 53.5862123, "lon": 10.0851853 },
+         { "lat": 53.5859789, "lon": 10.0840352 },
+         { "lat": 53.5856837, "lon": 10.0825695 },
+         { "lat": 53.5853953, "lon": 10.0811427 },
+         { "lat": 53.5853911, "lon": 10.0811220 },
+         { "lat": 53.5853639, "lon": 10.0809703 },
+         { "lat": 53.5851391, "lon": 10.0798778 },
+         { "lat": 53.5849169, "lon": 10.0787525 },
+         { "lat": 53.5848613, "lon": 10.0785142 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 175507276,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5848613, "lon": 10.0785142 },
+         { "lat": 53.5848075, "lon": 10.0782392 },
+         { "lat": 53.5847713, "lon": 10.0780856 },
+         { "lat": 53.5846744, "lon": 10.0777143 },
+         { "lat": 53.5846624, "lon": 10.0776684 },
+         { "lat": 53.5843900, "lon": 10.0766355 },
+         { "lat": 53.5843332, "lon": 10.0764333 },
+         { "lat": 53.5842209, "lon": 10.0760274 },
+         { "lat": 53.5841992, "lon": 10.0759450 },
+         { "lat": 53.5840171, "lon": 10.0752553 },
+         { "lat": 53.5838286, "lon": 10.0745409 },
+         { "lat": 53.5837022, "lon": 10.0740131 },
+         { "lat": 53.5834713, "lon": 10.0728817 },
+         { "lat": 53.5834360, "lon": 10.0726974 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 606141125,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5834360, "lon": 10.0726974 },
+         { "lat": 53.5834261, "lon": 10.0726457 },
+         { "lat": 53.5833587, "lon": 10.0722947 },
+         { "lat": 53.5832926, "lon": 10.0720009 },
+         { "lat": 53.5832326, "lon": 10.0717170 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 4222936,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5832326, "lon": 10.0717170 },
+         { "lat": 53.5832073, "lon": 10.0715721 },
+         { "lat": 53.5831134, "lon": 10.0711547 },
+         { "lat": 53.5830359, "lon": 10.0708153 },
+         { "lat": 53.5828985, "lon": 10.0702275 },
+         { "lat": 53.5826049, "lon": 10.0687015 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 188464308,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5826049, "lon": 10.0687015 },
+         { "lat": 53.5824990, "lon": 10.0680907 },
+         { "lat": 53.5824791, "lon": 10.0679808 },
+         { "lat": 53.5824737, "lon": 10.0679513 },
+         { "lat": 53.5824256, "lon": 10.0676729 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 147850546,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5824256, "lon": 10.0676729 },
+         { "lat": 53.5824003, "lon": 10.0674587 },
+         { "lat": 53.5823576, "lon": 10.0671993 },
+         { "lat": 53.5822954, "lon": 10.0668616 },
+         { "lat": 53.5822374, "lon": 10.0665541 },
+         { "lat": 53.5822017, "lon": 10.0663475 },
+         { "lat": 53.5821764, "lon": 10.0662012 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 459901849,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5821764, "lon": 10.0662012 },
+         { "lat": 53.5820470, "lon": 10.0654210 },
+         { "lat": 53.5820281, "lon": 10.0653197 },
+         { "lat": 53.5820061, "lon": 10.0651991 },
+         { "lat": 53.5818501, "lon": 10.0644183 },
+         { "lat": 53.5817542, "lon": 10.0639236 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 173347095,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5817542, "lon": 10.0639236 },
+         { "lat": 53.5817182, "lon": 10.0637479 },
+         { "lat": 53.5816756, "lon": 10.0635356 },
+         { "lat": 53.5816275, "lon": 10.0633142 },
+         { "lat": 53.5815833, "lon": 10.0631791 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 40163022,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5815833, "lon": 10.0631791 },
+         { "lat": 53.5815542, "lon": 10.0631204 },
+         { "lat": 53.5814306, "lon": 10.0629217 },
+         { "lat": 53.5813342, "lon": 10.0627816 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 173347096,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5813342, "lon": 10.0627816 },
+         { "lat": 53.5812831, "lon": 10.0627176 },
+         { "lat": 53.5812232, "lon": 10.0625935 },
+         { "lat": 53.5811549, "lon": 10.0622944 },
+         { "lat": 53.5811337, "lon": 10.0622015 },
+         { "lat": 53.5810852, "lon": 10.0619332 },
+         { "lat": 53.5810189, "lon": 10.0615662 },
+         { "lat": 53.5809864, "lon": 10.0613516 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 43118419,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5809864, "lon": 10.0613516 },
+         { "lat": 53.5809396, "lon": 10.0613029 },
+         { "lat": 53.5808973, "lon": 10.0612834 },
+         { "lat": 53.5807923, "lon": 10.0612934 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 147850521,
+      "role": "",
+      "geometry": [
+         { "lat": 53.5807923, "lon": 10.0612934 },
+         { "lat": 53.5807268, "lon": 10.0613277 },
+         { "lat": 53.5804935, "lon": 10.0614630 },
+         { "lat": 53.5801893, "lon": 10.0615842 },
+         { "lat": 53.5798670, "lon": 10.0615795 },
+         { "lat": 53.5795384, "lon": 10.0614885 },
+         { "lat": 53.5794121, "lon": 10.0613822 },
+         { "lat": 53.5787054, "lon": 10.0607875 },
+         { "lat": 53.5785592, "lon": 10.0606644 },
+         { "lat": 53.5784711, "lon": 10.0605946 },
+         { "lat": 53.5783654, "lon": 10.0604868 },
+         { "lat": 53.5778417, "lon": 10.0600394 },
+         { "lat": 53.5777914, "lon": 10.0599964 },
+         { "lat": 53.5774473, "lon": 10.0596932 },
+         { "lat": 53.5768130, "lon": 10.0591328 }
+      ]
+    }
+  ],
+  "tags": {
+    "type": "route",
+    "to": "S Friedrichsberg",
+    "name": "HVV-Buslinie 271",
+    "from": "Rentenversicherung Nord",
+    "network": "HVV",
+    "operator": "Hamburger Hochbahn AG",
+    "public_transport:version": "2",
+    "ref": "271",
+    "route": "bus"
+  }
+},
+{
+  "type": "way",
+  "id": 4222936,
+  "tags": {
+    "cycleway": "track",
+    "surface": "asphalt",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Straßburger Straße",
+    "oneway": "yes",
+    "sidewalk": "right"
+  }
+},
+{
+  "type": "way",
+  "id": 40163022,
+  "tags": {
+    "cycleway": "lane",
+    "surface": "asphalt",
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Straßburger Straße",
+    "oneway": "yes",
+    "sidewalk": "right"
+  }
+},
+{
+  "type": "way",
+  "id": 43118419,
+  "tags": {
+    "cycleway": "lane",
+    "surface": "asphalt",
+    "sidewalk": "no",
+    "highway": "residential",
+    "maxspeed": "50",
+    "name": "Dithmarscher Straße",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 43127442,
+  "tags": {
+    "cycleway": "track",
+    "surface": "asphalt",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no"
+  }
+},
+{
+  "type": "way",
+  "id": 147850521,
+  "tags": {
+    "cycleway": "lane",
+    "surface": "cobblestone",
+    "highway": "residential",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Dithmarscher Straße",
+    "sidewalk": "both"
+  }
+},
+{
+  "type": "way",
+  "id": 147850546,
+  "tags": {
+    "cycleway": "lane",
+    "surface": "asphalt",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Straßburger Straße",
+    "oneway": "yes",
+    "sidewalk": "right"
+  }
+},
+{
+  "type": "way",
+  "id": 173347095,
+  "tags": {
+    "cycleway": "lane",
+    "surface": "asphalt",
+    "highway": "secondary",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Straßburger Straße",
+    "oneway": "yes",
+    "sidewalk": "right"
+  }
+},
+{
+  "type": "way",
+  "id": 173347096,
+  "tags": {
+    "cycleway": "lane",
+    "surface": "asphalt",
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Straßburger Straße",
+    "note": "Wegen Straßenschäden gilt hier Tempo 30",
+    "oneway": "yes",
+    "sidewalk": "right"
+  }
+},
+{
+  "type": "way",
+  "id": 175507276,
+  "tags": {
+    "cycleway": "track",
+    "surface": "asphalt",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "sidewalk": "right"
+  }
+},
+{
+  "type": "way",
+  "id": 175507277,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "sidewalk": "right",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 188464308,
+  "tags": {
+    "cycleway": "track",
+    "turn:lanes": "left|through|through|right",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Straßburger Straße",
+    "oneway": "yes",
+    "sidewalk": "right",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 459901849,
+  "tags": {
+    "cycleway": "lane",
+    "surface": "asphalt",
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Straßburger Straße",
+    "oneway": "yes",
+    "sidewalk": "right"
+  }
+},
+{
+  "type": "way",
+  "id": 592807759,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "5",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "placement": "right_of:3",
+    "surface": "asphalt",
+    "turn:lanes": "left|left|through|through|right"
+  }
+},
+{
+  "type": "way",
+  "id": 592807760,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "placement": "right_of:3",
+    "surface": "asphalt",
+    "turn:lanes": "left|left|through|through;right"
+  }
+},
+{
+  "type": "way",
+  "id": 592807761,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "placement": "right_of:2",
+    "surface": "asphalt",
+    "turn:lanes": "left|none|none"
+  }
+},
+{
+  "type": "way",
+  "id": 592807762,
+  "tags": {
+    "cycleway": "track",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 592815876,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "placement": "right_of:2",
+    "surface": "asphalt",
+    "turn:lanes": "left|none|none"
+  }
+},
+{
+  "type": "way",
+  "id": 592815885,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 593914253,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "placement": "right_of:2",
+    "surface": "asphalt",
+    "turn:lanes": "left|none|none"
+  }
+},
+{
+  "type": "way",
+  "id": 593914256,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 593914257,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "placement": "right_of:2",
+    "surface": "asphalt",
+    "turn:lanes": "left|none|none"
+  }
+},
+{
+  "type": "way",
+  "id": 593914261,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 593914268,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "placement": "right_of:2",
+    "surface": "asphalt",
+    "turn:lanes": "left|none|none"
+  }
+},
+{
+  "type": "way",
+  "id": 593914278,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 593914287,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 593914294,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 593914807,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "placement": "right_of:2",
+    "surface": "asphalt",
+    "turn:lanes": "left|none|none"
+  }
+},
+{
+  "type": "way",
+  "id": 593914808,
+  "tags": {
+    "cycleway": "right",
+    "cycleway:right": "track",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 606141125,
+  "tags": {
+    "cycleway": "track",
+    "surface": "asphalt",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Friedrich-Ebert-Damm",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 19471868,
+  "lat": 53.5902589,
+  "lon": 10.1047325,
+  "tags": {
+    "bus": "yes",
+    "name": "Sylter Weg",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 91851786,
+  "lat": 53.5847437,
+  "lon": 10.0776652,
+  "tags": {
+    "wheelchair": "yes",
+    "highway": "bus_stop",
+    "name": "Friedrich-Ebert-Damm (West)",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 91854067,
+  "lat": 53.5864552,
+  "lon": 10.0860885,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Stephanstraße",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "node",
+  "id": 91854715,
+  "lat": 53.5878336,
+  "lon": 10.0927912,
+  "tags": {
+    "wheelchair": "yes",
+    "highway": "bus_stop",
+    "name": "Helbingtwiete",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 91855922,
+  "lat": 53.5889053,
+  "lon": 10.0979217,
+  "tags": {
+    "wheelchair": "yes",
+    "highway": "bus_stop",
+    "name": "Am Stadtrand",
+    "public_transport": "platform",
+    "route_ref": "36;171;271",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 91858924,
+  "lat": 53.5920636,
+  "lon": 10.1084256,
+  "tags": {
+    "bus": "yes",
+    "name": "Rentenversicherung Nord",
+    "network": "HVV",
+    "public_transport": "stop_position",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 253619955,
+  "lat": 53.5822785,
+  "lon": 10.0663041,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "U Straßburger Straße",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 480994655,
+  "lat": 53.5834900,
+  "lon": 10.0725972,
+  "tags": {
+    "wheelchair": "yes",
+    "highway": "bus_stop",
+    "name": "Eulenkamp",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 540330978,
+  "lat": 53.5920984,
+  "lon": 10.1083123,
+  "tags": {
+    "wheelchair": "yes",
+    "highway": "bus_stop",
+    "name": "Rentenversicherung Nord",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 540332711,
+  "lat": 53.5903120,
+  "lon": 10.1047073,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Sylter Weg",
+    "public_transport": "platform",
+    "route_ref": "171;271",
+    "shelter": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 607008003,
+  "lat": 53.5811478,
+  "lon": 10.0619006,
+  "tags": {
+    "wheelchair": "yes",
+    "highway": "bus_stop",
+    "name": "Straßburger Platz",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 862934989,
+  "lat": 53.5768130,
+  "lon": 10.0591328,
+  "tags": {
+    "bus": "yes",
+    "name": "S Friedrichsberg",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 5506700130,
+  "lat": 53.5888385,
+  "lon": 10.0979508,
+  "tags": {
+    "bus": "yes",
+    "name": "Am Stadtrand",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 5656829198,
+  "lat": 53.5822017,
+  "lon": 10.0663475,
+  "tags": {
+    "bus": "yes",
+    "name": "U Straßburger Straße",
+    "network": "HVV",
+    "public_transport": "stop_position",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6128819460,
+  "lat": 53.5810852,
+  "lon": 10.0619332,
+  "tags": {
+    "bus": "yes",
+    "name": "Straßburger Platz",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6148360119,
+  "lat": 53.5846744,
+  "lon": 10.0777143,
+  "tags": {
+    "bus": "yes",
+    "name": "Friedrich-Ebert-Damm (West)",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6148428345,
+  "lat": 53.5877701,
+  "lon": 10.0928384,
+  "tags": {
+    "bus": "yes",
+    "name": "Helbingtwiete",
+    "network": "h",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6148428346,
+  "lat": 53.5863850,
+  "lon": 10.0861384,
+  "tags": {
+    "bus": "yes",
+    "name": "Stephanstraße",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6343800359,
+  "lat": 53.5834261,
+  "lon": 10.0726457,
+  "tags": {
+    "bus": "yes",
+    "name": "Eulenkamp",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "relation",
+  "id": 225981,
+  "members": [
+    {
+      "type": "node",
+      "ref": 5656833096,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 260720119,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 1229067980,
+      "role": "stop"
+    },
+    {
+      "type": "way",
+      "ref": 106887311,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 6128819459,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 253659939,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 5656925062,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 253619869,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 5656829198,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 253619955,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 253659938,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 1229067977,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 1229067970,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 4715252121,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 253624881,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 253624850,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 253624911,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 253625181,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 253627096,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 1229067976,
+      "role": ""
+    },
+    {
+      "type": "node",
+      "ref": 6145549138,
+      "role": "stop"
+    }
+  ],
+  "tags": {
+    "bus": "yes",
+    "name": "Straßburger Straße",
+    "public_transport": "stop_area",
+    "subway": "yes",
+    "type": "public_transport",
+    "wikidata": "Q6590961",
+    "wikipedia": "de:U-Bahnhof Straßburger Straße"
+  }
+},
+{
+  "type": "relation",
+  "id": 8150463,
+  "members": [
+    {
+      "type": "node",
+      "ref": 5506700131,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 91856615,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 5506700130,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 91855922,
+      "role": "platform"
+    }
+  ],
+  "tags": {
+    "name": "Am Stadtrand",
+    "network": "HVV",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 8150464,
+  "members": [
+    {
+      "type": "node",
+      "ref": 5506700134,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 540332707,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 19471868,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 540332711,
+      "role": "platform"
+    }
+  ],
+  "tags": {
+    "name": "Sylter Weg",
+    "network": "HVV",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 8345030,
+  "members": [
+    {
+      "type": "node",
+      "ref": 5656872333,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 91858924,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 540330978,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 540330975,
+      "role": "platform"
+    }
+  ],
+  "tags": {
+    "name": "Rentenversicherung Nord",
+    "network": "HVV",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 9089105,
+  "members": [
+    {
+      "type": "node",
+      "ref": 6125403599,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 6125403600,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 91851124,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 91851402,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 6148360120,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 6148360119,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 91851786,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 91851898,
+      "role": "platform"
+    }
+  ],
+  "tags": {
+    "name": "Friedrich-Ebert-Damm (West)",
+    "network": "HVV",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 9094188,
+  "members": [
+    {
+      "type": "node",
+      "ref": 607008002,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 607008003,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 6128819461,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 6128819460,
+      "role": "stop"
+    }
+  ],
+  "tags": {
+    "name": "Straßburger Platz",
+    "network": "HVV",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 9129200,
+  "members": [
+    {
+      "type": "node",
+      "ref": 6148428344,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 6148428345,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 91854785,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 91854715,
+      "role": "platform"
+    }
+  ],
+  "tags": {
+    "name": "Helbingtwiete",
+    "network": "HVV",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 9129201,
+  "members": [
+    {
+      "type": "node",
+      "ref": 6148428346,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 6148428347,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 91854533,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 91854067,
+      "role": "platform"
+    }
+  ],
+  "tags": {
+    "name": "Stephanstraße",
+    "network": "HVV",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 9405470,
+  "members": [
+    {
+      "type": "node",
+      "ref": 6343800358,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 6343800359,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 480994655,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 640435096,
+      "role": "platform"
+    }
+  ],
+  "tags": {
+    "name": "Eulenkamp",
+    "network": "HVV",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 9509607,
+  "members": [
+    {
+      "type": "node",
+      "ref": 292805370,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 3372061142,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 3372061143,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 363902863,
+      "role": "platform"
+    },
+    {
+      "type": "node",
+      "ref": 862934989,
+      "role": "stop"
+    },
+    {
+      "type": "node",
+      "ref": 363902869,
+      "role": "platform"
+    }
+  ],
+  "tags": {
+    "name": "S Friedrichsberg",
+    "network": "HVV",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "node",
+  "id": 19471868,
+  "lat": 53.5902589,
+  "lon": 10.1047325,
+  "tags": {
+    "bus": "yes",
+    "name": "Sylter Weg",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 91858924,
+  "lat": 53.5920636,
+  "lon": 10.1084256,
+  "tags": {
+    "bus": "yes",
+    "name": "Rentenversicherung Nord",
+    "network": "HVV",
+    "public_transport": "stop_position",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 260720119,
+  "lat": 53.5819673,
+  "lon": 10.0680080,
+  "tags": {
+    "name": "Straßburger Straße",
+    "public_transport": "stop_position",
+    "railway": "stop",
+    "subway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 862934989,
+  "lat": 53.5768130,
+  "lon": 10.0591328,
+  "tags": {
+    "bus": "yes",
+    "name": "S Friedrichsberg",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 1229067980,
+  "lat": 53.5819520,
+  "lon": 10.0678268,
+  "tags": {
+    "name": "Straßburger Straße",
+    "public_transport": "stop_position",
+    "railway": "stop",
+    "subway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 3372061142,
+  "lat": 53.5759274,
+  "lon": 10.0577690,
+  "tags": {
+    "bus": "yes",
+    "name": "S Friedrichsberg",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 3372061143,
+  "lat": 53.5765222,
+  "lon": 10.0585898,
+  "tags": {
+    "bus": "yes",
+    "name": "S Friedrichsberg",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 5506700130,
+  "lat": 53.5888385,
+  "lon": 10.0979508,
+  "tags": {
+    "bus": "yes",
+    "name": "Am Stadtrand",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 5506700131,
+  "lat": 53.5890616,
+  "lon": 10.0996535,
+  "tags": {
+    "bus": "yes",
+    "name": "Am Stadtrand",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 5506700134,
+  "lat": 53.5902400,
+  "lon": 10.1051070,
+  "tags": {
+    "bus": "yes",
+    "name": "Sylter Weg",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 5656829198,
+  "lat": 53.5822017,
+  "lon": 10.0663475,
+  "tags": {
+    "bus": "yes",
+    "name": "U Straßburger Straße",
+    "network": "HVV",
+    "public_transport": "stop_position",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5656872333,
+  "lat": 53.5921673,
+  "lon": 10.1087738,
+  "tags": {
+    "bus": "yes",
+    "name": "Rentenversicherung Nord",
+    "network": "HVV",
+    "public_transport": "stop_position",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5656925062,
+  "lat": 53.5824942,
+  "lon": 10.0686144,
+  "tags": {
+    "bus": "yes",
+    "name": "U Straßburger Straße",
+    "network": "HVV",
+    "passenger_information_display": "yes",
+    "public_transport": "stop_position",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6125403599,
+  "lat": 53.5850683,
+  "lon": 10.0783873,
+  "tags": {
+    "bus": "yes",
+    "name": "Friedrich-Ebert-Damm (West)",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6125403600,
+  "lat": 53.5854600,
+  "lon": 10.0781625,
+  "tags": {
+    "bus": "yes",
+    "name": "Friedrich-Ebert-Damm (West)",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6128819459,
+  "lat": 53.5818340,
+  "lon": 10.0679858,
+  "tags": {
+    "bus": "yes",
+    "name": "U Straßburger Straße",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6128819460,
+  "lat": 53.5810852,
+  "lon": 10.0619332,
+  "tags": {
+    "bus": "yes",
+    "name": "Straßburger Platz",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6128819461,
+  "lat": 53.5809399,
+  "lon": 10.0620726,
+  "tags": {
+    "bus": "yes",
+    "name": "Straßburger Platz",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6145549138,
+  "lat": 53.5829182,
+  "lon": 10.0673875,
+  "tags": {
+    "bus": "yes",
+    "name": "U Straßburger Straße",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6148360119,
+  "lat": 53.5846744,
+  "lon": 10.0777143,
+  "tags": {
+    "bus": "yes",
+    "name": "Friedrich-Ebert-Damm (West)",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6148360120,
+  "lat": 53.5849585,
+  "lon": 10.0794963,
+  "tags": {
+    "bus": "yes",
+    "name": "Friedrich-Ebert-Damm (West)",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6148428344,
+  "lat": 53.5877377,
+  "lon": 10.0931123,
+  "tags": {
+    "bus": "yes",
+    "name": "Helbingtwiete",
+    "network": "h",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6148428345,
+  "lat": 53.5877701,
+  "lon": 10.0928384,
+  "tags": {
+    "bus": "yes",
+    "name": "Helbingtwiete",
+    "network": "h",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6148428346,
+  "lat": 53.5863850,
+  "lon": 10.0861384,
+  "tags": {
+    "bus": "yes",
+    "name": "Stephanstraße",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6148428347,
+  "lat": 53.5863788,
+  "lon": 10.0864612,
+  "tags": {
+    "bus": "yes",
+    "name": "Stephanstraße",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6343800358,
+  "lat": 53.5832750,
+  "lon": 10.0724591,
+  "tags": {
+    "bus": "yes",
+    "name": "Eulenkamp",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 6343800359,
+  "lat": 53.5834261,
+  "lon": 10.0726457,
+  "tags": {
+    "bus": "yes",
+    "name": "Eulenkamp",
+    "network": "HVV",
+    "public_transport": "stop_position"
+  }
+}
+
+  ]
+}

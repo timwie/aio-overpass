@@ -1,0 +1,84 @@
+[tool.poetry]
+name = "aio-overpass"
+version = "0.1.0"
+description = "Async client for the Overpass API"
+authors = ["Tim Wiechers <mail@timwie.dev>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/timwie/aio_overpass"
+# TODO documentation = "https://..."
+packages = [{ include = "aio_overpass" }]
+include = [] # TODO "CHANGELOG.md"
+exclude = ["test/", "tasks.py"]
+keywords = [
+    "geojson",
+    "geospatial",
+    "gis",
+    "open-street-map",
+    "osm",
+    "overpass-api",
+    "public-transport",
+]
+classifiers = [
+    "Framework :: aiohttp",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+]
+
+[tool.poetry.dependencies]
+aiohttp = "~3.8.4"
+joblib = { version = "~1.2.0", optional = true }
+networkx = { version = "~3.1", optional = true }
+python = "^3.8"
+shapely = { version = "~2.0.1", optional = true }
+
+[tool.poetry.extras]
+joblib = ["joblib"]
+networkx = ["networkx"]
+shapely = ["shapely"]
+
+[tool.poetry.dev-dependencies]
+aioresponses = "^0.7.4"
+black = "^23.3.0"
+folium = "^0.14.0"
+invoke = "^2.0.0"
+isort = "^5.12.0"
+jupyterlab = "^3.6.3"
+pdoc = "^13.1.0"
+pytest = "^7.3.1"
+pytest-asyncio = "^0.21.0"
+pytest-cov = "^4.0.0"
+randomcolor = "^0.4.4.6"
+ruff = "^0.0.262"
+tabulate = "^0.9.0"
+
+[tool.ruff]
+# https://github.com/charliermarsh/ruff#configuration
+# https://beta.ruff.rs/docs/rules/
+line-length = 100
+target-version = "py38"
+select = ["E", "F", "N",  "UP", "ANN", "S", "B", "C4", "PL"]
+ignore = ["ANN003", "ANN101", "ANN401", "C408", "PLR2004", "PLW2901"]
+
+[tool.black]
+# https://github.com/psf/black#configuration
+line-length = 100
+
+[tool.isort]
+# https://pycqa.github.io/isort/docs/configuration/options.html
+profile = "black"
+line_length=100
+indent='    '
+multi_line_output=6
+lines_after_imports=2
+known_first_party="aio_overpass"
+sections="STDLIB,FIRSTPARTY,THIRDPARTY,LOCALFOLDER"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
