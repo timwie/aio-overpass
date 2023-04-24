@@ -1,0 +1,35 @@
+name: Python package
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Install dependencies
+        run: |
+          poetry install --all-extras
+      - name: Check formatting with black
+        run: |
+          black --check aio_overpass/
+        continue-on-error: true
+      - name: Lint with Ruff
+        run: |
+          ruff check aio_overpass/
+        continue-on-error: true
+      - name: Test with pytest
+        run: |
+          pytest -vv --cov=aio_overpass/
