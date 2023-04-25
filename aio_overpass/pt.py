@@ -27,6 +27,7 @@ import shapely.ops
 from shapely.geometry import GeometryCollection, Point, Polygon
 
 
+__docformat__ = "google"
 __all__ = (
     "Route",
     "Stop",

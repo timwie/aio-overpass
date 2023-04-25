@@ -20,6 +20,7 @@ from shapely.geometry import (
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 
 
+__docformat__ = "google"
 __all__ = (
     "GeoJsonDict",
     "OverpassDict",

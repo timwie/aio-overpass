@@ -17,6 +17,7 @@ from aio_overpass.error import (
 )
 
 
+__docformat__ = "google"
 __all__ = (
     "Query",
     "QueryRunner",

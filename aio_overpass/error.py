@@ -25,6 +25,7 @@ import aiohttp
 import aiohttp.typedefs
 
 
+__docformat__ = "google"
 __all__ = (
     "ClientError",
     "CallError",

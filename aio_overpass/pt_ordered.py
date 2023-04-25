@@ -24,6 +24,7 @@ from shapely.geometry import (
 from .pt import _MAX_DISTANCE_TO_TRACK, Route, RouteQuery, Stop, collect_routes
 
 
+__docformat__ = "google"
 __all__ = (
     "OrderedRouteView",
     "OrderedRouteViewNode",

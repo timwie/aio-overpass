@@ -23,6 +23,7 @@ from aio_overpass.query import DefaultQueryRunner, Query, QueryRunner
 import aiohttp
 
 
+__docformat__ = "google"
 __all__ = (
     "Client",
     "Status",
