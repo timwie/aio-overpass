@@ -26,7 +26,7 @@ with [Overpass QL], the query language used to select the elements that you want
 
 #### See also
 - API reference is forthcoming :construction: 
-- Changelog is forthcoming :construction:
+- The version history is available in [CHANGELOG.md](CHANGELOG.md).
 - Contributor guide is forthcoming :construction:
 
 <br>
