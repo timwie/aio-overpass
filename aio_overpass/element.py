@@ -284,7 +284,8 @@ def _geojson_bbox(obj: Union[Element, "Relationship"]) -> Optional[Bbox]:
 
     bounds = elem._geometry.bounds
     if bounds:
-        return bounds
+        (minlat, minlon, maxlat, maxlon) = bounds
+        return minlon, minlat, maxlon, maxlat
 
 
 def _geojson_feature(obj: Union[Element, "Relationship"]) -> GeoJsonDict:
