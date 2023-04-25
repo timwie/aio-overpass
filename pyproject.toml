@@ -5,7 +5,7 @@ description = "Async client for the Overpass API"
 authors = ["Tim Wiechers <mail@timwie.dev>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/timwie/aio_overpass"
+repository = "https://github.com/timwie/aio-overpass"
 # TODO documentation = "https://..."
 packages = [{ include = "aio_overpass" }]
 include = [] # TODO "CHANGELOG.md"
