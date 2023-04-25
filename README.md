@@ -25,8 +25,8 @@ with [Overpass QL], the query language used to select the elements that you want
 - [License](#license)
 
 #### See also
-- API reference is forthcoming :construction: 
-- The version history is available in [CHANGELOG.md](CHANGELOG.md).
+- An overview of modules, classes and functions can be found in the [API reference](http://www.timwie.dev/aio-overpass/).
+- The version history is available in [CHANGELOG.md](https://github.com/timwie/aio-overpass/CHANGELOG.md).
 - Contributor guide is forthcoming :construction:
 
 <br>
