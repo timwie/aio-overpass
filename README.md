@@ -26,7 +26,7 @@ with [Overpass QL], the query language used to select the elements that you want
 
 #### See also
 - An overview of modules, classes and functions can be found in the [API reference](http://www.timwie.dev/aio-overpass/).
-- The version history is available in [CHANGELOG.md](https://github.com/timwie/aio-overpass/CHANGELOG.md).
+- The version history is available in [CHANGELOG.md](https://github.com/timwie/aio-overpass/blob/main/CHANGELOG.md).
 - Contributor guide is forthcoming :construction:
 
 <br>
@@ -180,12 +180,7 @@ json.dumps(elems[0].geojson, indent=4)
             "addr:housename": "Elbphilharmonie",
             ...
         },
-        "bounds": [
-            53.540877,
-            9.9832434,
-            53.5416212,
-            9.9849674
-        ]
+        ...
     },
     "bbox": [
         9.9832434,
