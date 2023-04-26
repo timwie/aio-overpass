@@ -45,7 +45,7 @@ with [Overpass QL], the query language used to select the elements that you want
 <br>
 
 ## Getting Started
-```
+```sh
 pip install aio-overpass
 pip install aio-overpass[shapely, networkx, joblib]
 
@@ -99,7 +99,7 @@ There are three basic steps to fetch the spatial data you need:
 
 ### Example
 #### Results as Dictionaries
-```
+```python
 from aio_overpass import Client, Query
 
 query = Query("way(24981342); out geom;")
@@ -111,19 +111,19 @@ await client.run_query(query)
 query.result_set
 ```
 
-```
+```python
 {
-    ...
+    # ...
     "elements": [
         {
             "type": "way",
             "id": 24981342,
-            ...
+            # ...
             "tags": {
                 "addr:city": "Hamburg",
                 "addr:country": "DE",
                 "addr:housename": "Elbphilharmonie",
-                ...
+                # ...
             },
         }
     ],
@@ -131,7 +131,7 @@ query.result_set
 ```
 
 #### Results as Objects
-```
+```python
 from aio_overpass.element import collect_elements
 
 elems = collect_elements(query)
@@ -139,24 +139,24 @@ elems = collect_elements(query)
 elems[0].tags
 ```
 
-```
+```python
 {
     "addr:city": "Hamburg",
     "addr:country": "DE",
     "addr:housename": "Elbphilharmonie",
-    ...
+    # ...
 }
 
 ```
 
 #### Results as GeoJSON
-```
+```python
 import json
 
 json.dumps(elems[0].geojson, indent=4)
 ```
 
-```
+```json
 {
     "type": "Feature",
     "geometry": {
