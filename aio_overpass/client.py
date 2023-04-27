@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import re
+import sys
 from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
@@ -98,7 +99,7 @@ class Client:
         self._maybe_session = None
         self._maybe_sem = None
 
-    async def _session(self) -> aiohttp.ClientSession:
+    def _session(self) -> aiohttp.ClientSession:
         """The session used for all requests of this client."""
         if not self._maybe_session or self._maybe_session.closed:
             headers = {"User-Agent": self._user_agent}
@@ -116,7 +117,7 @@ class Client:
         if self._maybe_sem:
             return self._maybe_sem
 
-        session = await self._session()
+        session = self._session()
 
         status = await self._status(session, **kwargs)
 
@@ -178,7 +179,7 @@ class Client:
         Raises:
             ClientError: if the status could not be looked up
         """
-        session = await self._session()
+        session = self._session()
         return await self._status(session)
 
     async def cancel_queries(self) -> int:
@@ -193,7 +194,7 @@ class Client:
         Raises:
             ClientError: if the request to cancel queries failed
         """
-        session = await self._session()
+        session = self._session()
         endpoint = urljoin(self._url, "kill_my_queries")
         try:
             async with session.get(endpoint) as response:
@@ -224,7 +225,8 @@ class Client:
         if query.done:
             return  # nothing to do
 
-        query.reset()  # reset failed queries
+        if query.nb_tries > 0:
+            query.reset()  # reset failed queries
 
         while not query.done:
             await self._run_query_once(query)
@@ -258,7 +260,7 @@ class Client:
         )
 
         try:
-            session = await self._session()
+            session = self._session()
             rate_limiter = await self._rate_limiter(timeout=_next_timeout(query))
 
             if check_cooldown:
@@ -306,7 +308,8 @@ class Client:
 
 def _next_timeout_secs(query: Query) -> Optional[float]:
     if query.run_timeout_secs:
-        return max(0.0, query.run_timeout_secs - query.run_duration_secs)
+        # use epsilon since 0 means "no timeout"
+        return max(sys.float_info.epsilon, query.run_timeout_secs - query.run_duration_secs)
 
 
 def _next_timeout(query: Query) -> aiohttp.ClientTimeout:

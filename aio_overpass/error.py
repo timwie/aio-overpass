@@ -327,19 +327,26 @@ async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict)
     except aiohttp.ClientResponseError as err:
         raise _to_client_error(err)
     except JSONDecodeError as err:
-        raise ResponseError(
-            request_info=response.request_info,
-            history=response.history,
-            status=response.status,
-            message=response.reason,
-            headers=response.headers,
-        ) from err
+        raise _response_error(response) from err
+
+    if json is None:
+        raise _response_error(response)
 
     _raise_for_json_remarks(json, query_kwargs)
 
     _raise_for_status(response, query_kwargs)
 
     return json
+
+
+def _response_error(response: aiohttp.ClientResponse) -> ResponseError:
+    return ResponseError(
+        request_info=response.request_info,
+        history=response.history,
+        status=response.status,
+        message=response.reason,
+        headers=response.headers,
+    )
 
 
 def _raise_for_status(response: aiohttp.ClientResponse, query_kwargs: dict) -> None:

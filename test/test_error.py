@@ -1,8 +1,10 @@
+import asyncio
 import re
 
 from aio_overpass import Client, Query
 from aio_overpass.error import (
     CallError,
+    GiveupError,
     QueryError,
     QueryLanguageError,
     QueryRejectCause,
@@ -12,7 +14,7 @@ from aio_overpass.error import (
 from aio_overpass.query import DefaultQueryRunner
 
 import pytest
-from aioresponses import aioresponses
+from aioresponses import CallbackResult, aioresponses
 
 
 URL_INTERPRETER = re.compile(r"^https://overpass-api\.de/api/interpreter\?data=.+$")
@@ -87,6 +89,9 @@ async def test_too_many_queries(mock_response):
     ]
     assert err.value.messages == expected
 
+    _ = str(err)
+    _ = repr(err)
+
 
 @pytest.mark.asyncio
 async def test_too_busy(mock_response):
@@ -119,6 +124,9 @@ async def test_too_busy(mock_response):
     ]
     assert err.value.messages == expected
 
+    _ = str(err)
+    _ = repr(err)
+
 
 @pytest.mark.asyncio
 async def test_other_query_error(mock_response):
@@ -147,6 +155,9 @@ async def test_other_query_error(mock_response):
         "runtime error: open64: 2 No such file or directory /osm3s_v0.7.54_osm_base Dispatcher_Client::1"
     ]
     assert err.value.messages == expected
+
+    _ = str(err)
+    _ = repr(err)
 
 
 @pytest.mark.asyncio
@@ -202,6 +213,9 @@ async def test_syntax_error(mock_response):
     ]
     assert err.value.messages == expected
 
+    _ = str(err)
+    _ = repr(err)
+
 
 @pytest.mark.asyncio
 async def test_other_query_error_remark(mock_response):
@@ -231,6 +245,9 @@ async def test_other_query_error_remark(mock_response):
     ]
     assert err.value.messages == expected
 
+    _ = str(err)
+    _ = repr(err)
+
 
 @pytest.mark.asyncio
 async def test_exceeded_maxsize(mock_response):
@@ -257,6 +274,9 @@ async def test_exceeded_maxsize(mock_response):
         r"""runtime error: Query run out of memory in "recurse" at line 1 using about 541 MB of RAM.""",
     ]
     assert err.value.messages == expected
+
+    _ = str(err)
+    _ = repr(err)
 
 
 @pytest.mark.asyncio
@@ -285,14 +305,20 @@ async def test_exceeded_timeout(mock_response):
     ]
     assert err.value.messages == expected
 
+    _ = str(err)
+    _ = repr(err)
+
 
 @pytest.mark.asyncio
 async def test_connection_refused():
     c = Client(runner=DefaultQueryRunner(max_tries=1))
     q = Query("")
 
-    with aioresponses(), pytest.raises(CallError):
+    with aioresponses(), pytest.raises(CallError) as err:
         await c.run_query(q)
+
+    _ = str(err)
+    _ = repr(err)
 
 
 @pytest.mark.asyncio
@@ -300,6 +326,24 @@ async def test_internal_server_error():
     c = Client(runner=DefaultQueryRunner(max_tries=1))
     q = Query("")
 
-    with aioresponses() as m, pytest.raises(ResponseError):
+    with aioresponses() as m, pytest.raises(ResponseError) as err:
         m.get(URL_STATUS, status=500, repeat=True)
         await c.run_query(q)
+
+    _ = str(err)
+    _ = repr(err)
+
+
+@pytest.mark.asyncio
+async def test_timeout_error():
+    c = Client(runner=DefaultQueryRunner(max_tries=1))
+    q = Query("")
+
+    with aioresponses() as m:
+        m.get(URL_STATUS, exception=asyncio.TimeoutError())
+
+        with pytest.raises(GiveupError) as err:
+            await c.run_query(q)
+
+    _ = str(err)
+    _ = repr(err)
