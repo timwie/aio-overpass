@@ -1,8 +1,14 @@
 import re
 
 from aio_overpass import Client, Query
-from aio_overpass.error import QueryError, QueryLanguageError, QueryRejectCause, QueryRejectError, CallError, \
-    ResponseError
+from aio_overpass.error import (
+    CallError,
+    QueryError,
+    QueryLanguageError,
+    QueryRejectCause,
+    QueryRejectError,
+    ResponseError,
+)
 from aio_overpass.query import DefaultQueryRunner
 
 import pytest
