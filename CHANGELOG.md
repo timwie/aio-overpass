@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   ```
   aio_overpass.error.QueryLanguageError: query <no kwargs> failed: 'line 1: parse error: Key expected - '%' found.' (+14 more)
   ```
+* [0.1.2.post1]: releases are now automatically published to PyPI when pushing a new tag
 
 ## [0.1.1] - 2023-04-25
 * Fix wrong coordinate order in elements' GeoJSON `bbox`
@@ -15,3 +16,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 [0.1.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.1
 [0.1.2]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.2
+[0.1.2.post1]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.2.post1
