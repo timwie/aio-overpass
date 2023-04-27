@@ -170,14 +170,24 @@ class QueryError(ClientError):
     kwargs: dict
     messages: List[str]
 
+    def __post_init__(self) -> None:
+        if not self.messages:
+            raise ValueError("expected at least one message")
+
     def __str__(self) -> str:
         if self.kwargs:
             query = f"query {self.kwargs}"
         else:
             query = "query <no kwargs>"
 
-        messages = ", ".join(f"'{msg}'" for msg in self.messages)
-        return f"{query} failed: {messages}"
+        first = f"'{self.messages[0]}'"
+
+        if len(self.messages) > 1:
+            rest = f" (+{len(self.messages) - 1} more)"
+        else:
+            rest = ""
+
+        return f"{query} failed: {first}{rest}"
 
     def __repr__(self) -> str:
         messages = ", ".join(f"'{msg}'" for msg in self.messages)

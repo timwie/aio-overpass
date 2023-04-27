@@ -1,7 +1,8 @@
 import re
 
 from aio_overpass import Client, Query
-from aio_overpass.error import QueryError, QueryLanguageError, QueryRejectCause, QueryRejectError
+from aio_overpass.error import QueryError, QueryLanguageError, QueryRejectCause, QueryRejectError, CallError, \
+    ResponseError
 from aio_overpass.query import DefaultQueryRunner
 
 import pytest
@@ -277,3 +278,22 @@ async def test_exceeded_timeout(mock_response):
         r"""runtime error: Query timed out in "query" at line 3 after 2 seconds.""",
     ]
     assert err.value.messages == expected
+
+
+@pytest.mark.asyncio
+async def test_connection_refused():
+    c = Client(runner=DefaultQueryRunner(max_tries=1))
+    q = Query("")
+
+    with aioresponses(), pytest.raises(CallError):
+        await c.run_query(q)
+
+
+@pytest.mark.asyncio
+async def test_internal_server_error():
+    c = Client(runner=DefaultQueryRunner(max_tries=1))
+    q = Query("")
+
+    with aioresponses() as m, pytest.raises(ResponseError):
+        m.get(URL_STATUS, status=500, repeat=True)
+        await c.run_query(q)

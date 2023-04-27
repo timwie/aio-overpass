@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+* Abbreviate `QueryError` messages instead of listing them all
+  * ` aio_overpass.error.QueryLanguageError: query <no kwargs> failed: 'line 1: parse error: Key expected - '%' found.' (+14 more)`
+
 ## [0.1.1] - 2023-04-25
 * Fix wrong coordinate order in elements' GeoJSON `bbox`
 * Fix wrong repository link in `pyproject.toml`
