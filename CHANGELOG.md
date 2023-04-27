@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.1.2] - 2023-04-27
 * Fix zero timeout which would previously be interpreted as "no timeout"
 * Abbreviate `QueryError` messages instead of listing them all:
   ```
@@ -14,3 +14,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Fix wrong repository link in `pyproject.toml`
 
 [0.1.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.1
+[0.1.2]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.2

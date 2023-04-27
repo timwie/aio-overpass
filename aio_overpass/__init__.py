@@ -1,6 +1,6 @@
 """Async client for the Overpass API."""
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __docformat__ = "google"
 __all__ = (
     "Client",
