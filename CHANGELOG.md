@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+* `QueryError`: `messages` was renamed to `remarks`
+* Add `QueryResponseError`, which is raised for unexpected query responses
+  instead of `QueryError`
+* `QueryError` is now similar to `ClientError` in that only objects of
+  its subclasses are raised
+* The `repr()` of errors have slightly changed
+
 ## [0.1.2] - 2023-04-27
 * Fix zero timeout which would previously be interpreted as "no timeout"
 * Abbreviate `QueryError` messages instead of listing them all:
