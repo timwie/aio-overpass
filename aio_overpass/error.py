@@ -19,7 +19,6 @@ import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from json import JSONDecodeError
-from pprint import pformat
 from typing import List, Optional, Tuple, Union
 
 import aiohttp
@@ -43,9 +42,6 @@ __all__ = (
 
 class ClientError(Exception):
     """Base exception for failed Overpass API requests and queries."""
-
-    def __repr__(self) -> str:
-        return pformat(self)
 
 
 @dataclass
