@@ -6,9 +6,9 @@ authors = ["Tim Wiechers <mail@timwie.dev>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/timwie/aio-overpass"
-# TODO documentation = "https://..."
+documentation = "https://www.timwie.dev/aio-overpass/"
 packages = [{ include = "aio_overpass" }]
-include = [] # TODO "CHANGELOG.md"
+include = ["CHANGELOG.md"]
 exclude = ["test/", "tasks.py"]
 keywords = [
     "geojson",
