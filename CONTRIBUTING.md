@@ -37,7 +37,7 @@ Next up, clone the repository, and install the project and all dependencies:
 ```console
 $ git clone git@github.com:timwie/aio-overpass.git
 $ cd aio-overpass/
-$ poetry install --all-extras
+$ poetry install --all-extras --with notebooks
 ```
 
 This will also install [Invoke], a neat little task runner. Here is a

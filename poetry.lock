@@ -2871,4 +2871,4 @@ shapely = ["shapely"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "c18c459016c26ea617ee1f24a0202981577f4922a40987f54fefd4f4f0cfdabe"
+content-hash = "1c4147d700a697c3e30219d79a4f740ffaa2f48d85df418148f2c01657449d60"
