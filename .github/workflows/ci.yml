@@ -54,6 +54,12 @@ jobs:
           ruff check aio_overpass/
         continue-on-error: true
 
+      - name: Check types with mypy
+        run: |
+          source .venv/bin/activate
+          mypy aio_overpass/
+        continue-on-error: true
+
       - name: Test with pytest
         run: |
           source .venv/bin/activate
