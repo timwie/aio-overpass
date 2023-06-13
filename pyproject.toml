@@ -50,10 +50,10 @@ invoke = "^2.1.2"
 isort = "^5.12.0"
 mypy = "^1.3.0"
 pdoc = "^13.1.1"
-pytest = "^7.3.1"
+pytest = "^7.3.2"
 pytest-asyncio = "^0.21.0"
-pytest-cov = "^4.0.0"
-ruff = "^0.0.269"
+pytest-cov = "^4.1.0"
+ruff = "^0.0.272"
 
 [tool.poetry.group.notebooks]
 optional = true
@@ -96,6 +96,10 @@ multi_line_output=6
 lines_after_imports=2
 known_first_party="aio_overpass"
 sections="STDLIB,FIRSTPARTY,THIRDPARTY,LOCALFOLDER"
+
+[tool.mypy]
+# https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-library-stubs-or-py-typed-marker
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
