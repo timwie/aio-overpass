@@ -472,6 +472,21 @@ class Relationship(Spatial):
 _KNOWN_ELEMENTS = {"node", "way", "relation", "area"}
 
 
+_ElementKey = (str, int)
+"""Elements are uniquely identified by the tuple (type, id)."""
+
+_MemberKey = (_ElementKey, str)
+"""Relation members are identified by their element key and role."""
+
+
+class _ElementCollector:
+    def __init__(self) -> None:
+        self.list: List[Element] = []
+        self.typed_dict: Dict[_ElementKey, Element] = {}
+        self.untyped_dict: Dict[_ElementKey, OverpassDict] = defaultdict(dict)
+        self.member_dict: Dict[int, List[_MemberKey]] = defaultdict(list)
+
+
 def collect_elements(query: Query) -> List[Element]:
     """
     Produce typed elements from the result set of a query.
@@ -506,33 +521,35 @@ def collect_elements(query: Query) -> List[Element]:
     if not query.done:
         raise ValueError("query has no result set")
 
-    # Elements are uniquely identified by a key = (type, id)
+    collector = _ElementCollector()
+    _collect_untyped(query, collector)
+    _collect_typed(collector)
+    _collect_relationships(collector)
+    return collector.list
 
-    results = []
-    elems_typed = {}  # {key: Element object}
-    elems_dict = defaultdict(dict)  # {key: element data dict}
-    members = defaultdict(list)  # {relation id: [(key, role) for each member]}
 
-    # (a) conflation
+def _collect_untyped(query: Query, collector: _ElementCollector) -> None:
+    # Here we populate 'untyped_dict' with both top level elements, and
+    # relation members, while conflating their data if they appear as both.
+    # We also populate 'member_dict'.
     for elem_dict in query.result_set["elements"]:
         if elem_dict.get("type") not in _KNOWN_ELEMENTS:
             continue
 
-        key = (elem_dict["type"], elem_dict["id"])
-        elems_dict[key].update(elem_dict)
+        key: _ElementKey = (elem_dict["type"], elem_dict["id"])
+        collector.untyped_dict[key].update(elem_dict)
 
         if elem_dict["type"] != "relation":
             continue
 
         for mem in elem_dict["members"]:
-            key = (mem["type"], mem["ref"])
+            key: _ElementKey = (mem["type"], mem["ref"])
+            collector.untyped_dict[key].update(mem)
+            collector.member_dict[elem_dict["id"]].append((key, mem.get("role")))
 
-            elems_dict[key].update(mem)
 
-            members[elem_dict["id"]].append((key, mem.get("role")))
-
-    # (b) conversion
-    for elem_key, elem_dict in elems_dict.items():
+def _collect_typed(collector: _ElementCollector) -> None:
+    for elem_key, elem_dict in collector.untyped_dict.items():
         (elem_type, elem_id) = elem_key
 
         args = dict(
@@ -584,20 +601,19 @@ def collect_elements(query: Query) -> List[Element]:
             args["geometry"] = _geometry(elem_dict)
 
         elem = cls(**args)
-        results.append(elem)
-        elems_typed[elem_key] = elem
+        collector.list.append(elem)
+        collector.typed_dict[elem_key] = elem
 
-    # (c) linking relations & members
-    for rel_id, mem_roles in members.items():
-        rel = elems_typed[("relation", rel_id)]
+
+def _collect_relationships(collector: _ElementCollector) -> None:
+    for rel_id, mem_roles in collector.member_dict.items():
+        rel = collector.typed_dict[("relation", rel_id)]
 
         for mem_key, mem_role in mem_roles:
-            mem = elems_typed[mem_key]
+            mem = collector.typed_dict[mem_key]
             relship = Relationship(member=mem, relation=rel, role=mem_role or None)
             mem.relations.append(relship)
             rel.members.append(relship)
-
-    return results
 
 
 # e.g. area with id 3_600_051_477 correlates with relation 51_477
@@ -636,9 +652,7 @@ def _geometry(raw_elem: OverpassDict) -> Optional[BaseGeometry]:
 
     if raw_elem["type"] == "way":
         ls = _line(raw_elem)
-        if not ls:
-            return None
-        if ls.is_ring and _is_area_element(raw_elem):
+        if ls and ls.is_ring and _is_area_element(raw_elem):
             return Polygon(ls)
         return ls
 

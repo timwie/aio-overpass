@@ -217,7 +217,7 @@ class Stop(Spatial):
         names = [name for name in names if name]
 
         if not names:
-            return
+            return None
 
         counter = Counter(names)
         ((most_common, _),) = counter.most_common(1)

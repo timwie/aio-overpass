@@ -33,7 +33,7 @@ DEFAULT_MAXSIZE = 512
 DEFAULT_TIMEOUT = 180
 """Default ``timeout`` setting in seconds"""
 
-_COPYRIGHT = "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+_COPYRIGHT = "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."  # noqa: E501
 """This is the same copyright notice included in result sets"""
 
 _SETTING_PATTERN = re.compile(r"\[(\w+?):(.+?)]\s*;?")
@@ -77,6 +77,14 @@ class Query:
         self._time_start = 0.0  # time prior to executing the first try
         self._time_start_try = 0.0  # time prior to executing the most recent try
         self._nb_tries = 0
+
+    def _has_cooldown(self) -> bool:
+        """When ``True``, we should query the API status to retrieve our cooldown period."""
+        return (
+            self.error
+            and isinstance(self.error, QueryRejectError)
+            and self.error.cause == QueryRejectCause.TOO_MANY_QUERIES
+        )
 
     def reset(self) -> None:
         """Reset the query to its initial state, ignoring previous tries."""

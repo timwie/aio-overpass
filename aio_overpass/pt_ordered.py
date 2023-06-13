@@ -452,7 +452,7 @@ def _find_stop_coords(
     )
 
     if not track_nodes or not station_geom:
-        return
+        return None
 
     # Calculate the distance of the stop geometry to the track geometry.
     a, b = shapely.ops.nearest_points(track_ways, station_geom)  # euclidean nearest
@@ -461,7 +461,7 @@ def _find_stop_coords(
 
     # Idea: if the stop is too far away from the track, it cannot be representative.
     if distance_to_track > _MAX_DISTANCE_TO_TRACK:
-        return
+        return None
 
     # Find the node in the graph that is closest to the stop.
     a, _ = shapely.ops.nearest_points(track_nodes, station_geom)  # euclidean nearest

@@ -13,8 +13,6 @@ from aio_overpass.error import (
     CallError,
     ClientError,
     GiveupError,
-    QueryRejectCause,
-    QueryRejectError,
     RunnerError,
     _result_or_raise,
     _to_client_error,
@@ -59,10 +57,12 @@ class Status:
     cooldown_secs: int
 
     def __repr__(self) -> str:
-        if self.slots:
-            return f"{type(self).__name__}(slots={self.free_slots}/{self.slots}, cooldown={self.cooldown_secs}s)"
+        f, s, c = self.free_slots, self.slots, self.cooldown_secs
 
-        return f"{type(self).__name__}(slots=∞, cooldown={self.cooldown_secs}s)"
+        if self.slots:
+            return f"{type(self).__name__}(slots={f}/{s}, cooldown={c}s)"
+
+        return f"{type(self).__name__}(slots=∞, cooldown={c}s)"
 
 
 class Client:
@@ -142,7 +142,7 @@ class Client:
             async with session.get(url=urljoin(self._url, "status"), **kwargs) as response:
                 text = await response.text()
         except aiohttp.ClientError as err:
-            raise _to_client_error(err)
+            raise _to_client_error(err) from err
 
         try:
             match_slots_overall = re.findall("Rate limit: (\\d+)", text)
@@ -202,7 +202,7 @@ class Client:
                 killed_pids = re.findall("\\(pid (\\d+)\\)", body)
                 return len(set(killed_pids))
         except aiohttp.ClientError as err:
-            raise _to_client_error(err)
+            raise _to_client_error(err) from err
 
     async def run_query(self, query: Query) -> None:
         """
@@ -228,23 +228,26 @@ class Client:
         if query.nb_tries > 0:
             query.reset()  # reset failed queries
 
-        while not query.done:
+        while True:
+            await self._invoke_runner(query)
+            if query.done:
+                return
             await self._run_query_once(query)
 
-    async def _run_query_once(self, query: Query) -> None:
-        loop = asyncio.get_event_loop()
-
+    async def _invoke_runner(self, query: Query) -> None:
         try:
             await self._runner(query)
         except ClientError:
             _logger.info("query runner raised; stop retrying")
             raise
         except BaseException as err:
-            raise RunnerError(err)
+            raise RunnerError(err) from err
 
-        # Check only after yielding to the runner, to allow caching.
+    async def _run_query_once(self, query: Query) -> None:
         if query.done:
             return
+
+        loop = asyncio.get_event_loop()
 
         if query._time_start <= 0:
             query._time_start = loop.time()
@@ -253,17 +256,11 @@ class Client:
         query._time_end_try = 0.0
         query._nb_tries += 1
 
-        check_cooldown = (
-            query.error
-            and isinstance(query.error, QueryRejectError)
-            and query.error.cause == QueryRejectCause.TOO_MANY_QUERIES
-        )
-
         try:
             session = self._session()
             rate_limiter = await self._rate_limiter(timeout=_next_timeout(query))
 
-            if check_cooldown:
+            if query._has_cooldown():
                 # If this client is running too many queries, we can check the status for a
                 # cooldown period. This request failing is a bit of an edge case.
                 # 'query.error' will be overwritten, which means we will not check for a

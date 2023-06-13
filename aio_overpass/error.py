@@ -267,8 +267,9 @@ def _to_client_error(
     Build a ``ClientError`` from either an ``aiohttp`` client error or an unrecognized response.
 
     Returns:
-        ``CallError`` if ``obj`` is an ``aiohttp.ClientError``, but not an ``aiohttp.ClientResponseError``.
-        ``ResponseError`` if ``obj`` is a response or an ``aiohttp.ClientResponseError``.
+        - ``CallError`` if ``obj`` is an ``aiohttp.ClientError``,
+          but not an ``aiohttp.ClientResponseError``.
+        - ``ResponseError`` if ``obj`` is a response or an ``aiohttp.ClientResponseError``.
     """
     if not isinstance(obj, aiohttp.ClientResponseError) and not isinstance(
         obj, aiohttp.ClientResponse
@@ -306,7 +307,7 @@ async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict)
     try:
         json = await response.json()
     except aiohttp.ClientResponseError as err:
-        raise _to_client_error(err)
+        raise _to_client_error(err) from err
     except JSONDecodeError as err:
         raise _response_error(response) from err
 
