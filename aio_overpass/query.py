@@ -6,7 +6,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Awaitable, Callable, Optional
+from typing import Optional, Protocol
 
 from aio_overpass.error import (
     ClientError,
@@ -81,7 +81,7 @@ class Query:
     def _has_cooldown(self) -> bool:
         """When ``True``, we should query the API status to retrieve our cooldown period."""
         return (
-            self.error
+            self.error is not None
             and isinstance(self.error, QueryRejectError)
             and self.error.cause == QueryRejectCause.TOO_MANY_QUERIES
         )
@@ -339,16 +339,19 @@ class Query:
         return f"{cls_name}({details_str})"
 
 
-QueryRunner = Callable[[Query], Awaitable[None]]
-"""
-A query runner is async function that is called before a client makes an API request.
+class QueryRunner(Protocol):
+    """
+    A query runner is async function that is called before a client makes an API request.
 
-Query runners can be used to
- - retry queries when they fail
- - modify queries, f.e. to lower/increase their maxsize/timeout
- - log query results & errors
- - implement caching
-"""
+    Query runners can be used to
+     - retry queries when they fail
+     - modify queries, f.e. to lower/increase their maxsize/timeout
+     - log query results & errors
+     - implement caching
+    """
+
+    async def __call__(self, query: Query) -> None:
+        pass
 
 
 class DefaultQueryRunner(QueryRunner):
@@ -409,7 +412,7 @@ class DefaultQueryRunner(QueryRunner):
         err = query.error
 
         # Exhausted all tries; do not retry.
-        if query.nb_tries == self._max_tries:
+        if err and query.nb_tries == self._max_tries:
             raise err
 
         # Response errors usually indicate a bug in the client; do not retry.

@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union, cast
 
 from aio_overpass import Query
 
@@ -288,6 +288,8 @@ def _geojson_bbox(obj: Union[Element, "Relationship"]) -> Optional[Bbox]:
         (minlat, minlon, maxlat, maxlon) = bounds
         return minlon, minlat, maxlon, maxlat
 
+    return None
+
 
 def _geojson_feature(obj: Union[Element, "Relationship"]) -> GeoJsonDict:
     feature = {
@@ -298,7 +300,7 @@ def _geojson_feature(obj: Union[Element, "Relationship"]) -> GeoJsonDict:
 
     bbox = _geojson_bbox(obj)
     if bbox:
-        feature["bbox"] = bbox
+        feature["bbox"] = bbox  # type: ignore
 
     return feature
 
@@ -365,7 +367,7 @@ class Relation(Element):
 
     members: List["Relationship"]
 
-    def __iter__(self) -> Iterator[Tuple[str, Element]]:
+    def __iter__(self) -> Iterator[Tuple[Optional[str], Element]]:
         for relship in self.members:
             yield relship.role, relship.member
 
@@ -472,10 +474,10 @@ class Relationship(Spatial):
 _KNOWN_ELEMENTS = {"node", "way", "relation", "area"}
 
 
-_ElementKey = (str, int)
+_ElementKey = Tuple[str, int]
 """Elements are uniquely identified by the tuple (type, id)."""
 
-_MemberKey = (_ElementKey, str)
+_MemberKey = Tuple[_ElementKey, str]
 """Relation members are identified by their element key and role."""
 
 
@@ -529,6 +531,9 @@ def collect_elements(query: Query) -> List[Element]:
 
 
 def _collect_untyped(query: Query, collector: _ElementCollector) -> None:
+    if not query.result_set:
+        raise AssertionError
+
     # Here we populate 'untyped_dict' with both top level elements, and
     # relation members, while conflating their data if they appear as both.
     # We also populate 'member_dict'.
@@ -543,7 +548,7 @@ def _collect_untyped(query: Query, collector: _ElementCollector) -> None:
             continue
 
         for mem in elem_dict["members"]:
-            key: _ElementKey = (mem["type"], mem["ref"])
+            key = (mem["type"], mem["ref"])
             collector.untyped_dict[key].update(mem)
             collector.member_dict[elem_dict["id"]].append((key, mem.get("role")))
 
@@ -607,7 +612,7 @@ def _collect_typed(collector: _ElementCollector) -> None:
 
 def _collect_relationships(collector: _ElementCollector) -> None:
     for rel_id, mem_roles in collector.member_dict.items():
-        rel = collector.typed_dict[("relation", rel_id)]
+        rel = cast(Relation, collector.typed_dict[("relation", rel_id)])
 
         for mem_key, mem_role in mem_roles:
             mem = collector.typed_dict[mem_key]
@@ -648,7 +653,6 @@ def _geometry(raw_elem: OverpassDict) -> Optional[BaseGeometry]:
         lat, lon = raw_elem.get("lat"), raw_elem.get("lon")
         if lat and lon:
             return Point(lat, lon)
-        return None
 
     if raw_elem["type"] == "way":
         ls = _line(raw_elem)
@@ -684,6 +688,8 @@ def _geometry(raw_elem: OverpassDict) -> Optional[BaseGeometry]:
             return polys[0]
 
         return MultiPolygon(polys)
+
+    return None
 
 
 def _line(way: OverpassDict) -> Union[LineString, LinearRing, None]:

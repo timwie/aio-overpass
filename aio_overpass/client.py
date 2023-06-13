@@ -90,14 +90,14 @@ class Client:
         self,
         url: str = DEFAULT_INSTANCE,
         user_agent: str = DEFAULT_USER_AGENT,
-        runner: QueryRunner = None,
+        runner: Optional[QueryRunner] = None,
     ) -> None:
         self._url = url
         self._user_agent = user_agent
         self._runner = runner or DefaultQueryRunner()
 
-        self._maybe_session = None
-        self._maybe_sem = None
+        self._maybe_session: Optional[aiohttp.ClientSession] = None
+        self._maybe_sem: Optional[asyncio.BoundedSemaphore] = None
 
     def _session(self) -> aiohttp.ClientSession:
         """The session used for all requests of this client."""
@@ -151,8 +151,6 @@ class Client:
 
             (slots,) = match_slots_overall
             slots = int(slots) or None
-            free_slots = None
-            cooldown_secs = 0
 
             if slots:
                 cooldowns = [int(secs) for secs in match_cooldowns]
@@ -163,14 +161,21 @@ class Client:
                     free_slots = slots - len(cooldowns)
 
                 cooldown_secs = 0 if free_slots > 0 else min(cooldowns)
+
+                return Status(
+                    slots=slots,
+                    free_slots=free_slots,
+                    cooldown_secs=cooldown_secs,
+                )
+
+            return Status(
+                slots=slots,
+                free_slots=None,
+                cooldown_secs=0,
+            )
+
         except ValueError as err:
             raise _to_client_error(response) from err
-
-        return Status(
-            slots=slots,
-            free_slots=free_slots,
-            cooldown_secs=cooldown_secs,
-        )
 
     async def status(self) -> Status:
         """
@@ -267,7 +272,7 @@ class Client:
                 # cooldown in the next iteration.
                 status = await self._status(session=session, timeout=_next_timeout(query))
 
-                if _next_timeout_secs(query) and status.cooldown_secs > _next_timeout_secs(query):
+                if (timeout := _next_timeout_secs(query)) and status.cooldown_secs > timeout:
                     raise _giveup_error(query, loop)
 
                 await asyncio.sleep(status.cooldown_secs)
@@ -307,6 +312,7 @@ def _next_timeout_secs(query: Query) -> Optional[float]:
     if query.run_timeout_secs:
         # use epsilon since 0 means "no timeout"
         return max(sys.float_info.epsilon, query.run_timeout_secs - query.run_duration_secs)
+    return None
 
 
 def _next_timeout(query: Query) -> aiohttp.ClientTimeout:

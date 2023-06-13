@@ -19,7 +19,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from json import JSONDecodeError
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, no_type_check
 
 import aiohttp
 import aiohttp.typedefs
@@ -238,6 +238,7 @@ class QueryRejectCause(Enum):
             return "exceeded 'timeout'"
         if self == QueryRejectCause.EXCEEDED_MAXSIZE:
             return "exceeded 'maxsize'"
+        raise AssertionError()
 
 
 @dataclass
@@ -260,6 +261,7 @@ class QueryRejectError(QueryError):
         return f"{rejection}: {self.cause}"
 
 
+@no_type_check
 def _to_client_error(
     obj: Union[aiohttp.ClientResponse, aiohttp.ClientError]
 ) -> Union[CallError, ResponseError]:
@@ -271,9 +273,7 @@ def _to_client_error(
           but not an ``aiohttp.ClientResponseError``.
         - ``ResponseError`` if ``obj`` is a response or an ``aiohttp.ClientResponseError``.
     """
-    if not isinstance(obj, aiohttp.ClientResponseError) and not isinstance(
-        obj, aiohttp.ClientResponse
-    ):
+    if not isinstance(obj, (aiohttp.ClientResponseError, aiohttp.ClientResponse)):
         return CallError(cause=obj)
 
     error = ResponseError(
@@ -393,8 +393,7 @@ async def _raise_for_html_response(response: aiohttp.ClientResponse, query_kwarg
     if any(_is_ql_error(msg) for msg in errors):
         raise QueryLanguageError(kwargs=query_kwargs, remarks=errors)
 
-    reject_causes = (_match_reject_cause(err) for err in errors)
-    reject_causes = [cause for cause in reject_causes if cause]
+    reject_causes = [cause for err in errors if (cause := _match_reject_cause(err))]
 
     if reject_causes:
         raise QueryRejectError(kwargs=query_kwargs, remarks=errors, cause=reject_causes[0])
@@ -438,7 +437,7 @@ def _response_error(response: aiohttp.ClientResponse) -> ResponseError:
         request_info=response.request_info,
         history=response.history,
         status=response.status,
-        message=response.reason,
+        message=str(response.reason) if response.reason else "",
         headers=response.headers,
     )
 
@@ -454,6 +453,6 @@ def _query_response_error(
         request_info=response.request_info,
         history=response.history,
         status=response.status,
-        message=response.reason,
+        message=str(response.reason) if response.reason else "",
         headers=response.headers,
     )

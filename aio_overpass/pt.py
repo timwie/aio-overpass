@@ -2,7 +2,6 @@
 Classes and queries specialized on public transportation routes.
 """
 
-import itertools
 from collections import Counter
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -25,6 +24,7 @@ from aio_overpass.query import Query
 
 import shapely.ops
 from shapely.geometry import GeometryCollection, Point, Polygon
+from shapely.geometry.base import BaseGeometry
 
 
 __docformat__ = "google"
@@ -121,7 +121,9 @@ class RoutesWithinQuery(RouteQuery):
                   key.
     """
 
-    def __init__(self, polygon: Polygon, vehicles: List["Vehicle"] = None, **kwargs) -> None:
+    def __init__(
+        self, polygon: Polygon, vehicles: Optional[List["Vehicle"]] = None, **kwargs
+    ) -> None:
         if not vehicles:
             vehicles = list(Vehicle)
 
@@ -213,7 +215,7 @@ class Stop(Spatial):
         if stop_pos_name == platform_name and stop_pos_name is not None:
             return stop_pos_name
 
-        names = (stop_pos_name, platform_name, *(rel.tag("name") for rel in self.stop_areas))
+        names = [stop_pos_name, platform_name, *(rel.tag("name") for rel in self.stop_areas)]
         names = [name for name in names if name]
 
         if not names:
@@ -256,6 +258,7 @@ class Stop(Spatial):
             return self.stop_coords.geometry
         if isinstance(self.stop_coords, Point):
             return self.stop_coords
+        return None
 
     @property
     def _geometry(self) -> GeometryCollection:
@@ -263,10 +266,14 @@ class Stop(Spatial):
         geoms = []
 
         if self.platform:
-            geoms.append(self.platform.member.geometry)
+            # this can be None if the platform is a relation
+            geom: Optional[BaseGeometry] = getattr(self.platform.member, "geometry", None)
+            if geom:
+                geoms.append(geom)
 
         if self.stop_position:
-            geoms.append(self.stop_position.member.geometry)
+            member = cast(Node, self.stop_position.member)
+            geoms.append(member.geometry)
 
         if isinstance(self.stop_coords, Point) and self.stop_coords not in geoms:
             geoms.append(self.stop_coords)
@@ -276,8 +283,10 @@ class Stop(Spatial):
     def __repr__(self) -> str:
         if self.stop_position:
             elem = f"stop_position={self.stop_position.member}"
-        else:
+        elif self.platform:
             elem = f"platform={self.platform.member}"
+        else:
+            raise AssertionError
 
         return f"{type(self).__name__}({elem}, name='{self.name}')"
 
@@ -330,9 +339,9 @@ class RouteScheme(Enum):
     def version_number(self) -> Optional[int]:
         if self in (RouteScheme.EXPLICIT_V1, RouteScheme.ASSUME_V1):
             return 1
-
         if self in (RouteScheme.EXPLICIT_V2, RouteScheme.ASSUME_V2):
             return 2
+        return None
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}.{self.name}"
@@ -496,6 +505,8 @@ class Route(Spatial):
         if from_ and to:
             return f"{from_} => {to}"
 
+        return None
+
     @property
     def vehicle(self) -> Vehicle:
         """
@@ -503,15 +514,15 @@ class Route(Spatial):
 
         This value corresponds with the value of the relation's ``route`` key.
         """
+        if not self.relation.tags or "route" not in self.relation.tags:
+            raise AssertionError
         return Vehicle[self.relation.tags["route"].upper()]
 
     @property
     def bounds(self) -> Optional[Bbox]:
         """The bounding box around all stops of this route."""
         geom = GeometryCollection([stop._geometry for stop in self.stops if stop._geometry])
-        bounds = geom.bounds
-        if bounds:
-            return bounds
+        return geom.bounds or None
 
     @property
     def geojson(self) -> GeoJsonDict:
@@ -544,6 +555,7 @@ References:
 
 
 def collect_routes(query: RouteQuery, perimeter: Optional[Polygon] = None) -> List[Route]:
+    # TODO the way 'perimeter' works might be confusing
     """
     Consumes the result set of a query and produces ``Route`` objects.
 
@@ -553,8 +565,10 @@ def collect_routes(query: RouteQuery, perimeter: Optional[Polygon] = None) -> Li
 
     Args:
         query: The query that produced a result set of route relations.
-        perimeter: If set, ``stops`` of resulting routes will be limited to the exterior
-                   of this polygon. Any relation members in ``members`` will not be filtered.
+        perimeter: If set, ``stops`` at the end will be truncated if they are outside of this
+                   polygon. This means stops outside the polygon will still be in the list as
+                   long as there is at least one following stop that *is* inside the list.
+                   Any relation members in ``members`` will not be filtered.
 
     Raises:
         ValueError: if the input query has no result set
@@ -574,14 +588,8 @@ def collect_routes(query: RouteQuery, perimeter: Optional[Polygon] = None) -> Li
 
         # Filter stops by perimeter: cut off at the last stop that is in the perimeter.
         if perimeter:
-            nb_last_stops_skipped = sum(
-                1
-                for _ in itertools.takewhile(
-                    lambda s: perimeter.contains(s._stop_point), reversed(stops)
-                )
-            )
-            if nb_last_stops_skipped > 0:
-                del stops[-nb_last_stops_skipped:]
+            while stops and not perimeter.contains(stops[-1]._stop_point):
+                del stops[-1]
 
         route = Route(
             relation=route_rel,
@@ -774,8 +782,10 @@ def _at_same_stop(a: Relationship, b: Relationship) -> bool:
     if not a.member._geometry or not b.member._geometry:
         return False
 
-    a, b = shapely.ops.nearest_points(a.member._geometry, b.member._geometry)  # euclidean nearest
-    distance = fast_distance(*a.coords[0], *b.coords[0])
+    pt_a, pt_b = shapely.ops.nearest_points(
+        a.member._geometry, b.member._geometry
+    )  # euclidean nearest
+    distance = fast_distance(*pt_a.coords[0], *pt_b.coords[0])
     return distance <= _MAX_DISTANCE_TO_TRACK
 
 

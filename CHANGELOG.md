@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * `QueryError` is now similar to `ClientError` in that only objects of
   its subclasses are raised
 * The `repr()` of errors have slightly changed
+* Fix incorrect documentation of `collect_routes()`
 
 ## [0.1.2] - 2023-04-27
 * Fix zero timeout which would previously be interpreted as "no timeout"

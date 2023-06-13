@@ -111,7 +111,7 @@ class OrderedRouteView(Spatial):
         if len(self.ordering) < 2:
             return
 
-        ordering = []
+        ordering: List[OrderedRouteViewNode] = []
 
         for a, b in zip(self.ordering, self.ordering[1:]):
             if predicate(a, b):
@@ -144,9 +144,9 @@ class OrderedRouteView(Spatial):
         pre_gap, *_ = self.gap_split()
 
         by_stop = itertools.groupby(pre_gap.ordering, key=lambda node: node.path_idx)
-        by_stop = itertools.islice(by_stop, first_n - 1)
+        by_stop_truncated = itertools.islice(by_stop, first_n - 1)
 
-        ordering = [node for _, nodes in by_stop for node in nodes]
+        ordering = [node for _, nodes in by_stop_truncated for node in nodes]
 
         return replace(self, ordering=ordering)
 
@@ -161,10 +161,10 @@ class OrderedRouteView(Spatial):
 
         by_stop = itertools.groupby(pre_gap.ordering, key=lambda node: node.path_idx)
 
-        ordering = []
+        ordering: List[OrderedRouteViewNode] = []
 
-        for _, nodes in by_stop:
-            nodes = list(nodes)
+        for _, nodes_iter in by_stop:
+            nodes = list(nodes_iter)
             distance_end = nodes[-1].distance
 
             if (distance_end - distance_start) > distance:
@@ -189,8 +189,8 @@ class OrderedRouteView(Spatial):
 
         lines: List[Optional[LineString]] = [None for _ in range(max_nb_paths)]
 
-        for n, nodes in grouped:
-            nodes = [(node.lat, node.lon) for node in nodes]
+        for n, nodes_iter in grouped:
+            nodes = [(node.lat, node.lon) for node in nodes_iter]
             if len(nodes) < 2:
                 continue
             line = LineString(nodes)
@@ -214,15 +214,15 @@ class OrderedRouteView(Spatial):
             return MultiLineString([])
 
         # group consecutive stretches of lines or None values
-        stretches = itertools.groupby(iterable=paths, key=bool)
+        stretches_grouped = itertools.groupby(iterable=paths, key=bool)
 
         # select all sets of consecutive lines to merge them
-        stretches = (line_strings for has_track, line_strings in stretches if has_track)
+        stretches = (line_strings for has_track, line_strings in stretches_grouped if has_track)
 
         merged_lines = []
 
         for line_strings in stretches:
-            coords = []
+            coords: List[List[float]] = []
 
             for line in line_strings:
                 if not coords:
