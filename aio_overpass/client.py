@@ -34,9 +34,6 @@ __all__ = (
 DEFAULT_INSTANCE = "https://overpass-api.de/api/"
 DEFAULT_USER_AGENT = f"aio-overpass/{__version__} (https://github.com/timwie/aio-overpass)"
 
-# TODO document and expose this limit in Status
-_DEFAULT_SLOTS = 32
-
 
 @dataclass
 class Status:
@@ -50,11 +47,13 @@ class Status:
                     (or ``None`` if there is no rate limit).
         cooldown_secs: The number of seconds until a slot opens for this IP
                        (or 0 if there is a free slot).
+        concurrency: Maximum concurrent queries configured for this client.
     """
 
     slots: Optional[int]
     free_slots: Optional[int]
     cooldown_secs: int
+    concurrency: int
 
     def __repr__(self) -> str:
         f, s, c = self.free_slots, self.slots, self.cooldown_secs
@@ -79,6 +78,11 @@ class Client:
                     that identifies your application, and includes a way to contact you (f.e. an
                     e-mail, or a link to a repository). This is important if you make too many
                     requests, or queries that require a lot of resources.
+        concurrency: Affects the maximum number of concurrent queries. Usually, the API server
+                     status includes a number of slots it provides for each IP. If that is the
+                     case, we pick the minimum of that number of slots and ``concurrency`` as
+                     concurrency limit. If the server does not provide a limit itself,
+                     ``concurrency`` will be used as concurrency limit.
         runner: You can provide another query runner if you want to implement your own retry
                 strategy.
 
@@ -90,10 +94,15 @@ class Client:
         self,
         url: str = DEFAULT_INSTANCE,
         user_agent: str = DEFAULT_USER_AGENT,
+        concurrency: int = 32,
         runner: Optional[QueryRunner] = None,
     ) -> None:
+        if concurrency <= 0:
+            raise ValueError("'concurrency' must be > 0")
+
         self._url = url
         self._user_agent = user_agent
+        self._concurrency = concurrency
         self._runner = runner or DefaultQueryRunner()
 
         self._maybe_session: Optional[aiohttp.ClientSession] = None
@@ -118,10 +127,9 @@ class Client:
             return self._maybe_sem
 
         session = self._session()
-
         status = await self._status(session, **kwargs)
+        self._maybe_sem = asyncio.BoundedSemaphore(status.concurrency)
 
-        self._maybe_sem = asyncio.BoundedSemaphore(status.slots or _DEFAULT_SLOTS)
         return self._maybe_sem
 
     async def close(self) -> None:
@@ -162,16 +170,22 @@ class Client:
 
                 cooldown_secs = 0 if free_slots > 0 else min(cooldowns)
 
+                # pick the server's concurrent query limit if > 0 and < self._concurrency,
+                # or self._concurrency otherwise
+                concurrency = min(slots or self._concurrency, self._concurrency)
+
                 return Status(
                     slots=slots,
                     free_slots=free_slots,
                     cooldown_secs=cooldown_secs,
+                    concurrency=concurrency,
                 )
 
             return Status(
                 slots=slots,
                 free_slots=None,
                 cooldown_secs=0,
+                concurrency=self._concurrency,
             )
 
         except ValueError as err:
