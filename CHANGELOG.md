@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## Unreleased
+## [0.2.0] - 2023-06-14
 * `QueryError`: `messages` was renamed to `remarks`
 * Add `QueryResponseError`, which is raised for unexpected query responses
   instead of `QueryError`
@@ -35,3 +35,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [0.1.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.1
 [0.1.2]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.2
 [0.1.2.post1]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.2.post1
+[0.2.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.2.0
