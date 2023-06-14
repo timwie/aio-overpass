@@ -26,10 +26,32 @@ def fmt(c: Context):
     c.run("black test/", echo=True)
 
 @task
+def install(c: Context):
+    """Install all dependencies"""
+    c.run("poetry install --all-extras --with notebooks", echo=True)
+
+@task
 def lint(c: Context):
     """Run linter and type checker"""
     c.run("ruff check aio_overpass/", echo=True, warn=True)
     c.run("mypy aio_overpass/", echo=True, warn=True)
+
+@task
+def papermill(c: Context):
+    """Generate example notebooks with papermill"""
+
+    files = [
+        dict(
+            name="hamburg_u3",
+            id=1643221,
+            zoom=13,
+        )
+    ]
+
+    for file in files:
+        name, id, zoom = file["name"], file["id"], file["zoom"]
+        c.run(f"papermill examples/pt_ordered.ipynb examples/pt_ordered_{name}.ipynb -p id {id} -p zoom {zoom} -p interactive False", echo=True)
+        c.run("jupyter trust examples/*.ipynb", echo=True)
 
 @task
 def test(c: Context):

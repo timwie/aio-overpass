@@ -326,13 +326,13 @@ class Query:
             details["error"] = type(self.error).__name__
 
         if self.done:
-            details["result_size"] = f"{self.result_size_mb}mb"
+            details["result_size"] = f"{self.result_size_mb:.02f}mb"
 
             if self.nb_tries != 1:
-                details["query_duration"] = f"{self.query_duration_secs}s"
+                details["query_duration"] = f"{self.query_duration_secs:.02f}s"
 
         if self.nb_tries > 0:
-            details["run_duration"] = f"{self.run_duration_secs}s"
+            details["run_duration"] = f"{self.run_duration_secs:.02f}s"
 
         details_str = ", ".join((f"{k}={v!r}" for k, v in details.items()))
 

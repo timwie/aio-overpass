@@ -50,7 +50,9 @@ Available tasks:
   doc            Generate documentation
   doco           Generate documentation and open in browser
   fmt            Run code formatters
-  lint           Run linter
+  install        Install all dependencies
+  lint           Run linter and type checker
+  papermill      Generate example notebooks with papermill
   test           Run tests
   test-publish   Perform a dry run of publishing the package
   update         Update dependencies
