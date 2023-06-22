@@ -261,6 +261,9 @@ class Query:
         """
         All OSM edits that have been uploaded before this date are included.
 
+        It can take a couple of minutes for changes to the database to show up in the
+        Overpass API query results.
+
         The format is ``YYYY-MM-DDThh:mm:ssZ``.
         """
         if not self.result_set:
