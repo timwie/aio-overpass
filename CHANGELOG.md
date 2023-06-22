@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 * Fixed doc: `maxsize` is not megabytes, but mebibytes
 * `Query`: affected properties ending in `_mb` now end in `_mib`
+* Add a section on coordinates to the `README`
 
 <br>
 
