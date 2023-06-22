@@ -24,6 +24,7 @@ async def test_cancel_no_queries():
         n_cancelled = await c.cancel_queries()
 
     assert n_cancelled == 0
+    await c.close()
 
 
 @pytest.mark.asyncio
@@ -46,6 +47,7 @@ Done!
         n_cancelled = await c.cancel_queries()
 
     assert n_cancelled == 1
+    await c.close()
 
 
 @pytest.mark.asyncio
@@ -70,6 +72,7 @@ Done!
         n_cancelled = await c.cancel_queries()
 
     assert n_cancelled == 1
+    await c.close()
 
 
 @pytest.mark.asyncio
@@ -94,3 +97,4 @@ Done!
         n_cancelled = await c.cancel_queries()
 
     assert n_cancelled == 2
+    await c.close()
