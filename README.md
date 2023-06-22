@@ -243,7 +243,7 @@ json.dumps(elems[0].geojson, indent=4)
 <br>
 
 ## Related Projects
-- [Overpass API](https://github.com/drolbr/Overpass-API)
+- [Overpass API](https://github.com/drolbr/Overpass-API), and the [Overpass API Blog]
 - [Overpass Turbo], the best choice to prototype your queries in a browser
 - [Folium], which can be used to visualize GeoJSON on [Leaflet] maps
 - [OSMnx], which is specialized on street networks
@@ -259,6 +259,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 
 [Overpass API]: https://wiki.openstreetmap.org/wiki/Overpass_API
+[Overpass API Blog]: https://dev.overpass-api.de/blog/
 [Overpass QL]: https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL
 [OpenStreetMap]: https://www.openstreetmap.org
 
