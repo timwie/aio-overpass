@@ -28,7 +28,7 @@ __all__ = (
 
 
 DEFAULT_MAXSIZE = 512
-"""Default ``maxsize`` setting in megabytes"""
+"""Default ``maxsize`` setting in mebibytes"""
 
 DEFAULT_TIMEOUT = 180
 """Default ``timeout`` setting in seconds"""
@@ -136,14 +136,14 @@ class Query:
         return self._result_set
 
     @property
-    def result_size_mb(self) -> float:
-        """The size of the result set in megabytes."""
+    def result_size_mib(self) -> float:
+        """The size of the result set in mebibytes."""
         return self._result_set_bytes / 1024.0 / 1024.0
 
     @property
-    def maxsize_mb(self) -> int:
+    def maxsize_mib(self) -> int:
         """
-        The current value of the [maxsize:*] setting in megabytes.
+        The current value of the [maxsize:*] setting in mebibytes.
 
         This size indicates the maximum allowed memory for the query in bytes RAM on the server,
         as expected by the user. If the query needs more RAM than this value, the server may abort
@@ -152,8 +152,8 @@ class Query:
         """
         return int(self._settings["maxsize"]) // 1024 // 1024
 
-    @maxsize_mb.setter
-    def maxsize_mb(self, value: int) -> None:
+    @maxsize_mib.setter
+    def maxsize_mib(self, value: int) -> None:
         self._settings["maxsize"] = value * 1024 * 1024
 
     @property
@@ -295,7 +295,7 @@ class Query:
         else:
             query = "query <no kwargs>"
 
-        size = self.result_size_mb
+        size = self.result_size_mib
         time_query = self.query_duration_secs
         time_total = self.run_duration_secs
 
@@ -326,7 +326,7 @@ class Query:
             details["error"] = type(self.error).__name__
 
         if self.done:
-            details["result_size"] = f"{self.result_size_mb:.02f}mb"
+            details["result_size"] = f"{self.result_size_mib:.02f}mb"
 
             if self.nb_tries != 1:
                 details["query_duration"] = f"{self.query_duration_secs:.02f}s"
@@ -440,7 +440,7 @@ class DefaultQueryRunner(QueryRunner):
 
             # Double maxsize if exceeded.
             elif err.cause == QueryRejectCause.EXCEEDED_MAXSIZE:
-                query.maxsize_mb = max(query.maxsize_mb * 2, DEFAULT_MAXSIZE)
+                query.maxsize_mib = max(query.maxsize_mib * 2, DEFAULT_MAXSIZE)
 
 
 def _backoff_secs(tries: int) -> float:

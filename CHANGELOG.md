@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+* Fixed doc: `maxsize` is not megabytes, but mebibytes
+* `Query`: affected properties ending in `_mb` now end in `_mib`
+
 <br>
 
 ## [0.2.0] - 2023-06-14

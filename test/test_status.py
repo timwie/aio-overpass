@@ -1,8 +1,9 @@
+from aio_overpass import Client
+from aio_overpass.client import Status
+
 import pytest
 from aioresponses import aioresponses
 
-from aio_overpass import Client
-from aio_overpass.client import Status
 
 URL_STATUS = "https://overpass-api.de/api/status"
 

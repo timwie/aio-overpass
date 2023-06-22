@@ -1,7 +1,7 @@
+from aio_overpass import Client
+
 import pytest
 from aioresponses import aioresponses
-
-from aio_overpass import Client
 
 
 URL_KILL = "https://overpass-api.de/api/kill_my_queries"
