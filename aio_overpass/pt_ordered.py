@@ -3,8 +3,9 @@ Collect the routes of a ``RouteQuery`` with optimized geometry.
 """
 
 import itertools
+from collections.abc import Generator
 from dataclasses import dataclass, replace
-from typing import Any, Callable, Generator, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Optional, Union, cast
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import GeoJsonDict, Node, Relation, Relationship, Spatial, Way
@@ -73,7 +74,7 @@ class OrderedRouteView(Spatial):
     """
 
     route: Route
-    ordering: List[OrderedRouteViewNode]
+    ordering: list[OrderedRouteViewNode]
 
     @property
     def is_continuous(self) -> bool:
@@ -94,7 +95,7 @@ class OrderedRouteView(Spatial):
         return sequence_actual == sequence_continuous
 
     @property
-    def stops(self) -> List[Stop]:
+    def stops(self) -> list[Stop]:
         """All stops of this view where a path either starts or ends."""
         if not self.ordering:
             return []
@@ -111,7 +112,7 @@ class OrderedRouteView(Spatial):
         if len(self.ordering) < 2:
             return
 
-        ordering: List[OrderedRouteViewNode] = []
+        ordering: list[OrderedRouteViewNode] = []
 
         for a, b in zip(self.ordering, self.ordering[1:]):
             if predicate(a, b):
@@ -123,14 +124,14 @@ class OrderedRouteView(Spatial):
         ordering.append(b)
         yield replace(self, ordering=ordering)
 
-    def _group_by(self, key: Callable[[OrderedRouteViewNode], Any]) -> List["OrderedRouteView"]:
+    def _group_by(self, key: Callable[[OrderedRouteViewNode], Any]) -> list["OrderedRouteView"]:
         return list(self._split(predicate=lambda a, b: key(a) != key(b)))
 
-    def gap_split(self) -> List["OrderedRouteView"]:
+    def gap_split(self) -> list["OrderedRouteView"]:
         """Split this view wherever there's a gap in between stops."""
         return list(self._split(predicate=lambda a, b: b.path_idx > a.path_idx + 1))
 
-    def stop_split(self) -> List["OrderedRouteView"]:
+    def stop_split(self) -> list["OrderedRouteView"]:
         """Split this view at every stop, returning views between every pair of stops."""
         return self._group_by(key=lambda node: node.path_idx)
 
@@ -161,7 +162,7 @@ class OrderedRouteView(Spatial):
 
         by_stop = itertools.groupby(pre_gap.ordering, key=lambda node: node.path_idx)
 
-        ordering: List[OrderedRouteViewNode] = []
+        ordering: list[OrderedRouteViewNode] = []
 
         for _, nodes_iter in by_stop:
             nodes = list(nodes_iter)
@@ -175,7 +176,7 @@ class OrderedRouteView(Spatial):
         return replace(self, ordering=ordering)
 
     @property
-    def paths(self) -> List[Optional[LineString]]:
+    def paths(self) -> list[Optional[LineString]]:
         """
         The simple paths between every pair of stops.
 
@@ -187,7 +188,7 @@ class OrderedRouteView(Spatial):
 
         grouped = itertools.groupby(iterable=self.ordering, key=lambda node: node.path_idx)
 
-        lines: List[Optional[LineString]] = [None for _ in range(max_nb_paths)]
+        lines: list[Optional[LineString]] = [None for _ in range(max_nb_paths)]
 
         for n, nodes_iter in grouped:
             nodes = [(node.lat, node.lon) for node in nodes_iter]
@@ -222,7 +223,7 @@ class OrderedRouteView(Spatial):
         merged_lines = []
 
         for line_strings in stretches:
-            coords: List[List[float]] = []
+            coords: list[list[float]] = []
 
             for line in line_strings:
                 if not coords:
@@ -248,7 +249,7 @@ class OrderedRouteView(Spatial):
 
 def collect_ordered_routes(
     query: RouteQuery, perimeter: Optional[Polygon] = None, n_jobs: int = 1
-) -> List[OrderedRouteView]:
+) -> list[OrderedRouteView]:
     """
     Produce ``OrderedRouteViews`` objects from a result set.
 
@@ -473,7 +474,7 @@ def _find_stop_coords(
     return a
 
 
-def _paths(route_graph: MultiDiGraph, targets: List[Optional[Point]]) -> List[OrderedRouteViewNode]:
+def _paths(route_graph: MultiDiGraph, targets: list[Optional[Point]]) -> list[OrderedRouteViewNode]:
     """
     Find shortest paths in the directed route graph between every target stop.
 
@@ -516,14 +517,14 @@ def _paths(route_graph: MultiDiGraph, targets: List[Optional[Point]]) -> List[Or
     return traversal.ordering
 
 
-_GraphNode = Tuple[float, float]
+_GraphNode = tuple[float, float]
 
 
 @dataclass
 class _Traversal:
-    ordering: List[OrderedRouteViewNode]
-    targets_visited: List[Optional[Point]]
-    targets_left: List[Optional[Point]]
+    ordering: list[OrderedRouteViewNode]
+    targets_visited: list[Optional[Point]]
+    targets_left: list[Optional[Point]]
     distance: float
     path_idx: int
 
@@ -568,7 +569,7 @@ def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> _Traversal:
 
 
 def _traverse_path(
-    graph: MultiDiGraph, progress: _Traversal, path_nodes: List[_GraphNode]
+    graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_GraphNode]
 ) -> _Traversal:
     """
     Walk the path to visit the next stop, and collect path nodes along the way.

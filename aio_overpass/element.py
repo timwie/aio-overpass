@@ -2,8 +2,9 @@
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Optional, Union, cast
 
 from aio_overpass import Query
 
@@ -37,17 +38,17 @@ __all__ = (
     "collect_elements",
 )
 
-GeoJsonDict = Dict[str, Any]
+GeoJsonDict = dict[str, Any]
 """
 A dictionary representing a GeoJSON object.
 """
 
-OverpassDict = Dict[str, Any]
+OverpassDict = dict[str, Any]
 """
 A dictionary representing a JSON object returned by the Overpass API.
 """
 
-Bbox = Tuple[float, float, float, float]
+Bbox = tuple[float, float, float, float]
 """
 The bounding box of a spatial object.
 
@@ -170,7 +171,7 @@ class Element(Spatial):
     bounds: Optional[Bbox]
     center: Optional[Point]
     meta: Optional[Metadata]
-    relations: List["Relationship"]
+    relations: list["Relationship"]
 
     def tag(self, key: str, default: Any = None) -> Any:
         """
@@ -346,7 +347,7 @@ class Way(Element):
         - https://wiki.openstreetmap.org/wiki/Way
     """
 
-    node_ids: Optional[List[int]]
+    node_ids: Optional[list[int]]
     geometry: Union[LineString, LinearRing, None]
 
 
@@ -365,9 +366,9 @@ class Relation(Element):
         - https://wiki.openstreetmap.org/wiki/Relation
     """
 
-    members: List["Relationship"]
+    members: list["Relationship"]
 
-    def __iter__(self) -> Iterator[Tuple[Optional[str], Element]]:
+    def __iter__(self) -> Iterator[tuple[Optional[str], Element]]:
         for relship in self.members:
             yield relship.role, relship.member
 
@@ -474,22 +475,22 @@ class Relationship(Spatial):
 _KNOWN_ELEMENTS = {"node", "way", "relation", "area"}
 
 
-_ElementKey = Tuple[str, int]
+_ElementKey = tuple[str, int]
 """Elements are uniquely identified by the tuple (type, id)."""
 
-_MemberKey = Tuple[_ElementKey, str]
+_MemberKey = tuple[_ElementKey, str]
 """Relation members are identified by their element key and role."""
 
 
 class _ElementCollector:
     def __init__(self) -> None:
-        self.list: List[Element] = []
-        self.typed_dict: Dict[_ElementKey, Element] = {}
-        self.untyped_dict: Dict[_ElementKey, OverpassDict] = defaultdict(dict)
-        self.member_dict: Dict[int, List[_MemberKey]] = defaultdict(list)
+        self.list: list[Element] = []
+        self.typed_dict: dict[_ElementKey, Element] = {}
+        self.untyped_dict: dict[_ElementKey, OverpassDict] = defaultdict(dict)
+        self.member_dict: dict[int, list[_MemberKey]] = defaultdict(list)
 
 
-def collect_elements(query: Query) -> List[Element]:
+def collect_elements(query: Query) -> list[Element]:
     """
     Produce typed elements from the result set of a query.
 
@@ -574,7 +575,7 @@ def _collect_typed(collector: _ElementCollector) -> None:
             relations=[],  # add later
         )
 
-        cls: Type[Element]
+        cls: type[Element]
 
         if elem_type == "node":
             cls = Node

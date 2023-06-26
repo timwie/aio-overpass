@@ -3,9 +3,10 @@ Classes and queries specialized on public transportation routes.
 """
 
 from collections import Counter
+from collections.abc import Generator
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Generator, List, Optional, Set, Union, cast
+from typing import Any, Optional, Union, cast
 
 from aio_overpass._dist import fast_distance
 from aio_overpass._ql import one_of_filter, poly_filter
@@ -122,7 +123,7 @@ class RoutesWithinQuery(RouteQuery):
     """
 
     def __init__(
-        self, polygon: Polygon, vehicles: Optional[List["Vehicle"]] = None, **kwargs
+        self, polygon: Polygon, vehicles: Optional[list["Vehicle"]] = None, **kwargs
     ) -> None:
         if not vehicles:
             vehicles = list(Vehicle)
@@ -236,7 +237,7 @@ class Stop(Spatial):
         )
 
     @property
-    def stop_areas(self) -> Set[Relation]:
+    def stop_areas(self) -> set[Relation]:
         """Any stop area related to this stop."""
         return {
             relship_to_stop_area.relation
@@ -370,7 +371,7 @@ class Route(Spatial):
 
     relation: Relation
     scheme: RouteScheme
-    stops: List[Stop]
+    stops: list[Stop]
 
     @property
     def id(self) -> int:
@@ -417,7 +418,7 @@ class Route(Spatial):
         return master.tag(key, default)
 
     @property
-    def ways(self) -> List[Way]:
+    def ways(self) -> list[Way]:
         """
         The ways making up the path of the route.
 
@@ -431,7 +432,7 @@ class Route(Spatial):
         ]
 
     @property
-    def masters(self) -> List[Relation]:
+    def masters(self) -> list[Relation]:
         """
         Route master relations this route is a part of.
 
@@ -554,7 +555,7 @@ References:
 """
 
 
-def collect_routes(query: RouteQuery, perimeter: Optional[Polygon] = None) -> List[Route]:
+def collect_routes(query: RouteQuery, perimeter: Optional[Polygon] = None) -> list[Route]:
     # TODO the way 'perimeter' works might be confusing
     """
     Consumes the result set of a query and produces ``Route`` objects.

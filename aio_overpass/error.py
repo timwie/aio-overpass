@@ -19,7 +19,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from json import JSONDecodeError
-from typing import List, Optional, Tuple, Union, no_type_check
+from typing import Optional, Union, no_type_check
 
 import aiohttp
 import aiohttp.typedefs
@@ -100,7 +100,7 @@ class ResponseError(ClientError):
     """
 
     request_info: aiohttp.RequestInfo
-    history: Tuple[aiohttp.ClientResponse, ...]
+    history: tuple[aiohttp.ClientResponse, ...]
     status: int
     message: str
     headers: Optional[aiohttp.typedefs.LooseHeaders]
@@ -150,7 +150,7 @@ class QueryError(ClientError):
     """
 
     kwargs: dict
-    remarks: List[str]
+    remarks: list[str]
 
     def __str__(self) -> str:
         if self.kwargs:
@@ -444,7 +444,7 @@ def _response_error(response: aiohttp.ClientResponse) -> ResponseError:
 
 def _query_response_error(
     kwargs: dict,
-    remarks: List[str],
+    remarks: list[str],
     response: aiohttp.ClientResponse,
 ) -> QueryResponseError:
     return QueryResponseError(
