@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+* Drop Python 3.8 support. The Python versions supported by this release are 3.9-3.11.
 * Relaxed `networkx` dependency to `>=2.7` according to [SPEC 0]
 * Fixed doc: `maxsize` is not megabytes, but mebibytes
 * `Query`: affected properties ending in `_mb` now end in `_mib`

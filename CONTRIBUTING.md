@@ -24,12 +24,12 @@ You can follow [these steps](https://github.com/pyenv/pyenv#installation)
 to set it up. Afterwards you can create a dedicated venv like this:
 
 ```console
-$ pyenv install 3.8.16
-$ pyenv virtualenv 3.8.16 aio-overpass
+$ pyenv install 3.9.17
+$ pyenv virtualenv 3.9.17 aio-overpass39
 ```
 
-From now on, make sure that the venv is activated: `$ pyenv activate aio-overpass`.
-If you're using Pycharm, set the interpreter to `~/.pyenv/versions/aio-overpass/bin/python`,
+From now on, make sure that the venv is activated: `$ pyenv activate aio-overpass39`.
+If you're using Pycharm, set the interpreter to `~/.pyenv/versions/aio-overpass39/bin/python`,
 and it will always be activated in any terminal inside the IDE.
 
 Next up, clone the repository, and install the project and all dependencies:
