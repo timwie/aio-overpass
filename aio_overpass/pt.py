@@ -393,7 +393,7 @@ class Route(Spatial):
         if master and master.tags is not None:
             from_master = {k: v for k, v in master.tags.items() if k in _TAGS_FROM_ROUTE_MASTER}
 
-        return {**from_master, **from_relation}
+        return from_master | from_relation
 
     def tag(self, key: str, default: Any = None) -> Any:
         """
