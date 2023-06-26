@@ -20,14 +20,32 @@ keywords = [
     "public-transport",
 ]
 classifiers = [
+    # TODO "Development Status :: 4 - Beta"
+    #   - complete test suites
+    #   - usability testing
+    #   - check for performance issues
+
+    # TODO "Development Status :: 5 - Production/Stable"
+    #   - release 1.0
+    #   - field-tested
+    #   - no major bugs
+
+    "Development Status :: 3 - Alpha",
     "Framework :: aiohttp",
     "Framework :: AsyncIO",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Topic :: Scientific/Engineering :: GIS",
-    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
 ]
 
 [tool.poetry.dependencies]
