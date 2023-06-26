@@ -14,10 +14,13 @@ keywords = [
     "geojson",
     "geospatial",
     "gis",
-    "open-street-map",
+    "openstreetmap",
     "osm",
     "overpass-api",
     "public-transport",
+    "spatial-analysis",
+    "spatial-data",
+    "shapely",
 ]
 classifiers = [
     # TODO "Development Status :: 4 - Beta"
