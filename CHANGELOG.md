@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+* Relaxed `networkx` dependency to `>=2.7` according to [SPEC 0]
 * Fixed doc: `maxsize` is not megabytes, but mebibytes
 * `Query`: affected properties ending in `_mb` now end in `_mib`
 * Add a section on coordinates to the `README`
@@ -41,3 +42,5 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [0.1.2]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.2
 [0.1.2.post1]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.2.post1
 [0.2.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.2.0
+
+[SPEC 0]: https://scientific-python.org/specs/spec-0000/
