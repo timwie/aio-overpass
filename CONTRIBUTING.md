@@ -55,6 +55,7 @@ Available tasks:
   papermill      Generate example notebooks with papermill
   test           Run tests
   test-publish   Perform a dry run of publishing the package
+  tree           Display the tree of dependencies
   update         Update dependencies
 ```
 
