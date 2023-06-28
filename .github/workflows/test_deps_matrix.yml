@@ -9,13 +9,14 @@ jobs:
     name: Test dependency combination
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        # using 3*4*3=36 out of the maximum 256 jobs
+        # using 3*4*2=24 out of the maximum 256 jobs
         python: ["3.9", "3.10", "3.11"]
         aiohttp: ["3.8"]
         joblib: ["1.2"]
         networkx: ["2.7", "2.8", "3.0", "3.1"]
-        numpy: ["1.22", "1.23", "1.24"]
+        numpy: ["1.23", "1.24"]  # https://github.com/numpy/numpy/blob/main/numpy/core/code_generators/cversions.txt
         shapely: ["2.0"]
     steps:
       - name: Check out repository
