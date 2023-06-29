@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.3.0] - 2023-06-29
 * Drop Python 3.8 support. The Python versions supported by this release are 3.9-3.11.
 * Relaxed `networkx` dependency to `>=2.7` according to [SPEC 0]
 * Increased `joblib` dependency to `~1.3`, which makes it ready for Python 3.12 among other things
@@ -44,5 +44,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [0.1.2]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.2
 [0.1.2.post1]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.2.post1
 [0.2.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.2.0
+[0.3.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.3.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
