@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 * Drop Python 3.8 support. The Python versions supported by this release are 3.9-3.11.
 * Relaxed `networkx` dependency to `>=2.7` according to [SPEC 0]
+* Increased `joblib` dependency to `~1.3`, which makes it ready for Python 3.12 among other things
 * Fixed doc: `maxsize` is not megabytes, but mebibytes
 * `Query`: affected properties ending in `_mb` now end in `_mib`
 * Add a section on coordinates to the `README`

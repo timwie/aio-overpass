@@ -336,6 +336,8 @@ def collect_ordered_routes(
             for route, graph in zip(views, graphs)
         ]
 
+        # TODO think about using joblib.Parallel's "return_as"
+        #   => can produce a generator that yields the results as soon as they are available
         with joblib.parallel_backend(backend="loky", n_jobs=n_jobs):
             paths = joblib.Parallel()(joblib.delayed(_paths)(*args) for args in parallel_args)
 
