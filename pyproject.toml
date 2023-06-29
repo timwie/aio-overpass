@@ -51,6 +51,7 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
+"Changelog" = "https://github.com/timwie/aio-overpass/blob/main/CHANGELOG.md"
 "Coverage" = "https://codecov.io/gh/timwie/aio-overpass"
 
 [tool.poetry.dependencies]
