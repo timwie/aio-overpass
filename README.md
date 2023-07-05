@@ -5,6 +5,7 @@ aio-overpass
 [![codecov](https://codecov.io/gh/timwie/aio-overpass/branch/main/graph/badge.svg?token=YX1218U740)](https://codecov.io/gh/timwie/aio-overpass)
 [![PyPI version](https://badge.fury.io/py/aio_overpass.svg)](https://badge.fury.io/py/aio_overpass)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/aio-overpass)
+[![API reference](https://img.shields.io/badge/API%20reference-555555)](http://www.timwie.dev/aio-overpass/)
 </h1>
 
 A client for the [Overpass API], a read-only API that serves up custom selected
