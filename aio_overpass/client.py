@@ -4,6 +4,7 @@ import asyncio
 import logging
 import re
 import sys
+from contextlib import suppress
 from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
@@ -98,7 +99,8 @@ class Client:
         runner: Optional[QueryRunner] = None,
     ) -> None:
         if concurrency <= 0:
-            raise ValueError("'concurrency' must be > 0")
+            msg = "'concurrency' must be > 0"
+            raise ValueError(msg)
 
         self._url = url
         self._user_agent = user_agent
@@ -135,15 +137,13 @@ class Client:
     async def close(self) -> None:
         """Cancel all running queries and close the underlying session."""
         if self._maybe_session and not self._maybe_session.closed:
-            try:
+            # do not care if this fails
+            with suppress(CallError):
                 _ = await self.cancel_queries()
-            except CallError:
-                pass  # do not care if this fails
 
-            try:
+            # is raised when there are still active queries. that's ok
+            with suppress(aiohttp.ServerDisconnectedError):
                 await self._maybe_session.close()
-            except aiohttp.ServerDisconnectedError:
-                pass  # is raised when there are still active queries. that's ok
 
     async def _status(self, session: aiohttp.ClientSession, **kwargs) -> "Status":
         try:

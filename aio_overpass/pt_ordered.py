@@ -1,6 +1,4 @@
-"""
-Collect the routes of a ``RouteQuery`` with optimized geometry.
-"""
+"""Collect the routes of a ``RouteQuery`` with optimized geometry."""
 
 import itertools
 from collections.abc import Generator
@@ -136,11 +134,10 @@ class OrderedRouteView(Spatial):
         return self._group_by(key=lambda node: node.path_idx)
 
     def take(self, first_n: int) -> "OrderedRouteView":
-        """
-        Returns the continuous view that connects a maximum number of stops at the beginning.
-        """
+        """Returns the continuous view that connects a maximum number of stops at the beginning."""
         if first_n < 2:
-            raise ValueError("cannot take less than two stops")
+            msg = "cannot take less than two stops"
+            raise ValueError(msg)
 
         pre_gap, *_ = self.gap_split()
 
@@ -153,8 +150,11 @@ class OrderedRouteView(Spatial):
 
     def trim(self, distance: float) -> "OrderedRouteView":
         """
-        Returns the continuous view that is not longer than a given distance,
-        starting from the first stop.
+        Trim this view to some distance in meters.
+
+        Returns:
+            the continuous view that is not longer than a given distance,
+            starting from the first stop.
         """
         pre_gap, *_ = self.gap_split()
 
@@ -243,6 +243,7 @@ class OrderedRouteView(Spatial):
 
     @property
     def geojson(self) -> GeoJsonDict:
+        """A mapping of this object, using the GeoJSON format."""
         # TODO OrderedRouteView geojson
         raise NotImplementedError
 
@@ -349,12 +350,14 @@ def collect_ordered_routes(
 
 def _route_graph(rel: Relation) -> MultiDiGraph:
     """
-    Build a directed graph of a route's track where
-     - graph nodes will be a tuple of lat, lon
-     - graph nodes are every node of every way (stop positions can lie anywhere on the track)
-     - ways that are listed more than once in the relation have parallel edges
-     - inverse edges are added for each way, unless it is tagged as a oneway
-     - edges remain unweighted for now
+    Build a directed graph of a route's track.
+
+    In this graph…
+     - …nodes will be a tuple of lat, lon
+     - …nodes are every node of every way (stop positions can lie anywhere on the track)
+     - …ways that are listed more than once in the relation have parallel edges
+     - …inverse edges are added for each way, unless it is tagged as a oneway
+     - …edges remain unweighted for now
     """
     graph = MultiDiGraph()
 
@@ -416,17 +419,19 @@ def _find_stop_coords(
     stop: Stop, track_graph: MultiDiGraph, track_nodes: MultiPoint, track_ways: MultiLineString
 ) -> Union[Node, Point, None]:
     """
-    Find a node on the track that closesly represents the stop position:
-     - None if no appropriate node found
-     - Some Node if we found a stop position in either relation or a stop relation
-     - Some Point if we found a close node on the track, that is *probably* close to the
-       actual stop position
+    Find a node on the track that closesly represents the stop position.
 
     Args:
         stop: the stop to locate on the graph
         track_graph: the graph that represents the route's track
         track_nodes: a point for every node in the graph
         track_ways: a line string for every edge in the graph
+
+    Returns:
+     - None if no appropriate node found
+     - Some Node if we found a stop position in either relation or a stop relation
+     - Some Point if we found a close node on the track, that is *probably* close to the
+       actual stop position
     """
     # (a) check if the route relation has a stop_position for this stop
     if stop.stop_position:
@@ -489,7 +494,6 @@ def _paths(route_graph: MultiDiGraph, targets: list[Optional[Point]]) -> list[Or
         route_graph: the unweighted, directed graph of the route's track
         targets: the stop positions to connect
     """
-
     # set edge weights to metric distance
     for u, v in route_graph.edges():
         if _WEIGHT_KEY in route_graph[u][v][0]:
@@ -551,8 +555,8 @@ def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> _Traversal:
             pass
 
     next_progress = _Traversal(
-        ordering=progress.ordering
-        + [
+        ordering=[
+            *progress.ordering,
             OrderedRouteViewNode(
                 lon=u[1],
                 lat=u[0],
@@ -560,7 +564,7 @@ def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> _Traversal:
                 path_idx=progress.path_idx,
                 n_seen_stops=len(progress.targets_visited),
                 distance=progress.distance,
-            )
+            ),
         ],
         targets_left=progress.targets_left[1:],
         targets_visited=progress.targets_visited + progress.targets_left[:1],
@@ -583,7 +587,8 @@ def _traverse_path(
     would be too drastic.
     """
     if not path_nodes:
-        raise ValueError("expected non-empty list of nodes")
+        msg = "expected non-empty list of nodes"
+        raise ValueError(msg)
 
     edges = list(zip(path_nodes, path_nodes[1:]))
     n_seen_stops = len(progress.targets_visited)

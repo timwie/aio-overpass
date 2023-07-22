@@ -233,20 +233,17 @@ class Query:
 
     @property
     def run_duration_secs(self) -> float:
-        """
-        The total required time for this query in seconds (so far).
-        """
-        if self._time_end_try > 0.0:
-            end = self._time_end_try
-        else:
-            end = asyncio.get_event_loop().time()
+        """The total required time for this query in seconds (so far)."""
+        end = self._time_end_try if self._time_end_try > 0.0 else asyncio.get_event_loop().time()
         return end - self._time_start
 
     @property
     def api_version(self) -> Optional[str]:
         """
-        The Overpass API version used by the queried instance,
-        f.e. ``Overpass API 0.7.56.8 7d656e78``.
+        The Overpass API version used by the queried instance.
+
+        Returns:
+            f.e. ``"Overpass API 0.7.56.8 7d656e78"``.
 
         References:
             - https://wiki.openstreetmap.org/wiki/Overpass_API/versions
@@ -274,6 +271,8 @@ class Query:
     @property
     def timestamp_areas(self) -> Optional[str]:
         """
+        All area data edits that have been uploaded before this date are included.
+
         If the query involves area data processing, this is the date of the latest edit
         that has been considered in the most recent batch run of the area generation.
 
@@ -293,10 +292,7 @@ class Query:
         return self.result_set["osm3s"].get("copyright") or _COPYRIGHT
 
     def __str__(self) -> str:
-        if self.kwargs:
-            query = f"query {self.kwargs}"
-        else:
-            query = "query <no kwargs>"
+        query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
 
         size = self.result_size_mib
         time_query = self.query_duration_secs
@@ -354,20 +350,23 @@ class QueryRunner(Protocol):
     """
 
     async def __call__(self, query: Query) -> None:
+        """Called with the current query state before the client makes an API request."""
         pass
 
 
 class DefaultQueryRunner(QueryRunner):
     """
-    A general query runner that
-        - retries with an increasing back-off period in between tries if the server is too busy
-        - retries and doubles timeout and maxsize settings if they were exceeded
-        - limits the number of tries
-        - caches query results (useful when debugging)
+    The default query runner.
 
-    This runner does *not*
-        - limit the total time a query runs, including retries
-        - lower timeout and maxsize settings if the server rejected a query
+    This runner…
+        - …retries with an increasing back-off period in between tries if the server is too busy
+        - …retries and doubles timeout and maxsize settings if they were exceeded
+        - …limits the number of tries
+        - …caches query results (useful when debugging)
+
+    This runner does *not*…
+        - …limit the total time a query runs, including retries
+        - …lower timeout and maxsize settings if the server rejected a query
 
     Args:
         max_tries: The maximum number of times a query is tried. (5 by default)
@@ -387,8 +386,8 @@ class DefaultQueryRunner(QueryRunner):
         try:
             with open(file_path) as file:
                 query._result_set = json.load(file)
-        except (OSError, json.JSONDecodeError) as err:
-            _logger.error(f"failed to read cached {query}", exc_info=err)
+        except (OSError, json.JSONDecodeError):
+            _logger.exception(f"failed to read cached {query}")
 
     def _cache_write(self, query: Query) -> None:
         if not self._cache_dir or not self._cache_dir.is_dir():
@@ -399,10 +398,11 @@ class DefaultQueryRunner(QueryRunner):
         try:
             with open(file_path, "w") as file:
                 json.dump(query.result_set, file)
-        except OSError as err:
-            _logger.error(f"failed to cache {query}", exc_info=err)
+        except OSError:
+            _logger.exception(f"failed to cache {query}")
 
     async def __call__(self, query: Query) -> None:
+        """Called with the current query state before the client makes an API request."""
         # Check cache ahead of first try
         if query.nb_tries == 0:
             self._cache_read(query)

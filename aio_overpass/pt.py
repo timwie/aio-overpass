@@ -1,6 +1,4 @@
-"""
-Classes and queries specialized on public transportation routes.
-"""
+"""Classes and queries specialized on public transportation routes."""
 
 from collections import Counter
 from collections.abc import Generator
@@ -168,10 +166,12 @@ class Connection(Enum):
 
     @property
     def entry_possible(self) -> bool:
+        """``True`` if you can enter at this stop on the route."""
         return self != Connection.EXIT_ONLY
 
     @property
     def exit_possible(self) -> bool:
+        """``True`` if you can exit at this stop on the route."""
         return self != Connection.ENTRY_ONLY
 
     def __repr__(self) -> str:
@@ -249,6 +249,7 @@ class Stop(Spatial):
 
     @property
     def geojson(self) -> GeoJsonDict:
+        """A mapping of this object, using the GeoJSON format."""
         # TODO Stop geojson
         raise NotImplementedError
 
@@ -338,6 +339,7 @@ class RouteScheme(Enum):
 
     @property
     def version_number(self) -> Optional[int]:
+        """Public transport tagging scheme."""
         if self in (RouteScheme.EXPLICIT_V1, RouteScheme.ASSUME_V1):
             return 1
         if self in (RouteScheme.EXPLICIT_V2, RouteScheme.ASSUME_V2):
@@ -527,6 +529,7 @@ class Route(Spatial):
 
     @property
     def geojson(self) -> GeoJsonDict:
+        """A mapping of this object, using the GeoJSON format."""
         # TODO Route geojson
         raise NotImplementedError
 
@@ -551,7 +554,7 @@ Tags that, by convention, can be applied to route masters instead of their route
 in order to avoid duplication.
 
 References:
-    - https://wiki.openstreetmap.org/wiki/Relation:route_master 
+    - https://wiki.openstreetmap.org/wiki/Relation:route_master
 """
 
 
@@ -633,8 +636,9 @@ def _scheme(route: Relation) -> RouteScheme:
 
 def _stops(route_relation: Relation) -> Generator[Stop, None, None]:
     """
-    Group route relation members so that each member belongs to the same stop along
-    the route. Typically, a stop is represented by a stop position or platform, or both.
+    Group route relation members so that each member belongs to the same stop along the route.
+
+    Typically, a stop is represented by a stop position or platform, or both.
     """
     idx = 0
 
@@ -724,9 +728,7 @@ def _role(relship: Relationship) -> _RouteRole:
 
 
 def _share_stop_area(a: Relationship, b: Relationship) -> bool:
-    """
-    ``True`` if the given route members share least one common stop area.
-    """
+    """``True`` if the given route members share least one common stop area."""
     a_areas = {
         relship.relation.id
         for relship in a.member.relations
@@ -742,8 +744,11 @@ def _share_stop_area(a: Relationship, b: Relationship) -> bool:
 
 def _connection_compatible(a: Connection, b: Connection) -> bool:
     """
-    ``False`` if one of the connections is entry-only, while the other is exit-only,
-    ``True`` otherwise.
+    Check whether two connections are compatible.
+
+    Returns:
+        ``False`` if one of the connections is entry-only, while the other is exit-only,
+        ``True`` otherwise.
     """
     if a == Connection.ENTRY_AND_EXIT or b == Connection.ENTRY_AND_EXIT:
         return True

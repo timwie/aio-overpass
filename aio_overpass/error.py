@@ -97,6 +97,13 @@ class ResponseError(ClientError):
     This error is raised when a request fails, but we can't specifically say why.
     This may indicate a bug on our end, since the client is meant to process almost any
     response of an Overpass API instance.
+
+    Attributes:
+        request_info: Contains information about request.
+        history: History from failed response.
+        status: HTTP status code of response, e.g. ``400``.
+        message: Message of response, e.g. ``"OK"``.
+        headers: Headers in response, a list of pairs.
     """
 
     request_info: aiohttp.RequestInfo
@@ -107,6 +114,7 @@ class ResponseError(ClientError):
 
     @property
     def response(self) -> aiohttp.ClientResponse:
+        """Client response returned by ``aiohttp.ClientSession.request()`` and family."""
         return self.history[-1]
 
     def __str__(self) -> str:
@@ -131,11 +139,7 @@ class GiveupError(ClientError):
     after_secs: float
 
     def __str__(self) -> str:
-        if self.kwargs:
-            query = f"query {self.kwargs}"
-        else:
-            query = "query <no kwargs>"
-
+        query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
         return f"gave up on {query} after {self.after_secs:.01f} seconds"
 
 
@@ -153,18 +157,9 @@ class QueryError(ClientError):
     remarks: list[str]
 
     def __str__(self) -> str:
-        if self.kwargs:
-            query = f"query {self.kwargs}"
-        else:
-            query = "query <no kwargs>"
-
+        query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
         first = f"'{self.remarks[0]}'"
-
-        if len(self.remarks) > 1:
-            rest = f" (+{len(self.remarks) - 1} more)"
-        else:
-            rest = ""
-
+        rest = f" (+{len(self.remarks) - 1} more)" if len(self.remarks) > 1 else ""
         return f"{query} failed: {first}{rest}"
 
 
@@ -191,14 +186,12 @@ class QueryLanguageError(QueryError):
 
 
 class QueryRejectCause(Enum):
-    """
-    Details why a query was rejected or cancelled by an API server.
-    """
+    """Details why a query was rejected or cancelled by an API server."""
 
     TOO_BUSY = auto()
     """
     Gateway rejection. The server has already so much load that the request cannot be executed.
-    
+
     Smaller ``[timeout:*]`` and/or ``[maxsize:*]`` values might make the request acceptable.
     """
 
@@ -215,7 +208,7 @@ class QueryRejectCause(Enum):
     """
     Runtime rejection. The query has been (or surely will be) running longer than its proposed
     ``[timeout:*]``, and has been cancelled by the server.
-    
+
     A higher ``[timeout:*]`` value might allow the query run to completion, but also makes it
     more likely to be rejected by a server under heavy load, before executing it (see ``TOO_BUSY``).
     """
@@ -224,7 +217,7 @@ class QueryRejectCause(Enum):
     """
     Runtime rejection. The memory required to execute the query has (or surely will) exceed
     its proposed ``[maxsize:*]``, and has been cancelled by the server.
-    
+
     A higher ``[maxsize:*]`` value might allow the query run to completion, but also makes it
     more likely to be rejected by a server under heavy load, before executing it (see ``TOO_BUSY``).
     """

@@ -52,7 +52,7 @@ Bbox = tuple[float, float, float, float]
 """
 The bounding box of a spatial object.
 
-This tuple can be understood as any of 
+This tuple can be understood as any of
     - ``(s, w, n, e)``
     - ``(minlat, minlon, maxlat, maxlon)``
     - ``(minx, miny, maxx, maxy)``
@@ -96,7 +96,7 @@ class Spatial(ABC):
 
     @property
     def __geo_interface__(self) -> GeoJsonDict:
-        """See ``geojson``"""
+        """See ``geojson``."""
         return self.geojson
 
 
@@ -123,8 +123,9 @@ class Metadata:
 @dataclass(repr=False, eq=False)
 class Element(Spatial):
     """
-    Elements are the basic components of OpenStreetMap's data,
-    and the typical members in the result set of an Overpass API query.
+    Elements are the basic components of OpenStreetMap's data.
+
+    A query's result set is made up of these elements.
 
     Objects of this class do not necessarily describe OSM elements in their entirety.
     The degrees of detail are decided by the ``out`` statements used in an Overpass query:
@@ -199,12 +200,14 @@ class Element(Spatial):
 
     @property
     def link(self) -> str:
-        """This element on openstreetmap.org"""
+        """This element on openstreetmap.org."""
         return f"https://www.openstreetmap.org/{self.type}/{self.id}"
 
     @property
     def geojson(self) -> GeoJsonDict:
         """
+        A mapping of this object, using the GeoJSON format.
+
         Objects are mapped as the following:
          - ``Node`` -> ``Feature`` with optional ``Point`` geometry
          - ``Way`` -> ``Feature`` with optional ``LineString`` geometry
@@ -354,8 +357,9 @@ class Way(Element):
 @dataclass(repr=False, eq=False)
 class Relation(Element):
     """
-    A relation is a group of nodes and ways that have a logical or geographic relationship,
-    which is described through its tags.
+    A relation is a group of nodes and ways that have a logical or geographic relationship.
+
+    This relationship is described through its tags.
 
     For relations that describe an area, refer to the ``AreaRelation`` class.
 
@@ -522,7 +526,8 @@ def collect_elements(query: Query) -> list[Element]:
                   or when building derived elements that are missing common keys.
     """
     if not query.done:
-        raise ValueError("query has no result set")
+        msg = "query has no result set"
+        raise ValueError(msg)
 
     collector = _ElementCollector()
     _collect_untyped(query, collector)
@@ -648,7 +653,8 @@ def _geometry(raw_elem: OverpassDict) -> Optional[BaseGeometry]:
         ValueError: if element is not of type 'node', 'way', 'relation', or 'area'
     """
     if raw_elem.get("type") not in _KNOWN_ELEMENTS:
-        raise ValueError("expected element of type 'node', 'way', 'relation', or 'area'")
+        msg = "expected element of type 'node', 'way', 'relation', or 'area'"
+        raise ValueError(msg)
 
     if raw_elem["type"] == "node":
         lat, lon = raw_elem.get("lat"), raw_elem.get("lon")
@@ -697,10 +703,8 @@ def _line(way: OverpassDict) -> Union[LineString, LinearRing, None]:
     """Returns the geometry of a way in the result set."""
     if "geometry" not in way or len(way["geometry"]) < 2:
         return None
-    if way["geometry"][0] == way["geometry"][-1]:
-        cls = LinearRing
-    else:
-        cls = LineString
+    is_ring = way["geometry"][0] == way["geometry"][-1]
+    cls = LinearRing if is_ring else LineString
     return cls((c["lat"], c["lon"]) for c in way["geometry"])
 
 
@@ -713,8 +717,7 @@ def _flatten(obj: BaseGeometry) -> Iterable[BaseGeometry]:
 
 def _is_area_element(el: OverpassDict) -> bool:
     """
-    Decide if the given element likely represents an area,
-    and should be viewed as a (multi-)polygon.
+    Decide if ``el`` likely represents an area, and should be viewed as a (multi-)polygon.
 
     Args:
         el: a way or relation from a query's result set
