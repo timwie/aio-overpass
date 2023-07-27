@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+* Added missing docstrings
+* Slight updates to existing docstrings
+* Added optional `logger` argument to `Query`. All logging output of `aio-overpass`
+  is fed into this logger by the `Client` and query runner
+* Added and updated log messages in the client and default query runner
+
+<br>
+
 ## [0.3.0] - 2023-06-29
 * Drop Python 3.8 support. The Python versions supported by this release are 3.9-3.11.
 * Relaxed `networkx` dependency to `>=2.7` according to [SPEC 0]

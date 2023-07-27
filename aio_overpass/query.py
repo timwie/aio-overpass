@@ -47,14 +47,16 @@ class Query:
     Args:
         input_code: The input Overpass QL code. Note that some settings might be changed
                     by query runners, notably the 'timeout' and 'maxsize' settings.
+        logger: The logger to use for all logging output related to this query.
         **kwargs: Additional keyword arguments that can be used to identify queries.
 
     References:
         - https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL
     """
 
-    def __init__(self, input_code: str, **kwargs) -> None:
+    def __init__(self, input_code: str, logger: Optional[logging.Logger] = None, **kwargs) -> None:
         self._input_code = input_code
+        self._logger = logger
         self._kwargs = kwargs
 
         self._settings = dict(_SETTING_PATTERN.findall(input_code))
@@ -81,8 +83,7 @@ class Query:
     def _has_cooldown(self) -> bool:
         """When ``True``, we should query the API status to retrieve our cooldown period."""
         return (
-            self.error is not None
-            and isinstance(self.error, QueryRejectError)
+            isinstance(self.error, QueryRejectError)
             and self.error.cause == QueryRejectCause.TOO_MANY_QUERIES
         )
 
@@ -103,6 +104,11 @@ class Query:
         The default query runner will log these values when a query is run.
         """
         return self._kwargs
+
+    @property
+    def logger(self) -> Optional[logging.Logger]:
+        """If set, this is the logger used for logging output related to this query."""
+        return self._logger
 
     @property
     def nb_tries(self) -> int:
@@ -306,7 +312,8 @@ class Query:
             else:
                 details = f"{size}mb in {time_query:.01f} ({time_total:.01f})s"
         else:
-            details = f"failing after {self.nb_tries} tries, {time_total:.01f}s"
+            t = "try" if self.nb_tries == 1 else "tries"
+            details = f"failing after {self.nb_tries} {t}, {time_total:.01f}s"
 
         return f"{query} ({details})"
 
@@ -377,7 +384,13 @@ class DefaultQueryRunner(QueryRunner):
         self._max_tries = max_tries
         self._cache_dir = cache_dir
 
+    @classmethod
+    def _logger(cls, query: Query) -> logging.Logger:
+        return query.logger or logging.getLogger(f"{cls.__module__}.{cls.__name__}")
+
     def _cache_read(self, query: Query) -> None:
+        logger = DefaultQueryRunner._logger(query)
+
         if not self._cache_dir or not self._cache_dir.is_dir():
             return
 
@@ -386,10 +399,13 @@ class DefaultQueryRunner(QueryRunner):
         try:
             with open(file_path) as file:
                 query._result_set = json.load(file)
+                logger.info(f"{query} was cached")
         except (OSError, json.JSONDecodeError):
-            _logger.exception(f"failed to read cached {query}")
+            logger.exception(f"failed to read cached {query}")
 
     def _cache_write(self, query: Query) -> None:
+        logger = DefaultQueryRunner._logger(query)
+
         if not self._cache_dir or not self._cache_dir.is_dir():
             return
 
@@ -399,10 +415,12 @@ class DefaultQueryRunner(QueryRunner):
             with open(file_path, "w") as file:
                 json.dump(query.result_set, file)
         except OSError:
-            _logger.exception(f"failed to cache {query}")
+            logger.exception(f"failed to cache {query}")
 
     async def __call__(self, query: Query) -> None:
         """Called with the current query state before the client makes an API request."""
+        logger = DefaultQueryRunner._logger(query)
+
         # Check cache ahead of first try
         if query.nb_tries == 0:
             self._cache_read(query)
@@ -414,36 +432,37 @@ class DefaultQueryRunner(QueryRunner):
 
         err = query.error
 
+        # Do not retry if we exhausted all tries, or when a retry would not change the result.
+        failed = (
+            query.nb_tries == self._max_tries
+            or isinstance(err, (ResponseError, QueryLanguageError))
+        )
+
         # Exhausted all tries; do not retry.
-        if err and query.nb_tries == self._max_tries:
-            raise err
-
-        # Response errors usually indicate a bug in the client; do not retry.
-        if isinstance(err, ResponseError):
-            raise err
-
-        # QL error; do not retry.
-        if isinstance(err, QueryLanguageError):
+        if err and failed:
+            logger.error(f"give up on {query}", exc_info=err)
             raise err
 
         if isinstance(err, QueryRejectError):
             # Wait if the server is too busy.
             if err.cause == QueryRejectCause.TOO_BUSY:
                 backoff = _backoff_secs(query.nb_tries)
-                _logger.debug(f"retry {query} in {backoff:.1f}s")
+                logger.info(f"retry {query} in {backoff:.1f}s")
                 await asyncio.sleep(backoff)
 
             # Wait until a slot opens if the rate limit was exceeded.
             elif err.cause == QueryRejectCause.TOO_MANY_QUERIES:
-                return  # let client enforce cooldown
+                pass  # let client enforce cooldown
 
             # Double timeout if exceeded.
             elif err.cause == QueryRejectCause.EXCEEDED_TIMEOUT:
                 query.timeout_secs = max(query.timeout_secs * 2, DEFAULT_TIMEOUT)
+                logger.info(f"increased [timeout:*] for {query} to {query.timeout_secs:.1f}s")
 
             # Double maxsize if exceeded.
             elif err.cause == QueryRejectCause.EXCEEDED_MAXSIZE:
                 query.maxsize_mib = max(query.maxsize_mib * 2, DEFAULT_MAXSIZE)
+                logger.info(f"increased [maxsize:*] for {query} to {query.maxsize_mib:.1f}mib")
 
 
 def _backoff_secs(tries: int) -> float:
@@ -454,6 +473,3 @@ def _backoff_secs(tries: int) -> float:
         a, b = b, a + b
 
     return a
-
-
-_logger = logging.getLogger("aio-overpass")

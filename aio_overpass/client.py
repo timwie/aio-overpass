@@ -257,12 +257,13 @@ class Client:
         try:
             await self._runner(query)
         except ClientError:
-            _logger.info("query runner raised; stop retrying")
             raise
         except BaseException as err:
             raise RunnerError(err) from err
 
     async def _run_query_once(self, query: Query) -> None:
+        logger = query.logger or logging.getLogger(f"{type(self).__module__}.{type(self).__name__}")
+
         if query.done:
             return
 
@@ -289,9 +290,13 @@ class Client:
                 if (timeout := _next_timeout_secs(query)) and status.cooldown_secs > timeout:
                     raise _giveup_error(query, loop)
 
+                logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
                 await asyncio.sleep(status.cooldown_secs)
 
             # Limit the concurrent query requests to the number of slots available.
+            if rate_limiter.locked():
+                logger.info(f"{query} has to wait for a slot")
+
             await asyncio.wait_for(
                 fut=rate_limiter.acquire(),
                 timeout=_next_timeout(query).total,
@@ -299,6 +304,8 @@ class Client:
 
             try:
                 query._time_start_try = loop.time()
+
+                logger.info(f"call api for {query}")
 
                 async with session.get(
                     url=urljoin(self._url, "interpreter"),
@@ -335,6 +342,3 @@ def _next_timeout(query: Query) -> aiohttp.ClientTimeout:
 
 def _giveup_error(query: Query, loop: asyncio.AbstractEventLoop) -> GiveupError:
     return GiveupError(kwargs=query.kwargs, after_secs=loop.time() - query._time_start)
-
-
-_logger = logging.getLogger("aio-overpass")
