@@ -5,6 +5,8 @@ import hashlib
 import json
 import logging
 import re
+import tempfile
+import time
 from pathlib import Path
 from typing import Optional, Protocol
 
@@ -369,7 +371,7 @@ class DefaultQueryRunner(QueryRunner):
         - …retries with an increasing back-off period in between tries if the server is too busy
         - …retries and doubles timeout and maxsize settings if they were exceeded
         - …limits the number of tries
-        - …caches query results (useful when debugging)
+        - …optionally caches query results in temp files
 
     This runner does *not*…
         - …limit the total time a query runs, including retries
@@ -377,12 +379,21 @@ class DefaultQueryRunner(QueryRunner):
 
     Args:
         max_tries: The maximum number of times a query is tried. (5 by default)
-        cache_dir: If set, JSON result sets will be cached in this directory.
+        cache_ttl_secs: Amount of seconds a query's result set is cached for.
+                        Set to zero to disable caching. (zero by default)
     """
 
-    def __init__(self, max_tries: int = 5, cache_dir: Optional[Path] = None) -> None:
+    def __init__(self, max_tries: int = 5, cache_ttl_secs: int = 0) -> None:
+        if max_tries < 1:
+            msg = "max_tries must be >= 1"
+            raise ValueError(msg)
+
+        if cache_ttl_secs < 0:
+            msg = "cache_ttl_secs must be >= 0"
+            raise ValueError(msg)
+
         self._max_tries = max_tries
-        self._cache_dir = cache_dir
+        self._cache_ttl_secs = cache_ttl_secs
 
     @classmethod
     def _logger(cls, query: Query) -> logging.Logger:
@@ -391,31 +402,42 @@ class DefaultQueryRunner(QueryRunner):
     def _cache_read(self, query: Query) -> None:
         logger = DefaultQueryRunner._logger(query)
 
-        if not self._cache_dir or not self._cache_dir.is_dir():
+        if not self._cache_ttl_secs:
             return
 
-        file_path = self._cache_dir / query.cache_key
+        now = int(time.time())
 
-        try:
-            with open(file_path) as file:
-                query._result_set = json.load(file)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            file_path = Path(temp_dir) / query.cache_key
+            try:
+                with open(file_path) as file:
+                    result_set = json.load(file)
+
+                if result_set.get(_EXPIRATION_KEY, 0) <= now:
+                    logger.info(f"{query} cache expired")
+                    return
+
+                query._result_set = result_set
                 logger.info(f"{query} was cached")
-        except (OSError, json.JSONDecodeError):
-            logger.exception(f"failed to read cached {query}")
+            except (OSError, json.JSONDecodeError):
+                logger.exception(f"failed to read cached {query}")
 
     def _cache_write(self, query: Query) -> None:
         logger = DefaultQueryRunner._logger(query)
 
-        if not self._cache_dir or not self._cache_dir.is_dir():
+        if not self._cache_ttl_secs:
             return
 
-        file_path = self._cache_dir / query.cache_key
+        now = int(time.time())
+        query.result_set[_EXPIRATION_KEY] = now + self._cache_ttl_secs
 
-        try:
-            with open(file_path, "w") as file:
-                json.dump(query.result_set, file)
-        except OSError:
-            logger.exception(f"failed to cache {query}")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            file_path = Path(temp_dir) / query.cache_key
+            try:
+                with open(file_path, "w") as file:
+                    json.dump(query.result_set, file)
+            except OSError:
+                logger.exception(f"failed to cache {query}")
 
     async def __call__(self, query: Query) -> None:
         """Called with the current query state before the client makes an API request."""
@@ -433,9 +455,8 @@ class DefaultQueryRunner(QueryRunner):
         err = query.error
 
         # Do not retry if we exhausted all tries, or when a retry would not change the result.
-        failed = (
-            query.nb_tries == self._max_tries
-            or isinstance(err, (ResponseError, QueryLanguageError))
+        failed = query.nb_tries == self._max_tries or isinstance(
+            err, (ResponseError, QueryLanguageError)
         )
 
         # Exhausted all tries; do not retry.
@@ -473,3 +494,6 @@ def _backoff_secs(tries: int) -> float:
         a, b = b, a + b
 
     return a
+
+
+_EXPIRATION_KEY = "__expiration__"

@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Added optional `logger` argument to `Query`. All logging output of `aio-overpass`
   is fed into this logger by the `Client` and query runner
 * Added and updated log messages in the client and default query runner
+* Removed `cache_dir` argument from `DefaultQueryRunner`, which now caches
+  in `tempfile.TemporaryDirectory()`
+* Added optional `cache_ttl_secs` argument to `DefaultQueryRunner`, which limits
+  the time a query is cached for
 
 <br>
 
