@@ -349,7 +349,7 @@ class Query:
 
 class QueryRunner(Protocol):
     """
-    A query runner is async function that is called before a client makes an API request.
+    A query runner is an async function that is called before a client makes an API request.
 
     Query runners can be used to
      - retry queries when they fail
@@ -368,14 +368,14 @@ class DefaultQueryRunner(QueryRunner):
     The default query runner.
 
     This runner…
-        - …retries with an increasing back-off period in between tries if the server is too busy
-        - …retries and doubles timeout and maxsize settings if they were exceeded
-        - …limits the number of tries
-        - …optionally caches query results in temp files
+     - …retries with an increasing back-off period in between tries if the server is too busy
+     - …retries and doubles timeout and maxsize settings if they were exceeded
+     - …limits the number of tries
+     - …optionally caches query results in temp files
 
     This runner does *not*…
-        - …limit the total time a query runs, including retries
-        - …lower timeout and maxsize settings if the server rejected a query
+     - …limit the total time a query runs, including retries
+     - …lower timeout and maxsize settings if the server rejected a query
 
     Args:
         max_tries: The maximum number of times a query is tried. (5 by default)
@@ -409,18 +409,22 @@ class DefaultQueryRunner(QueryRunner):
 
         with tempfile.TemporaryDirectory() as temp_dir:
             file_path = Path(temp_dir) / query.cache_key
+
+            if not file_path.exists():
+                return
+
             try:
                 with open(file_path) as file:
                     result_set = json.load(file)
-
-                if result_set.get(_EXPIRATION_KEY, 0) <= now:
-                    logger.info(f"{query} cache expired")
-                    return
-
-                query._result_set = result_set
-                logger.info(f"{query} was cached")
             except (OSError, json.JSONDecodeError):
                 logger.exception(f"failed to read cached {query}")
+
+        if result_set.get(_EXPIRATION_KEY, 0) <= now:
+            logger.info(f"{query} cache expired")
+            return
+
+        query._result_set = result_set
+        logger.info(f"{query} was cached")
 
     def _cache_write(self, query: Query) -> None:
         logger = DefaultQueryRunner._logger(query)

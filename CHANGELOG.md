@@ -2,7 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+<br>
+
+## [0.4.0] - 2023-07-28
 * Added missing docstrings
 * Slight updates to existing docstrings
 * Added optional `logger` argument to `Query`. All logging output of `aio-overpass`
@@ -58,5 +60,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [0.1.2.post1]: https://github.com/timwie/aio-overpass/releases/tag/v0.1.2.post1
 [0.2.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.2.0
 [0.3.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.3.0
+[0.4.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.4.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/

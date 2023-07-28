@@ -63,7 +63,7 @@ Finally, you want to prepare [JupyterLab] by setting up a kernel
 specific to this venv:
 
 ```console
-$ ipython kernel install --user --name=aio-overpass
+$ ipython kernel install --user --name=aio-overpass39
 ```
 
 From now on you can use `$ jupyter-lab` and play around with

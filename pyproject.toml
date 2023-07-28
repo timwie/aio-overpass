@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-overpass"
-version = "0.3.0"
+version = "0.4.0"
 description = "Async client for the Overpass API"
 authors = ["Tim Wiechers <mail@timwie.dev>"]
 license = "MIT"
