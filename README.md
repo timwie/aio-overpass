@@ -30,6 +30,10 @@ with [Overpass QL], the query language used to select the elements that you want
 - An overview of modules, classes and functions can be found in the [API reference](http://www.timwie.dev/aio-overpass/).
 - The version history is available in [CHANGELOG.md](https://github.com/timwie/aio-overpass/blob/main/CHANGELOG.md).
 - Developers can find some instructions in [CONTRIBUTING.md](https://github.com/timwie/aio-overpass/blob/main/CONTRIBUTING.md).
+- The Overpass API [repository](https://github.com/drolbr/Overpass-API),
+   [blog](https://dev.overpass-api.de/blog/),
+  and  its [release notes](https://wiki.openstreetmap.org/wiki/Overpass_API/versions)
+- [Overpass Turbo], the best choice to prototype your queries in a browser
 
 <br>
 
@@ -244,8 +248,6 @@ json.dumps(elems[0].geojson, indent=4)
 <br>
 
 ## Related Projects
-- [Overpass API](https://github.com/drolbr/Overpass-API), and the [Overpass API Blog]
-- [Overpass Turbo], the best choice to prototype your queries in a browser
 - [Folium], which can be used to visualize GeoJSON on [Leaflet] maps
 - [OSMnx], which is specialized on street networks
 - [overpass-api-python-wrapper], another Python client for the Overpass API
@@ -260,7 +262,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 
 [Overpass API]: https://wiki.openstreetmap.org/wiki/Overpass_API
-[Overpass API Blog]: https://dev.overpass-api.de/blog/
 [Overpass QL]: https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL
 [OpenStreetMap]: https://www.openstreetmap.org
 

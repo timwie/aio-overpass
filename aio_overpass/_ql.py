@@ -7,7 +7,7 @@ from shapely.geometry import Polygon
 
 def poly_filter(shp: Polygon) -> str:
     """
-    Generate a ``poly:...`` clause.
+    Generate a ``(poly:...)`` clause.
 
     This clause includes results that occur within the exterior of the given polygon.
     The input shape should be simplified, since a larger number of coordinates will
