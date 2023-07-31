@@ -27,21 +27,20 @@ with [Overpass QL], the query language used to select the elements that you want
 - [License](#license)
 
 #### See also
-- An overview of modules, classes and functions can be found in the [API reference](http://www.timwie.dev/aio-overpass/).
-- The version history is available in [CHANGELOG.md](https://github.com/timwie/aio-overpass/blob/main/CHANGELOG.md).
-- Developers can find some instructions in [CONTRIBUTING.md](https://github.com/timwie/aio-overpass/blob/main/CONTRIBUTING.md).
+- An overview of modules, classes and functions can be found in the [API reference](http://www.timwie.dev/aio-overpass/)
+- The version history is available in [CHANGELOG.md](https://github.com/timwie/aio-overpass/blob/main/CHANGELOG.md)
+- Developers can find some instructions in [CONTRIBUTING.md](https://github.com/timwie/aio-overpass/blob/main/CONTRIBUTING.md)
 - The Overpass API [repository](https://github.com/drolbr/Overpass-API),
-   [blog](https://dev.overpass-api.de/blog/),
+  its [blog](https://dev.overpass-api.de/blog/),
   and  its [release notes](https://wiki.openstreetmap.org/wiki/Overpass_API/versions)
-- [Overpass Turbo], the best choice to prototype your queries in a browser
+- [Overpass Turbo], the best choice to prototype your queries in your browser
 
 <br>
 
 ## Features
 - Asynchronous requests using [aiohttp]
-- Concurrent queries
-- Respects rate limits
-- Fault tolerance through (customizable) retries
+- Parallel queries within rate limits
+- Fault tolerance through a (customizable) retry strategy
 - **Extensions**
   - Typed elements that simplify browsing result sets
   - [Shapely] geometries for manipulation and analysis
@@ -81,7 +80,7 @@ This library can be installed with a number of optional extras.
   - validate the order of ways in the relation
   - check if the route relation has gaps
 
-- Install the `joblib` extra to speed up `pt_ordered.collect_ordered_routes`, which can benefit
+- Install the `joblib` extra to speed up `pt_ordered.collect_ordered_routes()`, which can benefit
   greatly from parallelization.
 
 <br>

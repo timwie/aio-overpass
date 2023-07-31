@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## [0.4.0] - 2023-07-28
+## [0.4.0] – 2023-07-28
 * Added missing docstrings
 * Slight updates to existing docstrings
 * Added optional `logger` argument to `Query`. All logging output of `aio-overpass`
@@ -17,7 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## [0.3.0] - 2023-06-29
+## [0.3.0] – 2023-06-29
 * Drop Python 3.8 support. The Python versions supported by this release are 3.9-3.11.
 * Relaxed `networkx` dependency to `>=2.7` according to [SPEC 0]
 * Increased `joblib` dependency to `~1.3`, which makes it ready for Python 3.12 among other things
@@ -27,7 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## [0.2.0] - 2023-06-14
+## [0.2.0] – 2023-06-14
 * `QueryError`: `messages` was renamed to `remarks`
 * Add `QueryResponseError`, which is raised for unexpected query responses
   instead of `QueryError`
@@ -41,7 +41,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## [0.1.2] - 2023-04-27
+## [0.1.2] – 2023-04-27
 * Fix zero timeout which would previously be interpreted as "no timeout"
 * Abbreviate `QueryError` messages instead of listing them all:
   ```
@@ -51,7 +51,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## [0.1.1] - 2023-04-25
+## [0.1.1] – 2023-04-25
 * Fix wrong coordinate order in elements' GeoJSON `bbox`
 * Fix wrong repository link in `pyproject.toml`
 
