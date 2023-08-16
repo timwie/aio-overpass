@@ -86,7 +86,7 @@ optional = true
 
 [tool.poetry.group.notebooks.dependencies]
 folium = "^0.14.0"
-jupyterlab = "^4.0.4"
+jupyterlab = "^4.0.5"
 papermill = "^2.4.0"
 randomcolor = "^0.4.4.6"
 selenium = "^4.11.2"
