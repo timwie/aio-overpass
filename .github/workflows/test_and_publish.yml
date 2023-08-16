@@ -7,9 +7,6 @@ permissions:
   pages: write
   id-token: write
 
-env:
-  DEFAULT_PYTHON_VERSION: 3.9
-
 jobs:
   test:
     name: Test package
@@ -66,7 +63,7 @@ jobs:
         continue-on-error: true
 
   lint:
-    name: Lint package
+    name: Lint package (3.9)
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -79,10 +76,10 @@ jobs:
           virtualenvs-in-project: true
           installer-parallel: true
 
-      - name: Set up Python $DEFAULT_PYTHON_VERSION
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: $DEFAULT_PYTHON_VERSION
+          python-version: 3.9
           cache: 'poetry'
 
       - name: Load cached venv
@@ -90,7 +87,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ runner.os }}-$DEFAULT_PYTHON_VERSION-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-3.9-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
@@ -153,7 +150,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: $DEFAULT_PYTHON_VERSION
+          python-version: 3.9
           cache: 'pip'
 
       - name: Install Poetry
@@ -168,7 +165,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ runner.os }}-$DEFAULT_PYTHON_VERSION-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-3.9-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
