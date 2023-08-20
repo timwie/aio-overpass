@@ -89,6 +89,9 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-3.9-${{ hashFiles('**/poetry.lock') }}
 
+      - name: Check if pyproject.toml consistent with poetry.lock
+        run: poetry check --lock --no-interaction
+
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: |
@@ -131,7 +134,7 @@ jobs:
         uses: snok/install-poetry@v1
 
       - name: Build the source and wheels archives
-        run: poetry build
+        run: poetry build --no-interaction
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
