@@ -37,6 +37,10 @@ Next up, clone the repository, and install the project and all dependencies:
 ```console
 $ git clone git@github.com:timwie/aio-overpass.git
 $ cd aio-overpass/
+
+# to make sure Poetry does not create a venv of its own
+$ poetry config virtualenvs.prefer-active-python true
+
 $ poetry install --all-extras --with notebooks
 ```
 
