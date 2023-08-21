@@ -73,8 +73,7 @@ class Spatial(ABC):
     that builds Shapely geometries from any object with the ``__geo_interface__`` property.
 
     The ability to re-import the exported GeoJSON structures as ``Spatial`` objects is not
-    considered here. If you want import/export functionality for ``Spatial`` objects,
-    you might want to use something like ``pickle`` (https://docs.python.org/3/library/pickle.html).
+    considered here.
     """
 
     @property

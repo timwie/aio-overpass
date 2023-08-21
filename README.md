@@ -240,6 +240,7 @@ json.dumps(elems[0].geojson, indent=4)
 - Detailed documentation that supplements learning about OSM and the Overpass API.
 
 ### Non-Goals
+- Reimporting exported GeoJSON as `Spatial` objects
 - Any sort of Python interface to replace writing Overpass QL code.
 - Integrating other OSM-related services (like the OSM API or Nominatim)
 - Command line interface
