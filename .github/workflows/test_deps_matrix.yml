@@ -5,8 +5,13 @@
 
 name: Test different dependency versions
 
-on: workflow_dispatch  # quite a few jobs, so let's run this manually only
-
+on:
+  # quite a few jobs, so let's not run this on every push
+  workflow_dispatch:
+  schedule:
+    # run once a day at 12:00 UTC
+    - cron: '0 12 * * *'
+    
 jobs:
   test:
     name: Test dependency combination
