@@ -28,7 +28,7 @@ jobs:
         shapely: ["2.0"]
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
