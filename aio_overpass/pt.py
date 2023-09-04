@@ -750,10 +750,7 @@ def _connection_compatible(a: Connection, b: Connection) -> bool:
         ``False`` if one of the connections is entry-only, while the other is exit-only,
         ``True`` otherwise.
     """
-    if a == Connection.ENTRY_AND_EXIT or b == Connection.ENTRY_AND_EXIT:
-        return True
-
-    return a == b
+    return Connection.ENTRY_AND_EXIT in (a, b) or a == b
 
 
 def _at_same_stop(a: Relationship, b: Relationship) -> bool:
