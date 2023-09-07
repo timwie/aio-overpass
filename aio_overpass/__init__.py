@@ -1,6 +1,8 @@
 """Async client for the Overpass API."""
+import importlib.metadata
 
-__version__ = "0.4.0"
+
+__version__ = importlib.metadata.version("aio-overpass")
 
 # we add this to all modules for pdoc;
 # see https://pdoc.dev/docs/pdoc.html#use-numpydoc-or-google-docstrings
