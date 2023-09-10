@@ -581,7 +581,11 @@ def collect_routes(query: RouteQuery, perimeter: Optional[Polygon] = None) -> li
         all routes in the result set of the input query
     """
     elements = collect_elements(query)
-    route_rels = [cast(Relation, elem) for elem in elements if elem.tag("type") == "route"]
+    route_rels = [
+        cast(Relation, elem)
+        for elem in elements
+        if isinstance(elem, Relation) and elem.tag("type") == "route"
+    ]
 
     routes = []
 

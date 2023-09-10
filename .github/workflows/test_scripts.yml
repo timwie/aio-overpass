@@ -1,0 +1,59 @@
+name: Run test scripts
+
+on:
+  workflow_dispatch:
+  schedule:
+    # run at every half hour
+    - cron: '30 * * * *'
+
+jobs:
+  script:
+    name: Run script
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9"]
+        file: [
+          "any_element_barmbek_nord.py",
+          "any_element_carabanchel.py",
+          "any_route_barmbek_nord.py",
+          "any_route_carabanchel.py",
+        ]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+          cache: 'poetry'
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache/restore@v3  # only restore cache if available; no saving in post step
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: |
+          source .venv/bin/activate
+          poetry install --all-extras --no-interaction --no-root
+
+      - name: Install library
+        run: poetry install --all-extras --no-interaction
+
+      - name: Run script
+        run: |
+          source .venv/bin/activate
+          python test_scripts/${{ matrix.file }}
