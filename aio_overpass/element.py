@@ -487,7 +487,7 @@ _MemberKey = tuple[_ElementKey, str]
 
 class _ElementCollector:
     def __init__(self) -> None:
-        self.list: list[Element] = []
+        self.result_set: list[_ElementKey] = []
         self.typed_dict: dict[_ElementKey, Element] = {}
         self.untyped_dict: dict[_ElementKey, OverpassDict] = defaultdict(dict)
         self.member_dict: dict[int, list[_MemberKey]] = defaultdict(list)
@@ -510,14 +510,13 @@ def collect_elements(query: Query) -> list[Element]:
     up twice in the result set: once untagged as a member of the relation, and once tagged at
     the top level. This function will have these two occurrences point to the same, single object.
 
-    The order of elements is retained, but duplicate elements are reduced to a single entry.
-    The order of relation members is retained.
+    The order of elements and relation members is retained.
 
     Args:
         query: a finished query
 
     Returns:
-        a list of distinct, typed elements produced by the result set
+        the result set as a list of typed elements
 
     Raises:
         ValueError: If the input query is unfinished/has no result set.
@@ -532,7 +531,7 @@ def collect_elements(query: Query) -> list[Element]:
     _collect_untyped(query, collector)
     _collect_typed(collector)
     _collect_relationships(collector)
-    return collector.list
+    return [collector.typed_dict[elem_key] for elem_key in collector.result_set]
 
 
 def _collect_untyped(query: Query, collector: _ElementCollector) -> None:
@@ -547,6 +546,8 @@ def _collect_untyped(query: Query, collector: _ElementCollector) -> None:
             continue
 
         key: _ElementKey = (elem_dict["type"], elem_dict["id"])
+
+        collector.result_set.append(key)
         collector.untyped_dict[key].update(elem_dict)
 
         if elem_dict["type"] != "relation":
@@ -611,7 +612,6 @@ def _collect_typed(collector: _ElementCollector) -> None:
             args["geometry"] = _geometry(elem_dict)
 
         elem = cls(**args)
-        collector.list.append(elem)
         collector.typed_dict[elem_key] = elem
 
 

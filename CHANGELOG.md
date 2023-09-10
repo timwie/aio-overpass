@@ -13,6 +13,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Add the `ql.one_of_filter()` function
 
 ### Changed
+* Changed the way `element.collect_elements()` works: relation members that are not
+  themselves in the top-level result set are no longer part of the list of elements
+  that is returned. That should make it much more intuitive
 * `Query.result_set` was confusing, since it returned the entire response, and not only the result
   set. It now returns only the result set, which is at the `"elements"` key in the response
 * Rename `Query.result_size_mib` to `response_size_mib`
