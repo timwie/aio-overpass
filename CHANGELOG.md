@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 * Add `Query.response` property that returns the entire response like the old `Query.result_set`
 * Add `Query.was_cached` property
+* Add the `ql` module which was previously private
+* Add `ql.poly_filter`
+* Add `ql.one_of_filter`
 
 ### Changed
 * `Query.result_set` was confusing, since it returned the entire response, and not only the result

@@ -18,6 +18,7 @@ __all__ = (
     "error",
     "pt",
     "pt_ordered",
+    "ql",
     "query",
 )
 

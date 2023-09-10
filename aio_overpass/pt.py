@@ -7,7 +7,6 @@ from enum import Enum, auto
 from typing import Any, Optional, Union, cast
 
 from aio_overpass._dist import fast_distance
-from aio_overpass._ql import one_of_filter, poly_filter
 from aio_overpass.element import (
     Bbox,
     GeoJsonDict,
@@ -19,6 +18,7 @@ from aio_overpass.element import (
     Way,
     collect_elements,
 )
+from aio_overpass.ql import one_of_filter, poly_clause
 from aio_overpass.query import Query
 
 import shapely.ops
@@ -129,11 +129,11 @@ class RoutesWithinQuery(RouteQuery):
         self.polygon = polygon
         self.vehicles = vehicles
 
-        spatial_filter = poly_filter(self.polygon)
+        region_clause = poly_clause(self.polygon)
         route_filter = one_of_filter("route", *(v.name.lower() for v in vehicles))
         input_code = f"""
-            rel{spatial_filter}{route_filter}[type=route]->.routes;
-            rel{spatial_filter}{route_filter}[type=route_master]->.masters;
+            rel{region_clause}{route_filter}[type=route]->.routes;
+            rel{region_clause}{route_filter}[type=route_master]->.masters;
         """
 
         super().__init__(input_code, **kwargs)
