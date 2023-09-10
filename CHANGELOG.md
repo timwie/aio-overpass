@@ -6,16 +6,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Added
-* Add `Query.response` property that returns the entire response like the old `Query.result_set`
-* Add `Query.was_cached` property
+* Add the `Query.response` property that returns the entire response like the old `Query.result_set`
+* Add the `Query.was_cached` property
 * Add the `ql` module which was previously private
-* Add `ql.poly_filter`
-* Add `ql.one_of_filter`
+* Add the `ql.poly_filter()` function
+* Add the `ql.one_of_filter()` function
 
 ### Changed
 * `Query.result_set` was confusing, since it returned the entire response, and not only the result
   set. It now returns only the result set, which is at the `"elements"` key in the response
-* Renamed `Query.result_size_mib` to `response_size_mib`
+* Rename `Query.result_size_mib` to `response_size_mib`
 * `Query.response_size_mib` now returns `None` instead of `0.0` if there is no result set
 * `Query.query_duration_secs` now returns `None` if there is no result set
 * `Query.run_duration_secs` now returns `None` if the query has not been not run yet
