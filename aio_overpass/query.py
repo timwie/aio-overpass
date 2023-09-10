@@ -76,8 +76,8 @@ class Query:
 
         # set by the client that executes this query
         self._error: Optional[ClientError] = None
-        self._result_set: Optional[dict] = None
-        self._result_set_bytes = 0.0
+        self._response: Optional[dict] = None
+        self._response_bytes = 0.0
         self._time_end_try = 0.0  # time the most recent try finished
         self._time_start = 0.0  # time prior to executing the first try
         self._time_start_try = 0.0  # time prior to executing the most recent try
@@ -129,7 +129,26 @@ class Query:
         return self._error
 
     @property
-    def result_set(self) -> Optional[dict]:
+    def response(self) -> Optional[dict]:
+        """The entire JSON response of the query."""
+        return self._response
+
+    @property
+    def was_cached(self) -> Optional[bool]:
+        """
+        Indicates whether the query result was cached.
+
+        Returns:
+            ``None`` if the query has not been run yet.
+            ``True`` if the query has a result set with zero tries.
+            ``False`` otherwise.
+        """
+        if self._response is None:
+            return None
+        return self._nb_tries == 0
+
+    @property
+    def result_set(self) -> Optional[list[dict]]:
         """
         The result set of the query.
 
@@ -142,14 +161,16 @@ class Query:
             - https://www.openstreetmap.org/copyright
             - https://opendatacommons.org/licenses/odbl/1-0/
         """
-        return self._result_set
+        if not self._response:
+            return None
+        return self._response["elements"]
 
     @property
-    def result_size_mib(self) -> Optional[float]:
-        """The size of the result set in mebibytes."""
-        if self._result_set is None:
+    def response_size_mib(self) -> Optional[float]:
+        """The size of the response in mebibytes."""
+        if self._response is None:
             return None
-        return self._result_set_bytes / 1024.0 / 1024.0
+        return self._response_bytes / 1024.0 / 1024.0
 
     @property
     def maxsize_mib(self) -> int:
@@ -238,7 +259,7 @@ class Query:
     @property
     def done(self) -> bool:
         """Returns ``True`` if the result set was received."""
-        return self.result_set is not None
+        return self._response is not None
 
     @property
     def query_duration_secs(self) -> Optional[float]:
@@ -249,9 +270,9 @@ class Query:
         the result is written to this query object. Although it depends on how busy
         the API instance is, this can give some indication of how long a query takes.
 
-        This is ``None`` if there is no result set yet.
+        This is ``None`` if there is no result set yet, or when it was cached.
         """
-        if self._result_set is None:
+        if self._response is None or self.was_cached:
             return None
 
         return max(0.0, self._time_end_try - self._time_start_try)
@@ -261,7 +282,7 @@ class Query:
         """
         The total required time for this query in seconds (so far).
 
-        This is ``None`` if the query has not been run yet.
+        This is ``None`` if the query has not been run yet, or when its result was cached.
         """
         if self._time_start == 0.0:
             return None
@@ -280,10 +301,10 @@ class Query:
         References:
             - https://wiki.openstreetmap.org/wiki/Overpass_API/versions
         """
-        if not self.result_set:
+        if self._response is None:
             return None
 
-        return self.result_set["generator"]
+        return self._response["generator"]
 
     @property
     def timestamp_osm(self) -> Optional[datetime]:
@@ -293,10 +314,10 @@ class Query:
         It can take a couple of minutes for changes to the database to show up in the
         Overpass API query results.
         """
-        if not self.result_set:
+        if self._response is None:
             return None
 
-        date_str = self.result_set["osm3s"]["timestamp_osm_base"]
+        date_str = self._response["osm3s"]["timestamp_osm_base"]
         return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
 
     @property
@@ -308,10 +329,10 @@ class Query:
         that has been considered in the most recent batch run of the area generation.
         Otherwise, it is set to ``None``.
         """
-        if not self.result_set:
+        if self._response is None:
             return None
 
-        date_str = self.result_set["osm3s"].get("timestamp_areas_base")
+        date_str = self._response["osm3s"].get("timestamp_areas_base")
         if not date_str:
             return None
 
@@ -320,15 +341,15 @@ class Query:
     @property
     def copyright(self) -> str:
         """A copyright notice that comes with the result set."""
-        if not self.result_set:
+        if self._response is None:
             return _COPYRIGHT
 
-        return self.result_set["osm3s"].get("copyright") or _COPYRIGHT
+        return self._response["osm3s"].get("copyright") or _COPYRIGHT
 
     def __str__(self) -> str:
         query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
 
-        size = self.result_size_mib
+        size = self.response_size_mib
         time_query = self.query_duration_secs
         time_total = self.run_duration_secs
 
@@ -360,9 +381,9 @@ class Query:
             details["error"] = type(self.error).__name__
 
         if self.done:
-            details["result_size"] = f"{self.result_size_mib:.02f}mb"
+            details["result_size"] = f"{self.response_size_mib:.02f}mb"
 
-            if self.nb_tries != 1:
+            if not self.was_cached:
                 details["query_duration"] = f"{self.query_duration_secs:.02f}s"
 
         if self.nb_tries > 0:
@@ -433,23 +454,23 @@ class DefaultQueryRunner(QueryRunner):
 
         now = int(time.time())
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            file_path = Path(temp_dir) / query.cache_key
+        file_name = f"{query.cache_key}.json"
+        file_path = Path(tempfile.gettempdir()) / file_name
 
-            if not file_path.exists():
-                return
+        if not file_path.exists():
+            return
 
-            try:
-                with open(file_path) as file:
-                    result_set = json.load(file)
-            except (OSError, json.JSONDecodeError):
-                logger.exception(f"failed to read cached {query}")
+        try:
+            with open(file_path) as file:
+                response = json.load(file)
+        except (OSError, json.JSONDecodeError):
+            logger.exception(f"failed to read cached {query}")
 
-        if result_set.get(_EXPIRATION_KEY, 0) <= now:
+        if response.get(_EXPIRATION_KEY, 0) <= now:
             logger.info(f"{query} cache expired")
             return
 
-        query._result_set = result_set
+        query._response = response
         logger.info(f"{query} was cached")
 
     def _cache_write(self, query: Query) -> None:
@@ -459,15 +480,15 @@ class DefaultQueryRunner(QueryRunner):
             return
 
         now = int(time.time())
-        query.result_set[_EXPIRATION_KEY] = now + self._cache_ttl_secs
+        query._response[_EXPIRATION_KEY] = now + self._cache_ttl_secs
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            file_path = Path(temp_dir) / query.cache_key
-            try:
-                with open(file_path, "w") as file:
-                    json.dump(query.result_set, file)
-            except OSError:
-                logger.exception(f"failed to cache {query}")
+        file_name = f"{query.cache_key}.json"
+        file_path = Path(tempfile.gettempdir()) / file_name
+        try:
+            with open(file_path, "w") as file:
+                json.dump(query._response, file)
+        except OSError:
+            logger.exception(f"failed to cache {query}")
 
     async def __call__(self, query: Query) -> None:
         """Called with the current query state before the client makes an API request."""
@@ -516,6 +537,9 @@ class DefaultQueryRunner(QueryRunner):
                 logger.info(f"increased [maxsize:*] for {query} to {query.maxsize_mib:.1f}mib")
 
 
+_EXPIRATION_KEY = "__expiration__"
+
+
 def _backoff_secs(tries: int) -> float:
     """Fibonacci sequence: 1, 2, 3, 5, 8, etc."""
     a, b = 1.0, 2.0
@@ -526,4 +550,8 @@ def _backoff_secs(tries: int) -> float:
     return a
 
 
-_EXPIRATION_KEY = "__expiration__"
+def __cache_delete(query: Query) -> None:
+    """Clear a response cached by the default runner (only to be used in tests)."""
+    file_name = f"{query.cache_key}.json"
+    file_path = Path(tempfile.gettempdir()) / file_name
+    file_path.unlink(missing_ok=True)

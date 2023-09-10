@@ -117,22 +117,19 @@ query.result_set
 ```
 
 ```python
-{
-    # ...
-    "elements": [
-        {
-            "type": "way",
-            "id": 24981342,
-            # ...
-            "tags": {
-                "addr:city": "Hamburg",
-                "addr:country": "DE",
-                "addr:housename": "Elbphilharmonie",
-                # ...
-            },
-        }
-    ],
-}
+[
+      {
+          "type": "way",
+          "id": 24981342,
+          # ...
+          "tags": {
+              "addr:city": "Hamburg",
+              "addr:country": "DE",
+              "addr:housename": "Elbphilharmonie",
+              # ...
+          },
+      }
+]
 ```
 
 #### Results as Objects

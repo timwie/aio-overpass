@@ -5,10 +5,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <br>
 
 ## Unreleased
-* `Query.result_size_mib` now returns `None` instead of `0.0` if there is no result set
+### Added
+* Add `Query.response` property that returns the entire response like the old `Query.result_set`
+* Add `Query.was_cached` property
+
+### Changed
+* `Query.result_set` was confusing, since it returned the entire response, and not only the result
+  set. It now returns only the result set, which is at the `"elements"` key in the response
+* Renamed `Query.result_size_mib` to `response_size_mib`
+* `Query.response_size_mib` now returns `None` instead of `0.0` if there is no result set
 * `Query.query_duration_secs` now returns `None` if there is no result set
 * `Query.run_duration_secs` now returns `None` if the query has not been not run yet
 * `Query.timestamp_osm` and `Query.timestamp_areas` now return `datetime` objects instead of `str`
+
+### Fixed
+* Fix `DefaultQueryRunner` caching: previously results were written to a random subdirectory inside
+  the temporary directory, whereas now they are written to files at the top level of the
+  temporary directory
 
 <br>
 

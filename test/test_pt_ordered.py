@@ -33,47 +33,14 @@ node(r.stop_areas:"stop")[public_transport=stop_position]->.stop_area_members;
 [overpass-turbo]: http://overpass-turbo.eu/
 """
 
-import re
 from pathlib import Path
-from test.util import VerifyingQueryRunner
+from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
 
 from aio_overpass.client import Client
 from aio_overpass.pt import RouteQuery, SingleRouteQuery
 from aio_overpass.pt_ordered import OrderedRouteView, collect_ordered_routes
 
 import pytest
-from aioresponses import aioresponses
-
-
-URL_INTERPRETER = re.compile(r"^https://overpass-api\.de/api/interpreter\?data=.+$")
-URL_STATUS = "https://overpass-api.de/api/status"
-URL_KILL = "https://overpass-api.de/api/kill_my_queries"
-
-
-@pytest.fixture
-def mock_response():
-    with aioresponses() as m:
-        mock_status = """
-        Connected as: 1807920285
-        Current time: 2020-11-22T13:32:57Z
-        Rate limit: 2
-        2 slots available now.
-        Currently running queries (pid, space limit, time limit, start time):
-        """
-
-        m.get(
-            url=URL_STATUS,
-            body=mock_status,
-            status=200,
-        )
-
-        m.get(
-            url=URL_KILL,
-            body="",
-            status=200,
-        )
-
-        yield m
 
 
 def mock_result_set(mock_response, file_name):

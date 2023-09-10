@@ -542,7 +542,7 @@ def _collect_untyped(query: Query, collector: _ElementCollector) -> None:
     # Here we populate 'untyped_dict' with both top level elements, and
     # relation members, while conflating their data if they appear as both.
     # We also populate 'member_dict'.
-    for elem_dict in query.result_set["elements"]:
+    for elem_dict in query.result_set:
         if elem_dict.get("type") not in _KNOWN_ELEMENTS:
             continue
 

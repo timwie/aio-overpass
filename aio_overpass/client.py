@@ -313,8 +313,8 @@ class Client:
                     timeout=_next_timeout(query),
                 ) as response:
                     query._time_end_try = loop.time()
-                    query._result_set = await _result_or_raise(response, query.kwargs)
-                    query._result_set_bytes = response.content.total_bytes
+                    query._response = await _result_or_raise(response, query.kwargs)
+                    query._response_bytes = response.content.total_bytes
                     query._error = None
             finally:
                 rate_limiter.release()
