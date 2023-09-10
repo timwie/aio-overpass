@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
+## Unreleased
+* `Query.result_size_mib` now returns `None` instead of `0.0` if there is no result set
+* `Query.query_duration_secs` now returns `None` if there is no result set
+* `Query.run_duration_secs` now returns `None` if the query has not been not run yet
+* `Query.timestamp_osm` and `Query.timestamp_areas` now return `datetime` objects instead of `str`
+
+<br>
+
 ## [0.4.0] – 2023-07-28
 * Added missing docstrings
 * Slight updates to existing docstrings

@@ -7,6 +7,7 @@ import logging
 import re
 import tempfile
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Protocol
 
@@ -144,8 +145,10 @@ class Query:
         return self._result_set
 
     @property
-    def result_size_mib(self) -> float:
+    def result_size_mib(self) -> Optional[float]:
         """The size of the result set in mebibytes."""
+        if self._result_set is None:
+            return None
         return self._result_set_bytes / 1024.0 / 1024.0
 
     @property
@@ -162,6 +165,9 @@ class Query:
 
     @maxsize_mib.setter
     def maxsize_mib(self, value: int) -> None:
+        if value < 1:
+            msg = "maxsize_mib must be >= 1"
+            raise ValueError(msg)
         self._settings["maxsize"] = value * 1024 * 1024
 
     @property
@@ -177,6 +183,9 @@ class Query:
 
     @timeout_secs.setter
     def timeout_secs(self, value: int) -> None:
+        if value < 1:
+            msg = "timeout_secs must be >= 1"
+            raise ValueError(msg)
         self._settings["timeout"] = value
 
     @property
@@ -196,6 +205,9 @@ class Query:
 
     @run_timeout_secs.setter
     def run_timeout_secs(self, value: Optional[float]) -> None:
+        if value is not None and value <= 0.0:
+            msg = "run_timeout_secs must be > 0"
+            raise ValueError(msg)
         self._client_timeout = value
 
     @property
@@ -229,19 +241,31 @@ class Query:
         return self.result_set is not None
 
     @property
-    def query_duration_secs(self) -> float:
+    def query_duration_secs(self) -> Optional[float]:
         """
         How long it took to fetch the result set in seconds.
 
         This is the duration starting with the API request, and ending once
         the result is written to this query object. Although it depends on how busy
         the API instance is, this can give some indication of how long a query takes.
+
+        This is ``None`` if there is no result set yet.
         """
+        if self._result_set is None:
+            return None
+
         return max(0.0, self._time_end_try - self._time_start_try)
 
     @property
-    def run_duration_secs(self) -> float:
-        """The total required time for this query in seconds (so far)."""
+    def run_duration_secs(self) -> Optional[float]:
+        """
+        The total required time for this query in seconds (so far).
+
+        This is ``None`` if the query has not been run yet.
+        """
+        if self._time_start == 0.0:
+            return None
+
         end = self._time_end_try if self._time_end_try > 0.0 else asyncio.get_event_loop().time()
         return end - self._time_start
 
@@ -262,34 +286,36 @@ class Query:
         return self.result_set["generator"]
 
     @property
-    def timestamp_osm(self) -> Optional[str]:
+    def timestamp_osm(self) -> Optional[datetime]:
         """
         All OSM edits that have been uploaded before this date are included.
 
         It can take a couple of minutes for changes to the database to show up in the
         Overpass API query results.
-
-        The format is ``YYYY-MM-DDThh:mm:ssZ``.
         """
         if not self.result_set:
             return None
 
-        return self.result_set["osm3s"]["timestamp_osm_base"]
+        date_str = self.result_set["osm3s"]["timestamp_osm_base"]
+        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
 
     @property
-    def timestamp_areas(self) -> Optional[str]:
+    def timestamp_areas(self) -> Optional[datetime]:
         """
         All area data edits that have been uploaded before this date are included.
 
         If the query involves area data processing, this is the date of the latest edit
         that has been considered in the most recent batch run of the area generation.
-
-        The format is ``YYYY-MM-DDThh:mm:ssZ``.
+        Otherwise, it is set to ``None``.
         """
         if not self.result_set:
             return None
 
-        return self.result_set["osm3s"].get("timestamp_areas_base")
+        date_str = self.result_set["osm3s"].get("timestamp_areas_base")
+        if not date_str:
+            return None
+
+        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
 
     @property
     def copyright(self) -> str:

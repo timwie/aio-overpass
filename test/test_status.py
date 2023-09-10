@@ -1,3 +1,5 @@
+from test.util import VerifyingQueryRunner
+
 from aio_overpass import Client
 from aio_overpass.client import Status
 
@@ -18,7 +20,7 @@ Rate limit: 2
 Currently running queries (pid, space limit, time limit, start time):
     """
 
-    c = Client()
+    c = Client(runner=VerifyingQueryRunner())
 
     with aioresponses() as m:
         m.get(
@@ -53,7 +55,7 @@ Rate limit: 6
 Currently running queries (pid, space limit, time limit, start time):
     """
 
-    c = Client()
+    c = Client(runner=VerifyingQueryRunner())
 
     with aioresponses() as m:
         m.get(
@@ -88,7 +90,7 @@ Currently running queries (pid, space limit, time limit, start time):
 28314	536870912	60	2020-11-21T12:45:27Z
     """
 
-    c = Client()
+    c = Client(runner=VerifyingQueryRunner())
 
     with aioresponses() as m:
         m.get(
@@ -123,7 +125,7 @@ Slot available after: 2020-11-21T12:50:26Z, in 281 seconds.
 Currently running queries (pid, space limit, time limit, start time):
     """
 
-    c = Client()
+    c = Client(runner=VerifyingQueryRunner())
 
     with aioresponses() as m:
         m.get(

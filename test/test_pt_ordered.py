@@ -35,6 +35,7 @@ node(r.stop_areas:"stop")[public_transport=stop_position]->.stop_area_members;
 
 import re
 from pathlib import Path
+from test.util import VerifyingQueryRunner
 
 from aio_overpass.client import Client
 from aio_overpass.pt import RouteQuery, SingleRouteQuery
@@ -90,7 +91,7 @@ def mock_result_set(mock_response, file_name):
 async def run_single_route_query() -> OrderedRouteView:
     query = SingleRouteQuery(relation_id=0)
 
-    client = Client()
+    client = Client(runner=VerifyingQueryRunner())
     await client.run_query(query)
     await client.close()
 
@@ -462,7 +463,7 @@ async def test_with_master(mock_response):
 
     query = RouteQuery(input_code="")
 
-    client = Client()
+    client = Client(runner=VerifyingQueryRunner())
     await client.run_query(query)
     await client.close()
 

@@ -1,5 +1,6 @@
 import asyncio
 import re
+from test.util import VerifyingQueryRunner, verify_query_state
 
 from aio_overpass import Client, Query
 from aio_overpass.error import (
@@ -45,7 +46,7 @@ def mock_response():
 
 @pytest.mark.asyncio
 async def mock_run_query(mock_response, body, content_type, **kwargs):
-    c = Client(runner=DefaultQueryRunner(max_tries=1))
+    c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("", **kwargs)
 
     mock_response.get(
@@ -312,7 +313,7 @@ async def test_exceeded_timeout(mock_response):
 
 @pytest.mark.asyncio
 async def test_connection_refused():
-    c = Client(runner=DefaultQueryRunner(max_tries=1))
+    c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
 
     with aioresponses(), pytest.raises(CallError) as err:
@@ -324,7 +325,7 @@ async def test_connection_refused():
 
 @pytest.mark.asyncio
 async def test_internal_server_error():
-    c = Client(runner=DefaultQueryRunner(max_tries=1))
+    c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
 
     with aioresponses() as m, pytest.raises(ResponseError) as err:
@@ -337,7 +338,7 @@ async def test_internal_server_error():
 
 @pytest.mark.asyncio
 async def test_timeout_error():
-    c = Client(runner=DefaultQueryRunner(max_tries=1))
+    c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
     q2 = Query("", my_kwarg=42)
 
@@ -360,6 +361,7 @@ async def test_timeout_error():
 async def test_runner_error():
     class BadQueryRunner(QueryRunner):
         async def __call__(self, query: Query) -> None:
+            verify_query_state(query)
             raise RuntimeError
 
     c = Client(runner=BadQueryRunner())
@@ -376,7 +378,7 @@ async def test_runner_error():
 
 @pytest.mark.asyncio
 async def test_status_error(mock_response):
-    c = Client(runner=DefaultQueryRunner(max_tries=1))
+    c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
 
     mock_response.get(
@@ -409,7 +411,7 @@ async def test_status_error(mock_response):
 
 @pytest.mark.asyncio
 async def test_unexpected_message_error(mock_response):
-    c = Client(runner=DefaultQueryRunner(max_tries=1))
+    c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
 
     msg = "something that does not match a ql error"
@@ -446,7 +448,7 @@ async def test_unexpected_message_error(mock_response):
 
 @pytest.mark.asyncio
 async def test_no_message_error(mock_response):
-    c = Client(runner=DefaultQueryRunner(max_tries=1))
+    c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
 
     msg = "something that does not match a ql error"
