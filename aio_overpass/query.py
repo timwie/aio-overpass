@@ -518,7 +518,7 @@ class DefaultQueryRunner(QueryRunner):
         if isinstance(err, QueryRejectError):
             # Wait if the server is too busy.
             if err.cause == QueryRejectCause.TOO_BUSY:
-                backoff = _backoff_secs(query.nb_tries)
+                backoff = _fibo_backoff_secs(query.nb_tries)
                 logger.info(f"retry {query} in {backoff:.1f}s")
                 await asyncio.sleep(backoff)
 
@@ -540,9 +540,9 @@ class DefaultQueryRunner(QueryRunner):
 _EXPIRATION_KEY = "__expiration__"
 
 
-def _backoff_secs(tries: int) -> float:
-    """Fibonacci sequence: 1, 2, 3, 5, 8, etc."""
-    a, b = 1.0, 2.0
+def _fibo_backoff_secs(tries: int) -> float:
+    """Fibonacci sequence without zero: 1, 1, 2, 3, 5, 8, etc."""
+    a, b = 1.0, 1.0
 
     for _ in range(tries):
         a, b = b, a + b
@@ -555,3 +555,17 @@ def __cache_delete(query: Query) -> None:
     file_name = f"{query.cache_key}.json"
     file_path = Path(tempfile.gettempdir()) / file_name
     file_path.unlink(missing_ok=True)
+
+
+def __cache_expire(query: Query) -> None:
+    """Clear a response cached by the default runner (only to be used in tests)."""
+    file_name = f"{query.cache_key}.json"
+    file_path = Path(tempfile.gettempdir()) / file_name
+
+    with open(file_path) as file:
+        response = json.load(file)
+
+    response[_EXPIRATION_KEY] = 0
+
+    with open(file_path, "w") as file:
+        json.dump(response, file)
