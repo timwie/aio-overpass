@@ -10,14 +10,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 * The default `maxsize` setting was previously 512 B instead of the intended 512 MiB
+* Closed ways with `LinearRing` geometries now produce valid GeoJSON `LineString` features.
+  Previously the geometry `"type"` used was `"LinearRing"`, which is not a type in GeoJSON
+* Fixed the occurrence of `"bbox": (nan, nan, nan, nan)` in GeoJSON exports for features
+  with empty geometry
+* `Query.nb_tries` is now increased at the very end of a try. Previously, this
+  was done at the beginning of a try, and could lead to confusing log messages
+  where `nb_tries` was already increased
 * The default query runner can now increase the `maxsize` and `timeout` settings
   beyond the defaults. These limits were undocumented before, and are removed now
 * The default query runner previously overwrote the cache expiration time
   when the cache was hit. Now cached results truly expire after `cache_ttl_secs`,
   and not later
-* `Query.nb_tries` is now increased at the very end of a try. Previously, this
-  was done at the beginning of a try, and could lead to confusing log messages
-  where `nb_tries` was already increased
 
 <br>
 
