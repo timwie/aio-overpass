@@ -108,6 +108,7 @@ class Client:
         self._runner = runner or DefaultQueryRunner()
 
         self._maybe_session: Optional[aiohttp.ClientSession] = None
+        self._maybe_any_status: Optional[Status] = None
         self._maybe_sem: Optional[asyncio.BoundedSemaphore] = None
 
     def _session(self) -> aiohttp.ClientSession:
@@ -125,13 +126,15 @@ class Client:
         This semaphore can be acquired as many times as there are query slots at the API instance.
         If all slots are acquired, further queries need to wait until a slot is released.
         """
+        status = self._maybe_any_status
+
         if self._maybe_sem:
             return self._maybe_sem
 
-        session = self._session()
-        status = await self._status(session, **kwargs)
-        self._maybe_sem = asyncio.BoundedSemaphore(status.concurrency)
+        if not status:
+            status = await self._status(**kwargs)
 
+        self._maybe_sem = asyncio.BoundedSemaphore(status.concurrency)
         return self._maybe_sem
 
     async def close(self) -> None:
@@ -145,12 +148,17 @@ class Client:
             with suppress(aiohttp.ServerDisconnectedError):
                 await self._maybe_session.close()
 
-    async def _status(self, session: aiohttp.ClientSession, **kwargs) -> "Status":
+    async def _status(self, **kwargs) -> "Status":
         try:
-            async with session.get(url=urljoin(self._url, "status"), **kwargs) as response:
+            async with self._session().get(url=urljoin(self._url, "status"), **kwargs) as response:
                 text = await response.text()
         except aiohttp.ClientError as err:
             raise _to_client_error(err) from err
+
+        slots = 0
+        free_slots = None
+        cooldown_secs = 0
+        concurrency = self._concurrency
 
         try:
             match_slots_overall = re.findall("Rate limit: (\\d+)", text)
@@ -173,23 +181,16 @@ class Client:
                 # pick the server's concurrent query limit if > 0 and < self._concurrency,
                 # or self._concurrency otherwise
                 concurrency = min(slots or self._concurrency, self._concurrency)
-
-                return Status(
-                    slots=slots,
-                    free_slots=free_slots,
-                    cooldown_secs=cooldown_secs,
-                    concurrency=concurrency,
-                )
-
-            return Status(
-                slots=slots,
-                free_slots=None,
-                cooldown_secs=0,
-                concurrency=self._concurrency,
-            )
-
         except ValueError as err:
             raise _to_client_error(response) from err
+
+        self._maybe_any_status = Status(
+            slots=slots,
+            free_slots=free_slots,
+            cooldown_secs=cooldown_secs,
+            concurrency=concurrency,
+        )
+        return self._maybe_any_status
 
     async def status(self) -> Status:
         """
@@ -198,8 +199,7 @@ class Client:
         Raises:
             ClientError: if the status could not be looked up
         """
-        session = self._session()
-        return await self._status(session)
+        return await self._status()
 
     async def cancel_queries(self) -> int:
         """
@@ -269,55 +269,31 @@ class Client:
 
         loop = asyncio.get_event_loop()
 
-        if query._time_start <= 0:
+        if query._time_start == 0.0:
             query._time_start = loop.time()
 
         query._time_start_try = 0.0
         query._time_end_try = 0.0
-        query._nb_tries += 1
+
+        acquired_slot = False
 
         try:
-            session = self._session()
-            rate_limiter = await self._rate_limiter(timeout=_next_timeout(query))
+            await self._wait_for_slot_and_cooldown(query)
+            acquired_slot = True
 
-            if query._has_cooldown():
-                # If this client is running too many queries, we can check the status for a
-                # cooldown period. This request failing is a bit of an edge case.
-                # 'query.error' will be overwritten, which means we will not check for a
-                # cooldown in the next iteration.
-                status = await self._status(session=session, timeout=_next_timeout(query))
+            query._time_start_try = loop.time()
 
-                if (timeout := _next_timeout_secs(query)) and status.cooldown_secs > timeout:
-                    raise _giveup_error(query, loop)
+            logger.info(f"call api for {query}")
 
-                logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
-                await asyncio.sleep(status.cooldown_secs)
-
-            # Limit the concurrent query requests to the number of slots available.
-            if rate_limiter.locked():
-                logger.info(f"{query} has to wait for a slot")
-
-            await asyncio.wait_for(
-                fut=rate_limiter.acquire(),
-                timeout=_next_timeout(query).total,
-            )
-
-            try:
-                query._time_start_try = loop.time()
-
-                logger.info(f"call api for {query}")
-
-                async with session.get(
-                    url=urljoin(self._url, "interpreter"),
-                    params={"data": query.code},
-                    timeout=_next_timeout(query),
-                ) as response:
-                    query._time_end_try = loop.time()
-                    query._response = await _result_or_raise(response, query.kwargs)
-                    query._response_bytes = response.content.total_bytes
-                    query._error = None
-            finally:
-                rate_limiter.release()
+            async with self._session().get(
+                url=urljoin(self._url, "interpreter"),
+                params={"data": query.code},
+                timeout=_next_timeout(query),
+            ) as response:
+                query._time_end_try = loop.time()
+                query._response = await _result_or_raise(response, query.kwargs)
+                query._response_bytes = response.content.total_bytes
+                query._error = None
 
         except aiohttp.ClientError as err:
             query._error = _to_client_error(err)
@@ -327,6 +303,40 @@ class Client:
 
         except ClientError as err:
             query._error = err
+
+        finally:
+            query._nb_tries += 1
+            if acquired_slot:
+                self._maybe_sem.release()
+
+    async def _wait_for_slot_and_cooldown(self, query: Query) -> None:
+        logger = query.logger or logging.getLogger(f"{type(self).__module__}.{type(self).__name__}")
+        loop = asyncio.get_event_loop()
+
+        # This requests an API status if we haven't done so already.
+        rate_limiter = await self._rate_limiter(timeout=_next_timeout(query))
+
+        if query._has_cooldown():
+            # If this client is running too many queries, we can check the status for a
+            # cooldown period. This request failing is a bit of an edge case.
+            # 'query.error' will be overwritten, which means we will not check for a
+            # cooldown in the next iteration.
+            status = await self._status(timeout=_next_timeout(query))
+
+            if (timeout := _next_timeout_secs(query)) and status.cooldown_secs > timeout:
+                raise _giveup_error(query, loop)
+
+            logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
+            await asyncio.sleep(status.cooldown_secs)
+
+        # Limit the concurrent query requests to the number of slots available.
+        if rate_limiter.locked():
+            logger.info(f"{query} has to wait for a slot")
+
+        await asyncio.wait_for(
+            fut=rate_limiter.acquire(),
+            timeout=_next_timeout(query).total,
+        )
 
 
 def _next_timeout_secs(query: Query) -> Optional[float]:

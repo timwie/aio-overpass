@@ -15,6 +15,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * The default query runner previously overwrote the cache expiration time
   when the cache was hit. Now cached results truly expire after `cache_ttl_secs`,
   and not later
+* `Query.nb_tries` is now increased at the very end of a try. Previously, this
+  was done at the beginning of a try, and could lead to confusing log messages
+  where `nb_tries` was already increased
 
 <br>
 
