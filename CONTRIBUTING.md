@@ -24,8 +24,8 @@ You can follow [these steps](https://github.com/pyenv/pyenv#installation)
 to set it up. Afterwards you can create a dedicated venv like this:
 
 ```console
-$ pyenv install 3.9.17
-$ pyenv virtualenv 3.9.17 aio-overpass39
+$ pyenv install 3.9.18
+$ pyenv virtualenv 3.9.18 aio-overpass39
 ```
 
 From now on, make sure that the venv is activated: `$ pyenv activate aio-overpass39`.
