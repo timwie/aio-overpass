@@ -1,5 +1,5 @@
 """Typed result set members."""
-
+import re
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
@@ -149,7 +149,9 @@ class Element(Spatial):
 
     Attributes:
         id: A number that uniquely identifies an element of a certain type
-            (nodes, ways and relations each have their own ID space)
+            (nodes, ways and relations each have their own ID space).
+            Note that this ID cannot safely be used to link to a specific object on OSM.
+            OSM IDs may change at any time, e.g. if an object is deleted and re-added.
         tags: A list of key-value pairs that describe the element, or ``None`` if the element's
               tags not included in the query's result set.
         bounds: The bounding box of this element, or ``None`` when not using ``out bbox``.
@@ -164,6 +166,7 @@ class Element(Spatial):
         - https://wiki.openstreetmap.org/wiki/Elements
         - https://wiki.openstreetmap.org/wiki/Map_features
         - https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL#out
+        - https://wiki.openstreetmap.org/wiki/Overpass_API/Permanent_ID
     """
 
     id: int
@@ -201,6 +204,35 @@ class Element(Spatial):
     def link(self) -> str:
         """This element on openstreetmap.org."""
         return f"https://www.openstreetmap.org/{self.type}/{self.id}"
+
+    @property
+    def wikidata_id(self) -> Optional[str]:
+        """
+        [Wikidata](https://www.wikidata.org) item ID of this element.
+
+        This is "perhaps, the most stable and reliable manner to obtain Permanent ID
+        of relevant spatial features".
+
+        References:
+            - https://wiki.openstreetmap.org/wiki/Permanent_ID
+            - https://wiki.openstreetmap.org/wiki/Overpass_API/Permanent_ID
+            - https://wiki.openstreetmap.org/wiki/Key:wikidata
+            - https://www.wikidata.org/wiki/Wikidata:Notability
+            - Nodes on Wikidata: https://www.wikidata.org/wiki/Property:P11693
+            - Ways on Wikidata: https://www.wikidata.org/wiki/Property:P10689
+            - Relations on Wikidata: https://www.wikidata.org/wiki/Property:P402
+        """
+        # since tag values are not enforced, use a regex to filter out bad IDs
+        if self.tags and "wikidata" in self.tags and _WIKIDATA_Q_ID.match(self.tags["wikidata"]):
+            return self.tags["wikidata"]
+        return None
+
+    @property
+    def wikidata_link(self) -> Optional[str]:
+        """This element on wikidata.org."""
+        if self.wikidata_id:
+            return f"https://www.wikidata.org/wiki/{self.wikidata_id}"
+        return None
 
     @property
     def geojson(self) -> GeoJsonDict:
@@ -242,6 +274,9 @@ class Element(Spatial):
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.id})"
+
+
+_WIKIDATA_Q_ID = re.compile(r"^Q\d+$")
 
 
 def _geojson_properties(obj: Union[Element, "Relationship"]) -> GeoJsonDict:

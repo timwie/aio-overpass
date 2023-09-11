@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Add the `ql` module which was previously private
 * Add the `ql.poly_filter()` function
 * Add the `ql.one_of_filter()` function
+* Add the `element.Element.wikidata_id` property
+* Add the `element.Element.wikidata_link` property
 
 ### Changed
 * Changed the way `element.collect_elements()` works: relation members that are not
