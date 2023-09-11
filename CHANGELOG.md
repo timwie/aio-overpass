@@ -4,6 +4,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
+## Unreleased
+### Changed
+* `Query.maxsize_mib` is now a `float` instead of an `int`
+
+### Fixed
+* The default `maxsize` setting was previously 512 B instead of the intended 512 MiB
+* The default query runner can now increase the `maxsize` and `timeout` settings
+  beyond the defaults. These limits were undocumented before, and are removed now
+* The default query runner previously overwrote the cache expiration time
+  when the cache was hit. Now cached results truly expire after `cache_ttl_secs`,
+  and not later
+
+<br>
+
 ## [0.5.0] – 2023-09-11
 ### Added
 * Add the `Query.response` property that returns the entire response like the old `Query.result_set`

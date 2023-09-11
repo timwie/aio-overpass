@@ -67,7 +67,7 @@ class Query:
         self._settings["out"] = "json"
 
         if "maxsize" not in self._settings:
-            self._settings["maxsize"] = DEFAULT_MAXSIZE
+            self._settings["maxsize"] = DEFAULT_MAXSIZE * 1024 * 1024
 
         if "timeout" not in self._settings:
             self._settings["timeout"] = DEFAULT_TIMEOUT
@@ -173,7 +173,7 @@ class Query:
         return self._response_bytes / 1024.0 / 1024.0
 
     @property
-    def maxsize_mib(self) -> int:
+    def maxsize_mib(self) -> float:
         """
         The current value of the [maxsize:*] setting in mebibytes.
 
@@ -182,14 +182,14 @@ class Query:
         the query with a memory exhaustion. The higher this size, the more probably the server
         rejects the query before executing it.
         """
-        return int(self._settings["maxsize"]) // 1024 // 1024
+        return float(self._settings["maxsize"]) // 1024.0 // 1024.0
 
     @maxsize_mib.setter
-    def maxsize_mib(self, value: int) -> None:
-        if value < 1:
-            msg = "maxsize_mib must be >= 1"
+    def maxsize_mib(self, value: float) -> None:
+        if value <= 0.0:
+            msg = "maxsize_mib must be > 0.0"
             raise ValueError(msg)
-        self._settings["maxsize"] = value * 1024 * 1024
+        self._settings["maxsize"] = int(value * 1024.0 * 1024.0)
 
     @property
     def timeout_secs(self) -> int:
@@ -450,6 +450,7 @@ class DefaultQueryRunner(QueryRunner):
         logger = DefaultQueryRunner._logger(query)
 
         if not self._cache_ttl_secs:
+            logger.debug("caching is disabled")
             return
 
         now = int(time.time())
@@ -458,6 +459,8 @@ class DefaultQueryRunner(QueryRunner):
         file_path = Path(tempfile.gettempdir()) / file_name
 
         if not file_path.exists():
+            logger.info("result was not cached")
+            logger.debug(f"checked for cache at {file_path}")
             return
 
         try:
@@ -484,6 +487,9 @@ class DefaultQueryRunner(QueryRunner):
 
         file_name = f"{query.cache_key}.json"
         file_path = Path(tempfile.gettempdir()) / file_name
+
+        logger.debug(f"caching at {file_path}…")
+
         try:
             with open(file_path, "w") as file:
                 json.dump(query._response, file)
@@ -500,7 +506,8 @@ class DefaultQueryRunner(QueryRunner):
 
         # Success or cached
         if query.done:
-            self._cache_write(query)
+            if not query.was_cached:
+                self._cache_write(query)
             return
 
         err = query.error
@@ -528,13 +535,17 @@ class DefaultQueryRunner(QueryRunner):
 
             # Double timeout if exceeded.
             elif err.cause == QueryRejectCause.EXCEEDED_TIMEOUT:
-                query.timeout_secs = max(query.timeout_secs * 2, DEFAULT_TIMEOUT)
-                logger.info(f"increased [timeout:*] for {query} to {query.timeout_secs:.1f}s")
+                old = f"{query.timeout_secs:.1f}s"
+                query.timeout_secs *= 2
+                new = f"{query.timeout_secs:.1f}s"
+                logger.info(f"increased [timeout:*] for {query} from {old} to {new}")
 
             # Double maxsize if exceeded.
             elif err.cause == QueryRejectCause.EXCEEDED_MAXSIZE:
-                query.maxsize_mib = max(query.maxsize_mib * 2, DEFAULT_MAXSIZE)
-                logger.info(f"increased [maxsize:*] for {query} to {query.maxsize_mib:.1f}mib")
+                old = f"{query.maxsize_mib:.1f}mib"
+                query.maxsize_mib *= 2
+                new = f"{query.maxsize_mib:.1f}mib"
+                logger.info(f"increased [maxsize:*] for {query} from {old} to {new}")
 
 
 _EXPIRATION_KEY = "__expiration__"
