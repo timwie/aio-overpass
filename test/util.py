@@ -1,8 +1,11 @@
+import json
 import re
 
 from aio_overpass import Query
+from aio_overpass.element import Element
 from aio_overpass.query import DefaultQueryRunner, QueryRunner
 
+import geojson
 import pytest
 from aioresponses import aioresponses
 
@@ -131,3 +134,29 @@ def verify_query_state(query: Query) -> None:
         assert query.api_version is not None
         assert query.timestamp_osm is not None
         # query.timestamp_areas can be set or not
+
+
+def verify_element(elem: Element) -> None:
+    assert elem.id >= 0
+
+    for relship in elem.relations:
+        assert relship.member is elem
+        assert relship in relship.relation.members
+
+    for k, v in (elem.tags or {}).items():
+        assert elem.tag(k) == v
+
+    assert elem.type in {"node", "way", "relation"}
+
+    assert geojson.loads(json.dumps(elem.geojson))  # valid GeoJSON
+
+    assert str(elem)  # just test this doesn't raise
+    assert repr(elem)  # just test this doesn't raise
+
+    # elem.tags
+    # elem.bounds
+    # elem.center
+    # elem.meta
+    # elem.link
+    # elem.wikidata_id
+    # elem.wikidata_link

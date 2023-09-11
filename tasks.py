@@ -22,10 +22,8 @@ def fmt(c: Context):
     """Run code formatters"""
     c.run("isort aio_overpass/", echo=True, pty=True)
     c.run("isort test/", echo=True, pty=True)
-    c.run("isort test_scripts/", echo=True, pty=True)
     c.run("black aio_overpass/", echo=True, pty=True)
     c.run("black test/", echo=True, pty=True)
-    c.run("black test_scripts/", echo=True, pty=True)
 
 @task
 def install(c: Context):

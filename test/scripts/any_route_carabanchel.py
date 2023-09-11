@@ -14,7 +14,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 code = """
 [timeout:180];
-area[name="Barmbek-Nord"][boundary=administrative];
+area[name="Carabanchel"][boundary=administrative];
 rel(area)[type=route]->.routes;
 """
 
@@ -22,7 +22,7 @@ query = RouteQuery(code)
 
 client = Client(
     user_agent="aio-overpass automated test query (https://github.com/timwie/aio-overpass)",
-    runner=DefaultQueryRunner(cache_ttl_secs=5 * 60),
+    runner=DefaultQueryRunner(cache_ttl_secs=25 * 60),
 )
 
 loop = asyncio.get_event_loop()

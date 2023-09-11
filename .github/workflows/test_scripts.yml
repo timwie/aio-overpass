@@ -15,10 +15,10 @@ jobs:
       matrix:
         python: ["3.9"]
         file: [
-          "any_element_barmbek_nord.py",
-          "any_element_carabanchel.py",
-          "any_route_barmbek_nord.py",
-          "any_route_carabanchel.py",
+          "any_element_barmbek_nord",
+          "any_element_carabanchel",
+          "any_route_barmbek_nord",
+          "any_route_carabanchel",
         ]
     steps:
       - name: Check out repository
@@ -56,4 +56,4 @@ jobs:
       - name: Run script
         run: |
           source .venv/bin/activate
-          python test_scripts/${{ matrix.file }}
+          python -m test.scripts.${{ matrix.file }}

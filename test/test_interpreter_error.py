@@ -13,7 +13,7 @@ from aio_overpass.error import (
     ResponseError,
     RunnerError,
 )
-from aio_overpass.query import DefaultQueryRunner, QueryRunner
+from aio_overpass.query import QueryRunner
 
 import pytest
 from aioresponses import aioresponses
