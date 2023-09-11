@@ -1,4 +1,5 @@
 """Typed result set members."""
+import math
 import re
 from abc import ABC, abstractmethod
 from collections import defaultdict
@@ -325,8 +326,12 @@ def _geojson_geometry(obj: Union[Element, "Relationship"]) -> Optional[GeoJsonDi
 def _geojson_bbox(obj: Union[Element, "Relationship"]) -> Optional[Bbox]:
     elem = obj if isinstance(obj, Element) else obj.member
 
-    bounds = elem._geometry.bounds
-    if bounds:
+    geom = elem._geometry
+    if not geom:
+        return None
+
+    bounds = geom.bounds  # can be (nan, nan, nan, nan)
+    if not any(math.isnan(c) for c in bounds):
         (minlat, minlon, maxlat, maxlon) = bounds
         return minlon, minlat, maxlon, maxlat
 
