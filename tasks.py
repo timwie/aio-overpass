@@ -63,7 +63,7 @@ def test(c: Context):
 @task
 def test_publish(c: Context):
     """Perform a dry run of publishing the package"""
-    c.run("poetry publish --build --dry-run", echo=True, pty=True)
+    c.run("poetry publish --build --dry-run --no-interaction", echo=True, pty=True)
 
 @task
 def tree(c: Context):

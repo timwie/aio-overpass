@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## Unreleased
+## [0.5.0] – 2023-09-11
 ### Added
 * Add the `Query.response` property that returns the entire response like the old `Query.result_set`
 * Add the `Query.was_cached` property
@@ -90,5 +90,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [0.2.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.2.0
 [0.3.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.3.0
 [0.4.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.4.0
+[0.5.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.5.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
