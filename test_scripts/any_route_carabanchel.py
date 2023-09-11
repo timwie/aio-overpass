@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import sys
 
 from aio_overpass import Client
 from aio_overpass.pt import RouteQuery, collect_routes
@@ -7,6 +9,8 @@ from aio_overpass.query import DefaultQueryRunner
 
 
 assert __name__ == "__main__"
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 code = """
 [timeout:180];

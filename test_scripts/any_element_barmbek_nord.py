@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import sys
 
 from aio_overpass import Client, Query
 from aio_overpass.element import collect_elements
@@ -7,6 +9,8 @@ from aio_overpass.query import DefaultQueryRunner
 
 assert __name__ == "__main__"
 
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+
 code = """
 [timeout:60];
 area[name="Barmbek-Nord"][boundary=administrative];
@@ -14,7 +18,7 @@ nwr(area);
 out geom;
 """
 
-query = Query(code)
+query = Query(code, logger=logging.getLogger())
 
 client = Client(
     user_agent="aio-overpass automated test query (https://github.com/timwie/aio-overpass)",
