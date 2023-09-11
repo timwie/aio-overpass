@@ -315,7 +315,11 @@ def _geojson_geometry(obj: Union[Element, "Relationship"]) -> Optional[GeoJsonDi
     # Flip coordinates for GeoJSON compliance.
     geom = shapely.ops.transform(lambda lat, lon: (lon, lat), geom)
 
-    return shapely.geometry.mapping(geom)
+    mapping = shapely.geometry.mapping(geom)
+    if mapping["type"] == "LinearRing":  # this geometry does not exist in GeoJSON
+        mapping["type"] = "LineString"
+
+    return mapping
 
 
 def _geojson_bbox(obj: Union[Element, "Relationship"]) -> Optional[Bbox]:
