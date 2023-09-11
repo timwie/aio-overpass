@@ -85,6 +85,12 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-3.9-${{ hashFiles('**/poetry.lock') }}
 
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: |
+          source .venv/bin/activate
+          poetry install --all-extras --no-interaction --no-root
+
       - name: Test with pytest
         run: |
           source .venv/bin/activate
