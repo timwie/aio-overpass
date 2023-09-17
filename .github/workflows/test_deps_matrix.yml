@@ -62,12 +62,11 @@ jobs:
       - name: Install different dependency versions
         run: |
           source .venv/bin/activate
-          sed -i 's/python = "^3.9"$/python = ">=3.9,<3.13"/' pyproject.toml
-          poetry add aiohttp=~${{ matrix.aiohttp }}
-          poetry add joblib=~${{ matrix.joblib }}
-          poetry add networkx=~${{ matrix.networkx }}
-          poetry add shapely=~${{ matrix.shapely }}
-          poetry add numpy=~${{ matrix.numpy }}
+          poetry add aiohttp=~${{ matrix.aiohttp }} --python="<=${{ matrix.python }}"
+          poetry add joblib=~${{ matrix.joblib }} --python="<=${{ matrix.python }}"
+          poetry add networkx=~${{ matrix.networkx }} --python="<=${{ matrix.python }}"
+          poetry add shapely=~${{ matrix.shapely }} --python="<=${{ matrix.python }}"
+          poetry add numpy=~${{ matrix.numpy }} --python="<=${{ matrix.python }}"
 
       - name: Test with pytest
         run: |
