@@ -62,6 +62,7 @@ jobs:
       - name: Install different dependency versions
         run: |
           source .venv/bin/activate
+          sed -i 's/python = .*/python = ">=3.9,<3.13"/' pyproject.toml
           poetry add aiohttp=~${{ matrix.aiohttp }}
           poetry add joblib=~${{ matrix.joblib }}
           poetry add networkx=~${{ matrix.networkx }}
