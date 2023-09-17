@@ -36,21 +36,9 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           cache: 'poetry'
+          cache-dependency-path: poetry.lock
 
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache/restore@v3  # only restore cache if available; no saving in post step
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: |
-          source .venv/bin/activate
-          poetry install --all-extras --no-interaction --no-root
-
-      - name: Install library
+      - name: Install dependencies & library
         run: poetry install --all-extras --no-interaction
 
       - name: Run script
