@@ -43,23 +43,7 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: 'poetry'
 
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache/restore@v3  # only restore cache if available; no saving in post step
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: |
-          source .venv/bin/activate
-          poetry install --all-extras --no-interaction --no-root
-
-      - name: Install library
-        run: poetry install --all-extras --no-interaction
-
-      - name: Install different dependency versions
+      - name: Add different dependency versions
         run: |
           source .venv/bin/activate
           poetry add aiohttp=~${{ matrix.aiohttp }} --python="<=${{ matrix.python }}"
@@ -67,6 +51,9 @@ jobs:
           poetry add networkx=~${{ matrix.networkx }} --python="<=${{ matrix.python }}"
           poetry add shapely=~${{ matrix.shapely }} --python="<=${{ matrix.python }}"
           poetry add numpy=~${{ matrix.numpy }} --python="<=${{ matrix.python }}"
+
+      - name: Install dependencies & library
+        run: poetry install --all-extras --no-interaction
 
       - name: Test with pytest
         run: |
