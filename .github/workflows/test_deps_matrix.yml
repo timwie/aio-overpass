@@ -38,16 +38,14 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Add different dependency versions
-        run: |
-          poetry add aiohttp=~${{ matrix.aiohttp }} --python="<=${{ matrix.python }}"
-          poetry add joblib=~${{ matrix.joblib }} --python="<=${{ matrix.python }}"
-          poetry add networkx=~${{ matrix.networkx }} --python="<=${{ matrix.python }}"
-          poetry add shapely=~${{ matrix.shapely }} --python="<=${{ matrix.python }}"
-          poetry add numpy=~${{ matrix.numpy }} --python="<=${{ matrix.python }}"
-
       - name: Install dependencies & library
-        run: poetry install --all-extras --no-interaction
+        run: |
+          poetry install --all-extras --no-interaction
+          poetry add aiohttp=~${{ matrix.aiohttp }} --python="<=${{ matrix.python }}" --no-interaction
+          poetry add joblib=~${{ matrix.joblib }} --python="<=${{ matrix.python }}" --no-interaction
+          poetry add networkx=~${{ matrix.networkx }} --python="<=${{ matrix.python }}" --no-interaction
+          poetry add shapely=~${{ matrix.shapely }} --python="<=${{ matrix.python }}" --no-interaction
+          poetry add numpy=~${{ matrix.numpy }} --python="<=${{ matrix.python }}" --no-interaction
 
       - name: Test with pytest
         run: poetry run pytest -vv
