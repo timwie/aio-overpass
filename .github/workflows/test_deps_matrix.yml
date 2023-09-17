@@ -32,10 +32,6 @@ jobs:
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
 
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v4
@@ -44,7 +40,6 @@ jobs:
 
       - name: Add different dependency versions
         run: |
-          source .venv/bin/activate
           poetry add aiohttp=~${{ matrix.aiohttp }} --python="<=${{ matrix.python }}"
           poetry add joblib=~${{ matrix.joblib }} --python="<=${{ matrix.python }}"
           poetry add networkx=~${{ matrix.networkx }} --python="<=${{ matrix.python }}"
@@ -55,6 +50,4 @@ jobs:
         run: poetry install --all-extras --no-interaction
 
       - name: Test with pytest
-        run: |
-          source .venv/bin/activate
-          pytest -vv
+        run: poetry run pytest -vv
