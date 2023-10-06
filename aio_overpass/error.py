@@ -4,13 +4,13 @@ Error types.
 ```
                             (ClientError)
                                   ╷
-    ┌──────────────┬──────────────┼────────────┬────────────────┬───────────────┐
-    ╵              ╵              ╵            ╵                ╵               ╵
-CallError  CallTimeoutError  (QueryError)   GiveupError    ResponseError    RunnerError
-                                  ╷                             ╷
-         ┌────────────────────────┼──────────────────────┐      │
-         ╵                        ╵                      ╵      ╵
-QueryLanguageError         QueryRejectError          QueryResponseError
+                   ┌──────────────┼────────────┬────────────────┬────────────────┐
+                   ╵              ╵            ╵                ╵                ╵
+               RunnerError   (QueryError)   GiveupError    ResponseError     CallError
+                                  ╷                             ╷                ╷
+         ┌────────────────────────┼──────────────────────┐      │                │
+         ╵                        ╵                      ╵      ╵                ╵
+QueryLanguageError         QueryRejectError          QueryResponseError   CallTimeoutError
 ```
 """
 import asyncio
@@ -91,7 +91,7 @@ class CallError(ClientError):
 
 
 @dataclass
-class CallTimeoutError(ClientError):
+class CallTimeoutError(CallError):
     """
     An API request timed out.
 
