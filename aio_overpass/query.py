@@ -5,6 +5,7 @@ import hashlib
 import json
 import logging
 import math
+import os
 import re
 import tempfile
 import time
@@ -585,6 +586,9 @@ class DefaultQueryRunner(QueryRunner):
     def _cache_read(self, query: Query) -> None:
         logger = DefaultQueryRunner._logger(query)
 
+        if os.getenv("GITHUB_ACTIONS") == "true":
+            logger.debug("caching is disabled in GitHub actions")
+            return
         if not self._cache_ttl_secs:
             logger.debug("caching is disabled")
             return
@@ -615,7 +619,7 @@ class DefaultQueryRunner(QueryRunner):
     def _cache_write(self, query: Query) -> None:
         logger = DefaultQueryRunner._logger(query)
 
-        if not self._cache_ttl_secs:
+        if not self._cache_ttl_secs or os.getenv("GITHUB_ACTIONS") == "true":
             return
 
         now = int(time.time())
