@@ -246,13 +246,16 @@ class Client:
 
         The query runner is invoked before every try.
 
+        To run multiple queries concurrently, wrap the returned coroutines in an ``asyncio`` task,
+        f.e. with ``asyncio.create_task()`` and subsequent ``asyncio.gather()``.
+
         Args:
             query: the query to run on this API instance
 
         Raises:
             ClientError: when query or status requests fail. If the query was retried, the error
                          of the last try will be raised. The same exception is also captured in
-                         `query.error`.
+                         ``query.error``.
         """
         if query.done:
             return  # nothing to do
