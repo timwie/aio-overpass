@@ -4,15 +4,18 @@ import asyncio
 import hashlib
 import json
 import logging
+import math
 import re
 import tempfile
 import time
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Protocol
 
 from aio_overpass.error import (
     ClientError,
+    GiveupError,
     QueryLanguageError,
     QueryRejectCause,
     QueryRejectError,
@@ -25,6 +28,7 @@ __all__ = (
     "Query",
     "QueryRunner",
     "DefaultQueryRunner",
+    "RequestTimeout",
     "DEFAULT_MAXSIZE",
     "DEFAULT_TIMEOUT",
 )
@@ -72,23 +76,26 @@ class Query:
         if "timeout" not in self._settings:
             self._settings["timeout"] = DEFAULT_TIMEOUT
 
-        self._client_timeout: Optional[float] = None
+        self._run_timeout_secs: Optional[float] = None
+        self._request_timeout: RequestTimeout = RequestTimeout()
 
         # set by the client that executes this query
         self._error: Optional[ClientError] = None
         self._response: Optional[dict] = None
         self._response_bytes = 0.0
-        self._time_end_try = 0.0  # time the most recent try finished
-        self._time_start = 0.0  # time prior to executing the first try
-        self._time_start_try = 0.0  # time prior to executing the most recent try
         self._nb_tries = 0
 
-    def _has_cooldown(self) -> bool:
-        """When ``True``, we should query the API status to retrieve our cooldown period."""
-        return (
-            isinstance(self.error, QueryRejectError)
-            and self.error.cause == QueryRejectCause.TOO_MANY_QUERIES
-        )
+        self._time_start: Optional[_Instant] = None
+        """time prior to executing the first try"""
+
+        self._time_start_try: Optional[_Instant] = None
+        """time prior to executing the most recent try"""
+
+        self._time_start_req: Optional[_Instant] = None
+        """time prior to executing the most recent try's query request"""
+
+        self._time_end_try: Optional[_Instant] = None
+        """time the most recent try finished"""
 
     def reset(self) -> None:
         """Reset the query to its initial state, ignoring previous tries."""
@@ -222,14 +229,32 @@ class Query:
         that limits the query execution time. Instead, this value can be used to limit the total
         client-side time spent on this query (see ``Client.run_query``).
         """
-        return self._client_timeout
+        return self._run_timeout_secs
 
     @run_timeout_secs.setter
     def run_timeout_secs(self, value: Optional[float]) -> None:
         if value is not None and value <= 0.0:
             msg = "run_timeout_secs must be > 0"
             raise ValueError(msg)
-        self._client_timeout = value
+        self._run_timeout_secs = value
+
+    @property
+    def run_timeout_elapsed(self) -> bool:
+        """Returns ``True`` if ``run_timeout_secs`` is set and has elapsed."""
+        return (
+            self.run_timeout_secs
+            and self.run_duration_secs
+            and self.run_timeout_secs < self.run_duration_secs
+        )
+
+    @property
+    def request_timeout(self) -> "RequestTimeout":
+        """Request timeout settings for this query."""
+        return self._request_timeout
+
+    @request_timeout.setter
+    def request_timeout(self, value: "RequestTimeout") -> None:
+        self._request_timeout = value
 
     @property
     def code(self) -> str:
@@ -238,7 +263,15 @@ class Query:
 
         This is different from ``input_code`` only when it comes to settings.
         """
-        settings = "".join((f"[{k}:{v}]" for k, v in self._settings.items())) + ";"
+        return self._code(without_dynamic_settings=False)
+
+    def _code(self, without_dynamic_settings: bool) -> str:
+        settings_iter = self._settings.items()
+
+        if without_dynamic_settings:
+            settings_iter = ((k, v) for k, v in settings_iter if k not in {"maxsize", "timeout"})
+
+        settings = "".join((f"[{k}:{v}]" for k, v in settings_iter)) + ";"
 
         # Remove the original settings statement
         code = _SETTING_PATTERN.sub("", self._input_code)
@@ -252,9 +285,9 @@ class Query:
 
         The default query runner uses this as cache key.
         """
-        # important: do not use 'self._input_code'.
-        # that way the timeout and maxsize settings don't affect the digest
-        return hashlib.sha256(self.code.encode("utf-8")).hexdigest()
+        # hash QL code without [timeout:*] and [maxsize:*] settings
+        code = self._code(without_dynamic_settings=True)
+        return hashlib.sha256(code.encode("utf-8")).hexdigest()
 
     @property
     def done(self) -> bool:
@@ -262,7 +295,7 @@ class Query:
         return self._response is not None
 
     @property
-    def query_duration_secs(self) -> Optional[float]:
+    def request_duration_secs(self) -> Optional[float]:
         """
         How long it took to fetch the result set in seconds.
 
@@ -275,7 +308,7 @@ class Query:
         if self._response is None or self.was_cached:
             return None
 
-        return max(0.0, self._time_end_try - self._time_start_try)
+        return self._time_end_try - self._time_start_req
 
     @property
     def run_duration_secs(self) -> Optional[float]:
@@ -284,11 +317,13 @@ class Query:
 
         This is ``None`` if the query has not been run yet, or when its result was cached.
         """
-        if self._time_start == 0.0:
+        if self._time_start is None:
             return None
 
-        end = self._time_end_try if self._time_end_try > 0.0 else asyncio.get_event_loop().time()
-        return end - self._time_start
+        if self._time_end_try:
+            return self._time_end_try - self._time_start
+
+        return self._time_start.elapsed_secs_since
 
     @property
     def api_version(self) -> Optional[str]:
@@ -350,16 +385,16 @@ class Query:
         query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
 
         size = self.response_size_mib
-        time_query = self.query_duration_secs
+        time_request = self.request_duration_secs
         time_total = self.run_duration_secs
 
         if self.nb_tries == 0:
             details = "pending"
         elif self.done:
             if self.nb_tries == 1:
-                details = f"{size}mb in {time_query:.01f}s"
+                details = f"{size}mb in {time_request:.01f}s"
             else:
-                details = f"{size}mb in {time_query:.01f} ({time_total:.01f})s"
+                details = f"{size}mb in {time_request:.01f} ({time_total:.01f})s"
         else:
             t = "try" if self.nb_tries == 1 else "tries"
             details = f"failing after {self.nb_tries} {t}, {time_total:.01f}s"
@@ -381,10 +416,10 @@ class Query:
             details["error"] = type(self.error).__name__
 
         if self.done:
-            details["result_size"] = f"{self.response_size_mib:.02f}mb"
+            details["response_size"] = f"{self.response_size_mib:.02f}mb"
 
             if not self.was_cached:
-                details["query_duration"] = f"{self.query_duration_secs:.02f}s"
+                details["request_duration"] = f"{self.request_duration_secs:.02f}s"
 
         if self.nb_tries > 0:
             details["run_duration"] = f"{self.run_duration_secs:.02f}s"
@@ -392,6 +427,107 @@ class Query:
         details_str = ", ".join((f"{k}={v!r}" for k, v in details.items()))
 
         return f"{cls_name}({details_str})"
+
+    def _mutator(self) -> "_QueryMutator":
+        return _QueryMutator(self)
+
+
+class _QueryMutator:
+    def __init__(self, query: Query) -> None:
+        self._query = query
+
+    def begin_try(self) -> None:
+        if self._query._time_start is None:
+            self._query._time_start = _Instant.now()
+
+        self._query._time_start_try = _Instant.now()
+        self._query._time_start_req = None
+        self._query._time_end_try = None
+        self._query.try_timeout_secs = None
+
+    def begin_request(self) -> None:
+        self._query._time_start_req = _Instant.now()
+
+    def succeed_try(self, response: dict, response_bytes: int) -> None:
+        self._query._time_end_try = _Instant.now()
+        self._query._response = response
+        self._query._response_bytes = response_bytes
+        self._query._error = None
+
+    def fail_try(self, err: ClientError) -> None:
+        self._query._error = err
+
+    def end_try(self) -> None:
+        self._query._nb_tries += 1
+
+
+@dataclass(frozen=True, repr=False, order=True)
+class _Instant:
+    """
+    Measurement of a monotonic clock.
+
+    Attributes:
+        when: the current time, according to the event loop's internal monotonic clock
+              (details are unspecified and may differ per event loop).
+    """
+
+    when: float
+
+    @classmethod
+    def now(cls) -> "_Instant":
+        return cls(when=asyncio.get_event_loop().time())
+
+    @property
+    def ceil(self) -> int:
+        return math.ceil(self.when)
+
+    @property
+    def elapsed_secs_since(self) -> float:
+        return asyncio.get_event_loop().time() - self.when
+
+    def __sub__(self, earlier: "_Instant") -> float:
+        if self.when < earlier.when:
+            msg = f"{self} is earlier than {earlier}"
+            raise ValueError(msg)
+        return self.when - earlier.when
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self.when:.02f})"
+
+
+@dataclass
+class RequestTimeout:
+    """
+    Request timeout settings.
+
+    Attributes:
+        total_without_query_secs: If set, the sum of this duration and the query's ``[timeout:*]``
+                                  setting is used as timeout duration of the entire request,
+                                  including connection establishment, request sending and response
+                                  reading (``aiohttp.ClientTimeout.total``).
+                                  Defaults to 20 seconds.
+        sock_connect_secs: The maximum number of seconds allowed for pure socket connection
+                           establishment (same as ``aiohttp.ClientTimeout.sock_connect``).
+        each_sock_read_secs: The maximum number of seconds allowed for the period between reading
+                             a new chunk of data (same as ``aiohttp.ClientTimeout.sock_read``).
+    """
+
+    total_without_query_secs: Optional[float] = 20.0
+    sock_connect_secs: Optional[float] = None
+    each_sock_read_secs: Optional[float] = None
+
+    def __post_init__(self) -> None:
+        if self.total_without_query_secs is not None and self.total_without_query_secs <= 0.0:
+            msg = "'total_without_query_secs' has to be > 0"
+            raise ValueError(msg)
+
+        if self.sock_connect_secs is not None and self.sock_connect_secs <= 0.0:
+            msg = "'sock_connect_secs' has to be > 0"
+            raise ValueError(msg)
+
+        if self.each_sock_read_secs is not None and self.each_sock_read_secs <= 0.0:
+            msg = "'each_sock_read_secs' has to be > 0"
+            raise ValueError(msg)
 
 
 class QueryRunner(Protocol):
@@ -512,9 +648,10 @@ class DefaultQueryRunner(QueryRunner):
 
         err = query.error
 
-        # Do not retry if we exhausted all tries, or when a retry would not change the result.
+        # Do not retry if we exhausted all tries, when a retry would not change the result,
+        # or when the timeout was reached.
         failed = query.nb_tries == self._max_tries or isinstance(
-            err, (ResponseError, QueryLanguageError)
+            err, (ResponseError, QueryLanguageError, GiveupError)
         )
 
         # Exhausted all tries; do not retry.

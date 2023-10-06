@@ -5,6 +5,7 @@ from test.util import VerifyingQueryRunner, verify_query_state
 from aio_overpass import Client, Query
 from aio_overpass.error import (
     CallError,
+    CallTimeoutError,
     GiveupError,
     QueryLanguageError,
     QueryRejectCause,
@@ -344,11 +345,11 @@ async def test_timeout_error():
 
     with aioresponses() as m:
         m.get(URL_STATUS, exception=asyncio.TimeoutError())
-        with pytest.raises(GiveupError) as err:
+        with pytest.raises(CallTimeoutError) as err:
             await c.run_query(q)
 
         m.get(URL_STATUS, exception=asyncio.TimeoutError())
-        with pytest.raises(GiveupError) as err2:
+        with pytest.raises(CallTimeoutError) as err2:
             await c.run_query(q2)
 
     _ = str(err.value)

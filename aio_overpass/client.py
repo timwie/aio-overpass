@@ -3,17 +3,19 @@
 import asyncio
 import logging
 import re
-import sys
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Union
 from urllib.parse import urljoin
 
 from aio_overpass import __version__
 from aio_overpass.error import (
     CallError,
+    CallTimeoutError,
     ClientError,
     GiveupError,
+    QueryRejectCause,
+    QueryRejectError,
     RunnerError,
     _result_or_raise,
     _to_client_error,
@@ -21,6 +23,8 @@ from aio_overpass.error import (
 from aio_overpass.query import DefaultQueryRunner, Query, QueryRunner
 
 import aiohttp
+from aiohttp import ClientTimeout
+from aiohttp.helpers import sentinel
 
 
 __docformat__ = "google"
@@ -115,11 +119,15 @@ class Client:
         """The session used for all requests of this client."""
         if not self._maybe_session or self._maybe_session.closed:
             headers = {"User-Agent": self._user_agent}
-            self._maybe_session = aiohttp.ClientSession(headers=headers)
+            connector = aiohttp.TCPConnector(limit=0)  # we limit concurrency ourselves
+            self._maybe_session = aiohttp.ClientSession(headers=headers, connector=connector)
 
         return self._maybe_session
 
-    async def _rate_limiter(self, **kwargs) -> asyncio.BoundedSemaphore:
+    async def _rate_limiter(
+        self,
+        timeout: Union[ClientTimeout, object] = sentinel,
+    ) -> asyncio.BoundedSemaphore:
         """
         A rate-limiting semaphore for queries.
 
@@ -132,7 +140,7 @@ class Client:
             return self._maybe_sem
 
         if not status:
-            status = await self._status(**kwargs)
+            status = await self._status(timeout=timeout)
 
         self._maybe_sem = asyncio.BoundedSemaphore(status.concurrency)
         return self._maybe_sem
@@ -148,9 +156,14 @@ class Client:
             with suppress(aiohttp.ServerDisconnectedError):
                 await self._maybe_session.close()
 
-    async def _status(self, **kwargs) -> "Status":
+    async def _status(
+        self,
+        timeout: Union[ClientTimeout, object] = sentinel,
+    ) -> "Status":
         try:
-            async with self._session().get(url=urljoin(self._url, "status"), **kwargs) as response:
+            async with self._session().get(
+                url=urljoin(self._url, "status"), timeout=timeout
+            ) as response:
                 text = await response.text()
         except aiohttp.ClientError as err:
             raise _to_client_error(err) from err
@@ -267,67 +280,89 @@ class Client:
         if query.done:
             return
 
-        loop = asyncio.get_event_loop()
+        query_mut = query._mutator()
 
-        if query._time_start == 0.0:
-            query._time_start = loop.time()
-
-        query._time_start_try = 0.0
-        query._time_end_try = 0.0
+        query_mut.begin_try()
 
         acquired_slot = False
 
+        req_timeout = aiohttp.ClientTimeout(
+            total=float(query.timeout_secs) + query.request_timeout.total_without_query_secs,
+            connect=None,
+            sock_connect=query.request_timeout.sock_connect_secs,
+            sock_read=query.request_timeout.each_sock_read_secs,
+        )
+
         try:
-            await self._wait_for_slot_and_cooldown(query)
+            await self._wait_for_slot(query)
             acquired_slot = True
 
-            query._time_start_try = loop.time()
+            query_mut.begin_request()
 
             logger.info(f"call api for {query}")
 
             async with self._session().get(
                 url=urljoin(self._url, "interpreter"),
                 params={"data": query.code},
-                timeout=_next_timeout(query),
+                timeout=req_timeout,
             ) as response:
-                query._time_end_try = loop.time()
-                query._response = await _result_or_raise(response, query.kwargs)
-                query._response_bytes = response.content.total_bytes
-                query._error = None
+                query_mut.succeed_try(
+                    response=await _result_or_raise(response, query.kwargs),
+                    response_bytes=response.content.total_bytes,
+                )
 
         except aiohttp.ClientError as err:
-            query._error = _to_client_error(err)
+            query_mut.fail_try(_to_client_error(err))
 
-        except asyncio.TimeoutError:
-            query._error = _giveup_error(query, loop)
+        except asyncio.TimeoutError as err:
+            if query.run_timeout_elapsed:
+                query_err = GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
+            else:
+                assert not query.run_timeout_secs or acquired_slot
+                query_err = CallTimeoutError(cause=err, after_secs=req_timeout.total)
+            query_mut.fail_try(query_err)
 
         except ClientError as err:
-            query._error = err
+            query_mut.fail_try(err)
 
         finally:
-            query._nb_tries += 1
+            query_mut.end_try()
             if acquired_slot:
                 self._maybe_sem.release()
 
-    async def _wait_for_slot_and_cooldown(self, query: Query) -> None:
+    async def _wait_for_slot(self, query: Query) -> None:
+        def next_timeout() -> aiohttp.ClientTimeout:
+            if query.run_timeout_secs:
+                remaining = query.run_timeout_secs - query.run_duration_secs
+                if remaining <= 0.0:
+                    raise asyncio.TimeoutError()  # no point delaying the inevitable
+            else:
+                remaining = None  # no limit
+
+            return aiohttp.ClientTimeout(total=remaining)
+
         logger = query.logger or logging.getLogger(f"{type(self).__module__}.{type(self).__name__}")
-        loop = asyncio.get_event_loop()
 
-        # This requests an API status if we haven't done so already.
-        rate_limiter = await self._rate_limiter(timeout=_next_timeout(query))
+        check_cooldown = (
+            isinstance(query.error, QueryRejectError)
+            and query.error.cause == QueryRejectCause.TOO_MANY_QUERIES
+        )
 
-        if query._has_cooldown():
+        if check_cooldown:
             # If this client is running too many queries, we can check the status for a
             # cooldown period. This request failing is a bit of an edge case.
             # 'query.error' will be overwritten, which means we will not check for a
             # cooldown in the next iteration.
-            status = await self._status(timeout=_next_timeout(query))
+            status = await self._status(timeout=next_timeout())
 
-            if (timeout := _next_timeout_secs(query)) and status.cooldown_secs > timeout:
-                raise _giveup_error(query, loop)
+            if (timeout := next_timeout()) and status.cooldown_secs > timeout.total:
+                raise GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
 
             logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
             await asyncio.sleep(status.cooldown_secs)
+
+        # This requests an API status if we haven't done so already.
+        rate_limiter = await self._rate_limiter(timeout=next_timeout())
 
         # Limit the concurrent query requests to the number of slots available.
         if rate_limiter.locked():
@@ -335,20 +370,5 @@ class Client:
 
         await asyncio.wait_for(
             fut=rate_limiter.acquire(),
-            timeout=_next_timeout(query).total,
+            timeout=next_timeout().total,
         )
-
-
-def _next_timeout_secs(query: Query) -> Optional[float]:
-    if query.run_timeout_secs:
-        # use epsilon since 0 means "no timeout"
-        return max(sys.float_info.epsilon, query.run_timeout_secs - query.run_duration_secs)
-    return None
-
-
-def _next_timeout(query: Query) -> aiohttp.ClientTimeout:
-    return aiohttp.ClientTimeout(total=_next_timeout_secs(query))
-
-
-def _giveup_error(query: Query, loop: asyncio.AbstractEventLoop) -> GiveupError:
-    return GiveupError(kwargs=query.kwargs, after_secs=loop.time() - query._time_start)

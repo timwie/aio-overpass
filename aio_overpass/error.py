@@ -4,16 +4,16 @@ Error types.
 ```
                             (ClientError)
                                   ╷
-    ┌──────────────┬──────────────┼────────────┬────────────────┐
-    ╵              ╵              ╵            ╵                ╵
-CallError     RunnerError   (QueryError)   GiveupError    ResponseError
+    ┌──────────────┬──────────────┼────────────┬────────────────┬───────────────┐
+    ╵              ╵              ╵            ╵                ╵               ╵
+CallError  CallTimeoutError  (QueryError)   GiveupError    ResponseError    RunnerError
                                   ╷                             ╷
          ┌────────────────────────┼──────────────────────┐      │
          ╵                        ╵                      ╵      ╵
 QueryLanguageError         QueryRejectError          QueryResponseError
 ```
 """
-
+import asyncio
 import html
 import re
 from dataclasses import dataclass
@@ -29,6 +29,7 @@ __docformat__ = "google"
 __all__ = (
     "ClientError",
     "CallError",
+    "CallTimeoutError",
     "ResponseError",
     "GiveupError",
     "QueryError",
@@ -90,6 +91,27 @@ class CallError(ClientError):
 
 
 @dataclass
+class CallTimeoutError(ClientError):
+    """
+    An API request timed out.
+
+    Attributes:
+        cause: the exception that caused this error
+        after_secs: the configured timeout for the request
+    """
+
+    cause: asyncio.TimeoutError
+    after_secs: float
+
+    def __post_init__(self) -> None:
+        # imitate "raise CallError(...) from cause"
+        self.__cause__ = self.cause
+
+    def __str__(self) -> str:
+        return str(self.cause)
+
+
+@dataclass
 class ResponseError(ClientError):
     """
     Unexpected API response.
@@ -128,7 +150,8 @@ class GiveupError(ClientError):
     """
     The client spent too long running a query, and gave up.
 
-    This error is raised when the run timeout duration set by a query runner is exceeded.
+    This error is raised when the run timeout duration set by a query runner
+    is or would be exceeded.
 
     Attributes:
         kwargs: the query's ``kwargs``

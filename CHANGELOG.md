@@ -4,6 +4,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
+## Unreleased
+### Changed
+* Rename `Query.query_duration_secs` to `Query.request_duration_secs`
+* Add the `query.RequestTimeout` to configure `aiohttp` request timeouts
+* Add `Query.request_timeout` to get/set a query's `RequestTimeout`
+* Add `Query.run_timeout_elapsed`
+
+### Fixed
+* Make `maxsize` and `timeout` settings not affect `Query.cache_key`
+
+<br>
+
 ## [0.6.0] – 2023-09-12
 ### Changed
 * `Query.maxsize_mib` is now a `float` instead of an `int`

@@ -80,7 +80,7 @@ pdoc = "^14.1.0"
 pytest = "^7.4.2"
 pytest-asyncio = "^0.21.1"
 pytest-cov = "^4.1.0"
-ruff = "^0.0.290"
+ruff = "^0.0.292"
 
 [tool.poetry.group.notebooks]
 optional = true
@@ -90,7 +90,7 @@ folium = "^0.14.0"
 jupyterlab = "^4.0.6"
 papermill = "^2.4.0"
 randomcolor = "^0.4.4.6"
-selenium = "^4.12.0"
+selenium = "^4.13.0"
 tabulate = "^0.9.0"
 
 [tool.ruff]
@@ -104,6 +104,7 @@ select = [
     "PL", "TRY", "PERF", "RUF"
 ]
 ignore = [
+    "S101",
     "D105", "D107", "D203", "D212",
     "ANN003", "ANN101", "ANN102", "ANN401",
     "C408",

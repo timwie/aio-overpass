@@ -41,6 +41,10 @@ def mock_response():
         yield m
 
 
+# TODO must support concurrent queries
+# TODO test that cache_key is stable
+
+
 class VerifyingQueryRunner(QueryRunner):
     """
     Same as the default runner, but with calls to ``verify_query_state()``
@@ -92,7 +96,7 @@ def verify_query_state(query: Query) -> None:
         assert query.response is not None
         assert query.result_set is not None
         assert query.response_size_mib >= 0.0
-        assert query.query_duration_secs is None
+        assert query.request_duration_secs is None
         assert query.run_duration_secs is None
         assert query.api_version is not None
         assert query.timestamp_osm is not None
@@ -105,7 +109,7 @@ def verify_query_state(query: Query) -> None:
         assert query.response is None
         assert query.result_set is None
         assert query.response_size_mib is None
-        assert query.query_duration_secs is None
+        assert query.request_duration_secs is None
         assert query.run_duration_secs is None
         assert query.api_version is None
         assert query.timestamp_osm is None
@@ -117,7 +121,7 @@ def verify_query_state(query: Query) -> None:
         assert query.response is None
         assert query.result_set is None
         assert query.response_size_mib is None
-        assert query.query_duration_secs is None
+        assert query.request_duration_secs is None
         assert query.run_duration_secs > 0.0
         assert query.api_version is None
         assert query.timestamp_osm is None
@@ -129,7 +133,7 @@ def verify_query_state(query: Query) -> None:
         assert query.response is not None
         assert query.result_set is not None
         assert query.response_size_mib >= 0.0
-        assert query.query_duration_secs > 0.0
+        assert query.request_duration_secs > 0.0
         assert query.run_duration_secs > 0.0
         assert query.api_version is not None
         assert query.timestamp_osm is not None
