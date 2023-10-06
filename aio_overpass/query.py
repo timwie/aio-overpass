@@ -7,6 +7,7 @@ import logging
 import math
 import os
 import re
+import sys
 import tempfile
 import time
 from dataclasses import dataclass
@@ -583,10 +584,15 @@ class DefaultQueryRunner(QueryRunner):
     def _logger(cls, query: Query) -> logging.Logger:
         return query.logger or logging.getLogger(f"{cls.__module__}.{cls.__name__}")
 
+    @staticmethod
+    def _force_disable_caching() -> bool:
+        # this force disables caching when running test scripts in GitHub Actions
+        return os.getenv("GITHUB_ACTIONS") == "true" and "pytest" not in sys.modules
+
     def _cache_read(self, query: Query) -> None:
         logger = DefaultQueryRunner._logger(query)
 
-        if os.getenv("GITHUB_ACTIONS") == "true":
+        if self._force_disable_caching():
             logger.debug("caching is disabled in GitHub actions")
             return
         if not self._cache_ttl_secs:
@@ -619,7 +625,7 @@ class DefaultQueryRunner(QueryRunner):
     def _cache_write(self, query: Query) -> None:
         logger = DefaultQueryRunner._logger(query)
 
-        if not self._cache_ttl_secs or os.getenv("GITHUB_ACTIONS") == "true":
+        if not self._cache_ttl_secs or self._force_disable_caching():
             return
 
         now = int(time.time())
