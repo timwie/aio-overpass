@@ -4,12 +4,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## Unreleased
-### Changed
-* Rename `Query.query_duration_secs` to `Query.request_duration_secs`
-* Add the `query.RequestTimeout` to configure `aiohttp` request timeouts
+## [0.7.0] – 2023-10-06
+### Added
+* Add the `query.RequestTimeout` to configure `aiohttp` request timeouts.
+  By default, requests now timeout after `20 + Query.timeout_secs` seconds.
 * Add `Query.request_timeout` to get/set a query's `RequestTimeout`
 * Add `Query.run_timeout_elapsed`
+* Add `CallTimeoutError` that is raised when the `request_timeout` elapses
+
+### Changed
+* Rename `Query.query_duration_secs` to `Query.request_duration_secs`
 
 ### Fixed
 * Make `maxsize` and `timeout` settings not affect `Query.cache_key`
@@ -125,5 +129,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [0.4.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.4.0
 [0.5.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.5.0
 [0.6.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.6.0
+[0.7.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.7.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
