@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## Unreleased
+## [0.8.0] – 2023-10-06
 ### Added
 * Add the `Element.geometry` property
 
@@ -146,5 +146,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [0.5.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.5.0
 [0.6.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.6.0
 [0.7.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.7.0
+[0.8.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.8.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
