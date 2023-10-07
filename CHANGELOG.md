@@ -5,15 +5,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <br>
 
 ## Unreleased
+### Added
+* Add the `Element.geometry` property
+
 ### Changed
-* `Ways` may now also have `Polygon` geometries.
-* `Relation` may now have `Polygon` or `MultiPolygon` geometries.
+* `Ways` may now also have `Polygon` geometries
+* `Relation` may now have `Polygon` or `MultiPolygon` geometries
 
 ### Removed
 * Remove `AreaWay` and `AreaRelation`
-  * These subclasses could be confusing since "area" is also specific Overpass terminology.
+  * These subclasses could be confusing since "area" is also specific Overpass terminology
   * There is no good reason to have these subclasses since their only difference
-    is easily modelled through the `geometry` property.
+    is easily modelled through the `geometry` property
 
 <br>
 

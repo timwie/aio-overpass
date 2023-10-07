@@ -153,6 +153,8 @@ class Element(Spatial):
         meta: Metadata of this element, or ``None`` when not using ``out meta``
         relations: All relations that are **also in the query's result set**, and that
                    **are known** to contain this element as a member.
+        geometry: The element's geometry, if available. For the specifics, refer to the
+                  documentation of this property in each subclass.
 
     References:
         - https://wiki.openstreetmap.org/wiki/Elements
@@ -167,6 +169,7 @@ class Element(Spatial):
     center: Optional[Point]
     meta: Optional[Metadata]
     relations: list["Relationship"]
+    geometry: Optional[BaseGeometry]
 
     def tag(self, key: str, default: Any = None) -> Any:
         """
