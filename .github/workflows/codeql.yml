@@ -1,0 +1,30 @@
+name: CodeQL code analysis
+
+on: [workflow_dispatch]
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Initialize
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python
+          queries: +security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:python"
