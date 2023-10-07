@@ -4,6 +4,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
+## Unreleased
+### Changed
+* `Ways` may now also have `Polygon` geometries.
+* `Relation` may now have `Polygon` or `MultiPolygon` geometries.
+
+### Removed
+* Remove `AreaWay` and `AreaRelation`
+  * These subclasses could be confusing since "area" is also specific Overpass terminology.
+  * There is no good reason to have these subclasses since their only difference
+    is easily modelled through the `geometry` property.
+
+<br>
+
 ## [0.7.0] – 2023-10-06
 ### Added
 * Add the `query.RequestTimeout` to configure `aiohttp` request timeouts.

@@ -456,7 +456,7 @@ def _find_stop_coords(
 
     # (c) use a node on the graph, that is closest to one of the relation members
     station_geom = GeometryCollection(
-        [relship.member._geometry for relship in (stop.stop_position, stop.platform) if relship]
+        [relship.member.geometry for relship in (stop.stop_position, stop.platform) if relship]
     )
 
     if not track_nodes or not station_geom:

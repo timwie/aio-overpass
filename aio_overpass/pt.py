@@ -23,7 +23,6 @@ from aio_overpass.query import Query
 
 import shapely.ops
 from shapely.geometry import GeometryCollection, Point, Polygon
-from shapely.geometry.base import BaseGeometry
 
 
 __docformat__ = "google"
@@ -267,11 +266,9 @@ class Stop(Spatial):
         """Collection of ``self.platform``, ``self.stop_position`` and  ``self.stop_coords``."""
         geoms = []
 
-        if self.platform:
-            # this can be None if the platform is a relation
-            geom: Optional[BaseGeometry] = getattr(self.platform.member, "geometry", None)
-            if geom:
-                geoms.append(geom)
+        # geometry can be None if the platform is a relation
+        if self.platform and self.platform.member.geometry:
+            geoms.append(self.platform.member.geometry)
 
         if self.stop_position:
             member = cast(Node, self.stop_position.member)
@@ -786,11 +783,11 @@ def _at_same_stop(a: Relationship, b: Relationship) -> bool:
         return True
 
     # assume same stop if close together
-    if not a.member._geometry or not b.member._geometry:
+    if not a.member.geometry or not b.member.geometry:
         return False
 
     pt_a, pt_b = shapely.ops.nearest_points(
-        a.member._geometry, b.member._geometry
+        a.member.geometry, b.member.geometry
     )  # euclidean nearest
     distance = fast_distance(*pt_a.coords[0], *pt_b.coords[0])
     return distance <= _MAX_DISTANCE_TO_TRACK

@@ -11,14 +11,7 @@ from aio_overpass import Query
 
 import shapely.geometry
 import shapely.ops
-from shapely.geometry import (
-    GeometryCollection,
-    LinearRing,
-    LineString,
-    MultiPolygon,
-    Point,
-    Polygon,
-)
+from shapely.geometry import LinearRing, LineString, MultiPolygon, Point, Polygon
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 
 
@@ -32,8 +25,6 @@ __all__ = (
     "Node",
     "Way",
     "Relation",
-    "AreaWay",
-    "AreaRelation",
     "Relationship",
     "Metadata",
     "collect_elements",
@@ -242,9 +233,8 @@ class Element(Spatial):
 
         Objects are mapped as the following:
          - ``Node`` -> ``Feature`` with optional ``Point`` geometry
-         - ``Way`` -> ``Feature`` with optional ``LineString`` geometry
-         - ``AreaWay`` -> ``Feature`` with optional ``Polygon`` geometry
-         - ``AreaRelation`` -> ``Feature`` with optional ``Polygon`` or ``MultiPolygon`` geometry
+         - ``Way`` -> ``Feature`` with optional ``LineString`` or `Polygon`` geometry
+         - ``Relation`` with geometry -> ``Feature`` with ``Polygon`` or ``MultiPolygon`` geometry
          - ``Relation`` -> ``FeatureCollection`` (nested ``Relations`` are mapped to unlocated
            ``Features``)
 
@@ -261,17 +251,13 @@ class Element(Spatial):
         and rendering their members on a map (f.e. with Leaflet). The downside is that these
         properties are duplicated for every feature.
         """
-        if type(self) != Relation:
-            return _geojson_feature(self)
+        if isinstance(self, Relation) and not self.geometry:
+            return {
+                "type": "FeatureCollection",
+                "features": [_geojson_feature(relship) for relship in self.members],
+            }
 
-        return {
-            "type": "FeatureCollection",
-            "features": [_geojson_feature(relship) for relship in self.members],
-        }
-
-    @property
-    def _geometry(self) -> BaseGeometry:
-        return getattr(self, "geometry", GeometryCollection())
+        return _geojson_feature(self)
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.id})"
@@ -309,7 +295,7 @@ def _geojson_properties(obj: Union[Element, "Relationship"]) -> GeoJsonDict:
 def _geojson_geometry(obj: Union[Element, "Relationship"]) -> Optional[GeoJsonDict]:
     elem = obj if isinstance(obj, Element) else obj.member
 
-    geom = elem._geometry
+    geom = elem.geometry
     if not geom:
         return None
 
@@ -326,7 +312,7 @@ def _geojson_geometry(obj: Union[Element, "Relationship"]) -> Optional[GeoJsonDi
 def _geojson_bbox(obj: Union[Element, "Relationship"]) -> Optional[Bbox]:
     elem = obj if isinstance(obj, Element) else obj.member
 
-    geom = elem._geometry
+    geom = elem.geometry
     if not geom:
         return None
 
@@ -380,8 +366,6 @@ class Way(Element):
     as a closed polyline (e.g. a roundabout), an area (e.g. a patch of grass), or both
     (e.g. a roundabout surrounding a grassy area).
 
-    For ways that enclose an area, refer to the ``AreaWay`` class.
-
     Attributes:
         node_ids: The IDs of the nodes that make up this way, or ``None`` if they are not included
                   in the query's result set.
@@ -394,7 +378,7 @@ class Way(Element):
     """
 
     node_ids: Optional[list[int]]
-    geometry: Union[LineString, LinearRing, None]
+    geometry: Union[LineString, LinearRing, Polygon, None]
 
 
 @dataclass(repr=False, eq=False)
@@ -404,56 +388,9 @@ class Relation(Element):
 
     This relationship is described through its tags.
 
-    For relations that describe an area, refer to the ``AreaRelation`` class.
-
-    Attributes:
-        members: Ordered member elements of this relation, with an optional role
-
-    References:
-        - https://wiki.openstreetmap.org/wiki/Relation
-    """
-
-    members: list["Relationship"]
-
-    def __iter__(self) -> Iterator[tuple[Optional[str], Element]]:
-        for relship in self.members:
-            yield relship.role, relship.member
-
-
-@dataclass(repr=False, eq=False)
-class AreaWay(Way):
-    """
-    An area whose outline is defined by a closed way.
-
-    Unless this element was produced by an ``area`` query, this is not necessarily an area
-    as defined by the Overpass API, since the criteria to decide which elements represent
-    an area may differ.
-
-    Attributes:
-        area_id: An ID specific to the Overpass API, which is only set when explicitly querying
-                 areas. Otherwise, you cannot be sure that this object is also considered an area
-                 by Overpass. You can derive this ID yourself by adding ``2_400_000_000`` onto
-                 the element ID, but must consider that there is no Overpass area with that ID.
-        geometry: The polygon enclosed by the way.
-
-    References:
-        - https://wiki.openstreetmap.org/wiki/Area
-        - https://wiki.openstreetmap.org/wiki/Overpass_API/Areas
-    """
-
-    area_id: Optional[int]
-    geometry: Optional[Polygon]
-
-
-@dataclass(repr=False, eq=False)
-class AreaRelation(Relation):
-    """
-    An area whose geometry is defined by a relation.
-
-    Areas defined by relations may have boundaries made up of several unclosed ways.
-
-    Relations of ``type=multipolygon`` may have boundaries ("outer" role) and holes ("inner" role)
-    made up of several unclosed ways.
+    A relation may define an area geometry, which may have boundaries made up of several
+    unclosed ways. Relations of ``type=multipolygon`` may have boundaries ("outer" role) and
+    holes ("inner" role) made up of several unclosed ways.
 
     Tags describing the multipolygon always go on the relation. The inner and outer ways are tagged
     if they describe something in their own right. For example,
@@ -462,29 +399,27 @@ class AreaRelation(Relation):
      - and its inner ways may be tagged as natural=water if there is a lake within the forest
        boundaries.
 
-    Unless this element was produced by an ``area`` query, this is not necessarily an area
-    as defined by the Overpass API, since the criteria to decide which elements represent
-    an area may differ.
-
     Attributes:
-        area_id: An ID specific to the Overpass API, which is only set when explicitly querying
-                 areas. Otherwise, you cannot be sure that this object is also considered an area
-                 by Overpass. You can derive this ID yourself by adding ``3_600_000_000`` onto the
-                 element ID, but must consider that there is no Overpass area with that ID.
-        geometry: The complex polygons whose boundaries and holes are made up of the ways
-                  inside the relation. Members that are not ways, or are not part of any polygon
-                  boundary, are not part of the result geometry. ``None`` if the geometry of the
-                  relation members is not included in the query's result set.
+        members: Ordered member elements of this relation, with an optional role
+        geometry: If this relation is deemed to represent an area, these are the complex polygons
+                  whose boundaries and holes are made up of the ways inside the relation. Members
+                  that are not ways, or are not part of any polygon boundary, are not part of the
+                  result geometry. This is ``None`` if the geometry of the relation members is not
+                  included in the query's result set, or if the relation is not deemed to represent
+                  an area.
 
     References:
-        - https://wiki.openstreetmap.org/wiki/Area
+        - https://wiki.openstreetmap.org/wiki/Relation
         - https://wiki.openstreetmap.org/wiki/Relation:multipolygon
         - https://wiki.openstreetmap.org/wiki/Relation:boundary
-        - https://wiki.openstreetmap.org/wiki/Overpass_API/Areas
     """
 
-    area_id: Optional[int]
+    members: list["Relationship"]
     geometry: Union[Polygon, MultiPolygon, None]
+
+    def __iter__(self) -> Iterator[tuple[Optional[str], Element]]:
+        for relship in self.members:
+            yield relship.role, relship.member
 
 
 @dataclass(repr=False)
@@ -622,38 +557,21 @@ def _collect_typed(collector: _ElementCollector) -> None:
             if "timestamp" in elem_dict
             else None,
             relations=[],  # add later
+            geometry=_geometry(elem_dict),
         )
 
         cls: type[Element]
 
         if elem_type == "node":
             cls = Node
-
         elif elem_type == "way":
             cls = Way
             args["node_ids"] = elem_dict.get("nodes")
-            if _is_area_element(elem_dict):
-                cls = AreaWay
-                args["area_id"] = elem_id % _AREA_REL_ID_OFFSET
-
         elif elem_type == "relation":
             cls = Relation
             args["members"] = []  # add later
-            if _is_area_element(elem_dict):
-                cls = AreaRelation
-                args["area_id"] = elem_id % _AREA_REL_ID_OFFSET
-
-        elif elem_id > _AREA_REL_ID_OFFSET:
-            cls = AreaRelation
-            args["area_id"] = elem_id % _AREA_REL_ID_OFFSET
-            args["members"] = []  # add later
-
         else:
-            cls = AreaWay
-            args["area_id"] = elem_id % _AREA_WAY_ID_OFFSET
-
-        if cls is not Relation:
-            args["geometry"] = _geometry(elem_dict)
+            raise AssertionError()
 
         elem = cls(**args)
         collector.typed_dict[elem_key] = elem
@@ -668,11 +586,6 @@ def _collect_relationships(collector: _ElementCollector) -> None:
             relship = Relationship(member=mem, relation=rel, role=mem_role or None)
             mem.relations.append(relship)
             rel.members.append(relship)
-
-
-# e.g. area with id 3_600_051_477 correlates with relation 51_477
-_AREA_REL_ID_OFFSET = 3_600_000_000
-_AREA_WAY_ID_OFFSET = 2_400_000_000
 
 
 def _geometry(raw_elem: OverpassDict) -> Optional[BaseGeometry]:
