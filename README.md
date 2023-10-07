@@ -12,9 +12,6 @@ with [Overpass QL], the query language used to select the elements that you want
 - [Basic Usage](#basic-usage)
   - [Example](#example)
 - [Coordinates](#coordinates)
-- [Motivation](#motivation)
-- [Related Projects](#related-projects)
-- [License](#license)
 
 #### See also
 - An overview of modules, classes and functions can be found in the [API reference](http://www.timwie.dev/aio-overpass/)
@@ -22,6 +19,7 @@ with [Overpass QL], the query language used to select the elements that you want
 - Developers can find some instructions in [CONTRIBUTING.md](https://github.com/timwie/aio-overpass/blob/main/CONTRIBUTING.md)
 - The Overpass API [repository](https://github.com/drolbr/Overpass-API),
   its [blog](https://dev.overpass-api.de/blog/),
+  its [user's manual](https://dev.overpass-api.de/overpass-doc/en/index.html)
   and  its [release notes](https://wiki.openstreetmap.org/wiki/Overpass_API/versions)
 - [Overpass Turbo], the best choice to prototype your queries in your browser
 
@@ -36,6 +34,14 @@ with [Overpass QL], the query language used to select the elements that you want
   - [Shapely] geometries for manipulation and analysis
   - [GeoJSON] exports
   - Simplified querying and processing of public transportation routes
+
+### Design Goals
+- A small and stable set of core functionality.
+- Good defaults for queries and retrying.
+- Room for extensions that simplify querying and/or processing of spatial data
+  in specific problem domains.
+- Sensible and spec-compliant GeoJSON exports for all objects that represent spatial features.
+- Detailed documentation that supplements learning about OSM and the Overpass API.
 
 <br>
 
@@ -55,14 +61,14 @@ This library can be installed with a number of optional extras.
 
 - Install the `shapely` extra, if you would like the convenience of typed OSM elements.
   It is also useful if you are interested in elements' geometries,
-  and either already use Shapely, or want a simple way to export [GeoJSON] or [WKT].
+  and either already use Shapely, or want a simple way to export [GeoJSON].
 
   - This includes the `pt` module to make it easier to interact with public transportation routes.
     Something seemingly trivial like listing the stops of a route can have unexpected pitfalls,
     since stops can have multiple route members, and may have a range of different tags and roles.
     This submodule will clean up the relation data for you.
 
-- Install the `networkx` extra to enable the `pt_ordered` module, if you want a route's path as a 
+- Install the `networkx` extra to enable the `pt_ordered` module, if you want a route's path as a
   simple line from A to B. It is hard to do this consistently, mainly because ways are not always
   ordered, and stop positions might be missing. You can benefit from this submodule if you wish to
   - render a route's path between any two stops
@@ -214,61 +220,12 @@ json.dumps(elems[0].geojson, indent=4)
   Such features usually have their geometries split up, like the
   [area of Russia](https://www.openstreetmap.org/relation/60189).
 
-<br>
-
-## Motivation
-
-### Goals
-- A small and stable set of core functionality.
-- Good defaults for queries and retrying.
-- Room for extensions that simplify querying and/or processing of spatial data
-  in specific problem domains.
-- Sensible and spec-compliant GeoJSON exports for all objects that represent spatial features.
-- Detailed documentation that supplements learning about OSM and the Overpass API.
-
-### Non-Goals
-- Reimporting exported GeoJSON as `Spatial` objects
-- Any sort of Python interface to replace writing Overpass QL code.
-- Integrating other OSM-related services (like the OSM API or Nominatim)
-- Command line interface
-
-<br>
-
-## Related Projects
-- [Folium], which can be used to visualize GeoJSON on [Leaflet] maps
-- [OSMnx], which is specialized on street networks
-- [overpass-api-python-wrapper], another Python client for the Overpass API
-- [overpy], another Python client for the Overpass API
-- [OSMPythonTools], a Python client for OSM-related services 
-- [overpassify], a Python to Overpass QL transpiler
-
-<br>
-
-## License
-Distributed under the MIT License. See `LICENSE` for more information.
-
-
+[aiohttp]: https://docs.aiohttp.org/en/stable/
+[GeoJSON]: https://en.wikipedia.org/wiki/GeoJSON
+[ISO 6709]: https://en.wikipedia.org/wiki/ISO_6709
+[OpenStreetMap]: https://www.openstreetmap.org
 [Overpass API]: https://wiki.openstreetmap.org/wiki/Overpass_API
 [Overpass QL]: https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL
-[OpenStreetMap]: https://www.openstreetmap.org
-
 [Overpass Turbo]: http://overpass-turbo.eu/
-[Folium]: https://python-visualization.github.io/folium/
-[Leaflet]: https://leafletjs.com/
-[overpass-api-python-wrapper]: https://github.com/mvexel/overpass-api-python-wrapper
-[overpy]: https://github.com/DinoTools/python-overpy
-[OSMnx]: https://github.com/gboeing/osmnx
-[OSMPythonTools]: https://github.com/mocnik-science/osm-python-tools
-[overpassify]: https://github.com/gappleto97/overpassify
-
-[aiohttp]: https://docs.aiohttp.org/en/stable/
-[Joblib]: https://joblib.readthedocs.io/en/latest/
-[NetworkX]: https://networkx.github.io/
-[PyGeodesy]: https://mrjean1.github.io/PyGeodesy/
 [Shapely]: https://shapely.readthedocs.io/en/latest/manual.html
-
-[GeoJSON]: https://en.wikipedia.org/wiki/GeoJSON
-[WKT]: https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
-
 [WGS84]: https://en.wikipedia.org/wiki/World_Geodetic_System
-[ISO 6709]: https://en.wikipedia.org/wiki/ISO_6709
