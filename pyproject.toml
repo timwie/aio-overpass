@@ -57,7 +57,7 @@ classifiers = [
 "Coverage" = "https://codecov.io/gh/timwie/aio-overpass"
 
 [tool.poetry.dependencies]
-aiohttp = "~3.8"
+aiohttp = "~3.9.0b0"
 joblib = { version = "~1.3", optional = true }
 networkx = { version = ">=2.7", optional = true }
 python = "^3.9"
