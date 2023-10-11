@@ -29,11 +29,9 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies & library
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 3
-          max_attempts: 5
-          command: poetry install --all-extras --no-interaction
+        run: |
+          poetry config installer.max-workers 1  # TODO temporary workaround
+          poetry install --all-extras --no-interaction
 
       - name: Test with pytest
         run: poetry run pytest -vv
