@@ -4,6 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
+## Unreleased
+The Python versions supported by this release are 3.10-3.12.
+
+### Changed
+* Drop Python 3.12 support. 
+* Drop Python 3.9 support.
+
+<br>
+
 ## [0.8.0] – 2023-10-06
 ### Added
 * Add the `Element.geometry` property

@@ -1,9 +1,11 @@
 A client for the [Overpass API], a read-only API that serves up custom selected
-parts of [OpenStreetMap] data. It is optimized for data consumers that need a few
-elements within a glimpse or up to roughly 10 million elements in some minutes,
-both selected by search criteria like location, type of objects, tag properties,
-proximity, or combinations of them. To make use of it, you should familiarize yourself
-with [Overpass QL], the query language used to select the elements that you want.
+parts of [OpenStreetMap] data.
+
+The Overpass API is optimized for data consumers that need a few elements within
+a glimpse or up to roughly 10 million elements in some minutes, both selected by
+search criteria like location, type of objects, tag properties, proximity, or
+combinations of them. To make use of it, you should familiarize yourself with
+[Overpass QL], the query language used to select the elements that you want.
 
 #### Contents
 - [Features](#features)
