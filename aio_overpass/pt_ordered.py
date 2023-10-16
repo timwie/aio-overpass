@@ -289,9 +289,6 @@ def collect_ordered_routes(
     Returns:
         all routes in the result set of the input query
     """
-    if n_jobs != 1:
-        import joblib
-
     routes = collect_routes(query, perimeter)
 
     if not routes:
@@ -332,6 +329,8 @@ def collect_ordered_routes(
         for seg, route, graph in zip(views, routes, graphs, strict=False):
             seg.ordering = _paths(graph, targets=[stop._stop_point for stop in route.stops])
     else:
+        import joblib
+
         # Note: keep in mind that these objects have to be serialized to use in a seperate process,
         # which could take a while for large objects.
         parallel_args = [
@@ -497,7 +496,8 @@ def _paths(route_graph: MultiDiGraph, targets: list[Point | None]) -> list[Order
 
     Args:
         route_graph: the unweighted, directed graph of the route's track
-        targets: the stop positions to connect
+        targets: the stop positions to connect - missing stop positions are
+                 represented by ``None``
     """
     # set edge weights to metric distance
     for u, v in route_graph.edges():
@@ -533,6 +533,17 @@ _GraphNode: TypeAlias = tuple[float, float]
 
 @dataclass(slots=True, repr=False, eq=False, match_args=False)
 class _Traversal:
+    """
+    Route graph traversal.
+
+    Attributes:
+        ordering: nodes that make up the traversed path
+        targets_visited: visited targets - missing stop positions are represented by ``None``
+        targets_left: targets left to visit - missing stop positions are represented by ``None``
+        distance: travelled distance so far
+        path_idx: see ``OrderedRouteViewNode.path_idx``
+    """
+
     ordering: list[OrderedRouteViewNode]
     targets_visited: list[Point | None]
     targets_left: list[Point | None]
@@ -559,6 +570,7 @@ def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> _Traversal:
         except nx.NetworkXNoPath:
             pass
 
+    # FIXME: 'u' can be None
     next_progress = _Traversal(
         ordering=[
             *progress.ordering,
@@ -599,6 +611,9 @@ def _traverse_path(
     n_seen_stops = len(progress.targets_visited)
     new_ordering = []
 
+    last_node: _GraphNode | None = None
+    last_way_id: int | None = None
+
     for u, v in edges:
         # don't duplicate last visited stop position node
         if (
@@ -637,11 +652,17 @@ def _traverse_path(
 
         progress.distance += way_distance
 
+        last_node = v
+        last_way_id = way_id
+
+    assert last_node is not None
+    assert last_way_id is not None
+
     new_ordering.append(
         OrderedRouteViewNode(
-            lon=v[1],
-            lat=v[0],
-            way_id=way_id,
+            lon=last_node[1],
+            lat=last_node[0],
+            way_id=last_way_id,
             path_idx=progress.path_idx,
             n_seen_stops=n_seen_stops + 1,
             distance=progress.distance,

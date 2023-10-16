@@ -13,6 +13,7 @@ The Python versions supported by this release are 3.10-3.12.
 
 ### Changed
 * Increased `aiohttp` requirement to `~3.9.0b0`
+* Enable `speedups` extra of `aiohttp`
 * Make `QueryRunner` an abstract class, not a protocol
 
 ### Removed
@@ -22,6 +23,8 @@ The Python versions supported by this release are 3.10-3.12.
 * Fix error when `RequestTimeout.total_without_query_secs` was set to `None`
 * Fix an edge case that would lead to an error if `Query.run_timeout_secs`
   was `None` when a query cooldown occurred
+* Fix an edge case where `DefaultQueryRunner` would raise an exception
+  if a cache file could not be read
 
 <br>
 

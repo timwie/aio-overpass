@@ -643,6 +643,7 @@ class DefaultQueryRunner(QueryRunner):
                 response = json.load(file)
         except (OSError, json.JSONDecodeError):
             logger.exception(f"failed to read cached {query}")
+            return
 
         if response.get(_EXPIRATION_KEY, 0) <= now:
             logger.info(f"{query} cache expired")

@@ -95,6 +95,10 @@ jobs:
       - name: Check types with mypy
         run: poetry run mypy aio_overpass/
 
+      - name: Check types with pyright
+        run: poetry run pyright aio_overpass/
+        continue-on-error: true
+
       - name: Validate __slots__
         run: slotscheck -m aio_overpass -v
 
