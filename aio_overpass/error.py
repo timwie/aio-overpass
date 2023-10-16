@@ -246,15 +246,17 @@ class QueryRejectCause(Enum):
     """
 
     def __str__(self) -> str:
-        if self == QueryRejectCause.TOO_BUSY:
-            return "server too busy"
-        if self == QueryRejectCause.TOO_MANY_QUERIES:
-            return "too many queries"
-        if self == QueryRejectCause.EXCEEDED_TIMEOUT:
-            return "exceeded 'timeout'"
-        if self == QueryRejectCause.EXCEEDED_MAXSIZE:
-            return "exceeded 'maxsize'"
-        raise AssertionError()
+        match self:
+            case QueryRejectCause.TOO_BUSY:
+                return "server too busy"
+            case QueryRejectCause.TOO_MANY_QUERIES:
+                return "too many queries"
+            case QueryRejectCause.EXCEEDED_TIMEOUT:
+                return "exceeded 'timeout'"
+            case QueryRejectCause.EXCEEDED_MAXSIZE:
+                return "exceeded 'maxsize'"
+            case _:
+                raise AssertionError()
 
 
 @dataclass
@@ -269,10 +271,13 @@ class QueryRejectError(QueryError):
     cause: QueryRejectCause
 
     def __str__(self) -> str:
-        if self.cause in (QueryRejectCause.TOO_BUSY, QueryRejectCause.TOO_MANY_QUERIES):
-            rejection = "query rejected"
-        else:
-            rejection = "query cancelled"
+        match self.cause:
+            case QueryRejectCause.TOO_BUSY | QueryRejectCause.TOO_MANY_QUERIES:
+                rejection = "query rejected"
+            case QueryRejectCause.EXCEEDED_TIMEOUT | QueryRejectCause.EXCEEDED_MAXSIZE:
+                rejection = "query cancelled"
+            case _:
+                raise AssertionError(self.cause)
 
         return f"{rejection}: {self.cause}"
 

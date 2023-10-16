@@ -334,11 +334,15 @@ class RouteScheme(Enum):
     @property
     def version_number(self) -> int | None:
         """Public transport tagging scheme."""
-        if self in (RouteScheme.EXPLICIT_V1, RouteScheme.ASSUME_V1):
-            return 1
-        if self in (RouteScheme.EXPLICIT_V2, RouteScheme.ASSUME_V2):
-            return 2
-        return None
+        match self:
+            case RouteScheme.EXPLICIT_V1 | RouteScheme.ASSUME_V1:
+                return 1
+            case RouteScheme.EXPLICIT_V2 | RouteScheme.ASSUME_V2:
+                return 2
+            case RouteScheme.OTHER:
+                return None
+            case _:
+                raise AssertionError()
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}.{self.name}"
@@ -607,12 +611,14 @@ def collect_routes(query: RouteQuery, perimeter: Polygon | None = None) -> list[
 def _scheme(route: Relation) -> RouteScheme:
     """Try to identify a route's tagging scheme."""
     tagged_version = route.tag("public_transport:version")
-    if tagged_version == "1":
-        return RouteScheme.EXPLICIT_V1
-    if tagged_version == "2":
-        return RouteScheme.EXPLICIT_V2
-    if tagged_version:
-        return RouteScheme.OTHER
+
+    match tagged_version:
+        case "1":
+            return RouteScheme.EXPLICIT_V1
+        case "2":
+            return RouteScheme.EXPLICIT_V2
+        case _ if tagged_version:
+            return RouteScheme.OTHER
 
     # any directed and/or numbered tags like "forward:stop:1" indicate PTv1
     directions = {

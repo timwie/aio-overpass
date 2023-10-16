@@ -229,9 +229,8 @@ class OrderedRouteView(Spatial):
                 if not coords:
                     coords.extend(line.coords)
                 else:
-                    coords.extend(
-                        line.coords[1:]
-                    )  # ignore first coord, it's equal to the previous one
+                    # ignore first coord, it's equal to the previous one
+                    coords.extend(line.coords[1:])
 
             merged_line = LineString(coords)
             merged_lines.append(merged_line)

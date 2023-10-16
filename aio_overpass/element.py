@@ -191,13 +191,15 @@ class Element(Spatial):
     @property
     def type(self) -> str:
         """The element's type: "node", "way", or "relation"."""
-        if isinstance(self, Node):
-            return "node"
-        if isinstance(self, Way):
-            return "way"
-        if isinstance(self, Relation):
-            return "relation"
-        raise ValueError()
+        match self:
+            case Node():
+                return "node"
+            case Way():
+                return "way"
+            case Relation():
+                return "relation"
+            case _:
+                raise ValueError()
 
     @property
     def link(self) -> str:
@@ -501,16 +503,17 @@ def _collect_typed(collector: _ElementCollector) -> None:
 
         cls: type[Element]
 
-        if elem_type == "node":
-            cls = Node
-        elif elem_type == "way":
-            cls = Way
-            args["node_ids"] = elem_dict.get("nodes")
-        elif elem_type == "relation":
-            cls = Relation
-            args["members"] = []  # add later
-        else:
-            raise AssertionError()
+        match elem_type:
+            case "node":
+                cls = Node
+            case "way":
+                cls = Way
+                args["node_ids"] = elem_dict.get("nodes")
+            case "relation":
+                cls = Relation
+                args["members"] = []  # add later
+            case _:
+                raise AssertionError()
 
         elem = cls(**args)
         collector.typed_dict[elem_key] = elem
