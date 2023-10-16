@@ -10,10 +10,10 @@ import re
 import sys
 import tempfile
 import time
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Protocol
 
 from aio_overpass.error import (
     ClientError,
@@ -174,7 +174,7 @@ class Query:
         return self._nb_tries == 0
 
     @property
-    def result_set(self) -> list[dict | None]:
+    def result_set(self) -> list[dict] | None:
         """
         The result set of the query.
 
@@ -550,7 +550,7 @@ class RequestTimeout:
             raise ValueError(msg)
 
 
-class QueryRunner(Protocol):
+class QueryRunner(ABC):
     """
     A query runner is an async function that is called before a client makes an API request.
 
@@ -563,6 +563,7 @@ class QueryRunner(Protocol):
 
     __slots__ = ()
 
+    @abstractmethod
     async def __call__(self, query: Query) -> None:
         """Called with the current query state before the client makes an API request."""
         pass

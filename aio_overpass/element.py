@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, cast, TypeAlias
+from typing import Any, TypeAlias, cast
 
 from aio_overpass import Query
 
@@ -311,7 +311,7 @@ class Way(Element):
         - https://wiki.openstreetmap.org/wiki/Way
     """
 
-    node_ids: list[int | None]
+    node_ids: list[int] | None
     geometry: LineString | LinearRing | Polygon | None
 
 

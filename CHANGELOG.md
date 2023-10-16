@@ -11,6 +11,7 @@ The Python versions supported by this release are 3.10-3.12.
 * Drop Python 3.12 support 
 * Drop Python 3.9 support
 * Add `__slots__` to a lot of classes
+* Make `QueryRunner` an abstract class, not a protocol
 
 <br>
 

@@ -3,7 +3,7 @@
 import itertools
 from collections.abc import Callable, Generator
 from dataclasses import dataclass, replace
-from typing import Any, cast, TypeAlias
+from typing import Any, TypeAlias, cast
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import GeoJsonDict, Node, Relation, Relationship, Spatial, Way
