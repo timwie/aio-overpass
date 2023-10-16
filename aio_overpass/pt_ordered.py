@@ -3,7 +3,7 @@
 import itertools
 from collections.abc import Generator
 from dataclasses import dataclass, replace
-from typing import Any, Callable, Optional, Union, cast
+from typing import Any, Callable, Union, cast
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import GeoJsonDict, Node, Relation, Relationship, Spatial, Way
@@ -50,7 +50,7 @@ class OrderedRouteViewNode:
 
     lon: float
     lat: float
-    way_id: Optional[int]
+    way_id: int | None
     path_idx: int
     n_seen_stops: int
     distance: float
@@ -176,7 +176,7 @@ class OrderedRouteView(Spatial):
         return replace(self, ordering=ordering)
 
     @property
-    def paths(self) -> list[Optional[LineString]]:
+    def paths(self) -> list[LineString | None]:
         """
         The simple paths between every pair of stops.
 
@@ -188,7 +188,7 @@ class OrderedRouteView(Spatial):
 
         grouped = itertools.groupby(iterable=self.ordering, key=lambda node: node.path_idx)
 
-        lines: list[Optional[LineString]] = [None for _ in range(max_nb_paths)]
+        lines: list[LineString | None] = [None for _ in range(max_nb_paths)]
 
         for n, nodes_iter in grouped:
             nodes = [(node.lat, node.lon) for node in nodes_iter]
@@ -249,7 +249,7 @@ class OrderedRouteView(Spatial):
 
 
 def collect_ordered_routes(
-    query: RouteQuery, perimeter: Optional[Polygon] = None, n_jobs: int = 1
+    query: RouteQuery, perimeter: Polygon | None = None, n_jobs: int = 1
 ) -> list[OrderedRouteView]:
     """
     Produce ``OrderedRouteViews`` objects from a result set.
@@ -481,7 +481,7 @@ def _find_stop_coords(
     return a
 
 
-def _paths(route_graph: MultiDiGraph, targets: list[Optional[Point]]) -> list[OrderedRouteViewNode]:
+def _paths(route_graph: MultiDiGraph, targets: list[Point | None]) -> list[OrderedRouteViewNode]:
     """
     Find shortest paths in the directed route graph between every target stop.
 
@@ -529,8 +529,8 @@ _GraphNode = tuple[float, float]
 @dataclass(slots=True, repr=False, eq=False, match_args=False)
 class _Traversal:
     ordering: list[OrderedRouteViewNode]
-    targets_visited: list[Optional[Point]]
-    targets_left: list[Optional[Point]]
+    targets_visited: list[Point | None]
+    targets_left: list[Point | None]
     distance: float
     path_idx: int
 

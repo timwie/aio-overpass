@@ -5,7 +5,7 @@ import logging
 import re
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Union
 from urllib.parse import urljoin
 
 from aio_overpass import __version__
@@ -55,8 +55,8 @@ class Status:
         concurrency: Maximum concurrent queries configured for this client.
     """
 
-    slots: Optional[int]
-    free_slots: Optional[int]
+    slots: int | None
+    free_slots: int | None
     cooldown_secs: int
     concurrency: int
 
@@ -94,6 +94,7 @@ class Client:
     References:
         - https://wiki.openstreetmap.org/wiki/Overpass_API#Public_Overpass_API_instances
     """
+
     __slots__ = (
         "_concurrency",
         "_maybe_any_status",
@@ -109,7 +110,7 @@ class Client:
         url: str = DEFAULT_INSTANCE,
         user_agent: str = DEFAULT_USER_AGENT,
         concurrency: int = 32,
-        runner: Optional[QueryRunner] = None,
+        runner: QueryRunner | None = None,
     ) -> None:
         if concurrency <= 0:
             msg = "'concurrency' must be > 0"
@@ -120,9 +121,9 @@ class Client:
         self._concurrency = concurrency
         self._runner = runner or DefaultQueryRunner()
 
-        self._maybe_session: Optional[aiohttp.ClientSession] = None
-        self._maybe_any_status: Optional[Status] = None
-        self._maybe_sem: Optional[asyncio.BoundedSemaphore] = None
+        self._maybe_session: aiohttp.ClientSession | None = None
+        self._maybe_any_status: Status | None = None
+        self._maybe_sem: asyncio.BoundedSemaphore | None = None
 
     def _session(self) -> aiohttp.ClientSession:
         """The session used for all requests of this client."""

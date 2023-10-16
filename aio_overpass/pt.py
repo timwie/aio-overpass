@@ -4,7 +4,7 @@ from collections import Counter
 from collections.abc import Generator
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Optional, Union, cast
+from typing import Any, Union, cast
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import (
@@ -118,9 +118,7 @@ class RoutesWithinQuery(RouteQuery):
                   key.
     """
 
-    def __init__(
-        self, polygon: Polygon, vehicles: Optional[list["Vehicle"]] = None, **kwargs
-    ) -> None:
+    def __init__(self, polygon: Polygon, vehicles: list["Vehicle"] | None = None, **kwargs) -> None:
         if not vehicles:
             vehicles = list(Vehicle)
 
@@ -195,12 +193,12 @@ class Stop(Spatial):
     """
 
     idx: int
-    platform: Optional[Relationship]
-    stop_position: Optional[Relationship]
+    platform: Relationship | None
+    stop_position: Relationship | None
     stop_coords: Union[Node, Point, None]
 
     @property
-    def name(self) -> Optional[str]:
+    def name(self) -> str | None:
         """
         This stop's name.
 
@@ -252,7 +250,7 @@ class Stop(Spatial):
         raise NotImplementedError
 
     @property
-    def _stop_point(self) -> Optional[Point]:
+    def _stop_point(self) -> Point | None:
         """This is set if we have a point that is on the track of the route."""
         if isinstance(self.stop_coords, Node):
             return self.stop_coords.geometry
@@ -334,7 +332,7 @@ class RouteScheme(Enum):
     OTHER = auto()
 
     @property
-    def version_number(self) -> Optional[int]:
+    def version_number(self) -> int | None:
         """Public transport tagging scheme."""
         if self in (RouteScheme.EXPLICIT_V1, RouteScheme.ASSUME_V1):
             return 1
@@ -446,7 +444,7 @@ class Route(Spatial):
         ]
 
     @property
-    def name_from(self) -> Optional[str]:
+    def name_from(self) -> str | None:
         """
         Name of the start station.
 
@@ -460,7 +458,7 @@ class Route(Spatial):
         )
 
     @property
-    def name_to(self) -> Optional[str]:
+    def name_to(self) -> str | None:
         """
         Name of the end station.
 
@@ -474,7 +472,7 @@ class Route(Spatial):
         )
 
     @property
-    def name_via(self) -> Optional[str]:
+    def name_via(self) -> str | None:
         """
         A name of an important station along the route.
 
@@ -483,7 +481,7 @@ class Route(Spatial):
         return self.relation.tag("via")
 
     @property
-    def name(self) -> Optional[str]:
+    def name(self) -> str | None:
         """
         The name of the route.
 
@@ -518,7 +516,7 @@ class Route(Spatial):
         return Vehicle[self.relation.tags["route"].upper()]
 
     @property
-    def bounds(self) -> Optional[Bbox]:
+    def bounds(self) -> Bbox | None:
         """The bounding box around all stops of this route."""
         geom = GeometryCollection([stop._geometry for stop in self.stops if stop._geometry])
         return geom.bounds or None
@@ -554,7 +552,7 @@ References:
 """
 
 
-def collect_routes(query: RouteQuery, perimeter: Optional[Polygon] = None) -> list[Route]:
+def collect_routes(query: RouteQuery, perimeter: Polygon | None = None) -> list[Route]:
     # TODO the way 'perimeter' works might be confusing
     """
     Consumes the result set of a query and produces ``Route`` objects.
@@ -664,7 +662,7 @@ def _stops(route_relation: Relation) -> Generator[Stop, None, None]:
     ]
 
     # no more than two elements per group (best case: roles "stop" & "platform")
-    prev: Optional[Relationship] = None
+    prev: Relationship | None = None
     for next_ in route_members:
         if not prev:  # case 1: no two members to compare yet
             prev = next_

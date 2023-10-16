@@ -19,7 +19,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from json import JSONDecodeError
-from typing import Optional, Union, no_type_check
+from typing import Union, no_type_check
 
 import aiohttp
 import aiohttp.typedefs
@@ -132,7 +132,7 @@ class ResponseError(ClientError):
     history: tuple[aiohttp.ClientResponse, ...]
     status: int
     message: str
-    headers: Optional[aiohttp.typedefs.LooseHeaders]
+    headers: aiohttp.typedefs.LooseHeaders | None
 
     @property
     def response(self) -> aiohttp.ClientResponse:
@@ -417,7 +417,7 @@ async def _raise_for_html_response(response: aiohttp.ClientResponse, query_kwarg
     raise _query_response_error(kwargs=query_kwargs, remarks=errors, response=response)
 
 
-def _match_reject_cause(error_msg: str) -> Optional[QueryRejectCause]:
+def _match_reject_cause(error_msg: str) -> QueryRejectCause | None:
     """
     Check if the given error message indicates that a query was rejected or cancelled.
 

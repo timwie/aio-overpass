@@ -13,7 +13,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Protocol
+from typing import Protocol
 
 from aio_overpass.error import (
     ClientError,
@@ -80,7 +80,7 @@ class Query:
         "_time_start_try",
     )
 
-    def __init__(self, input_code: str, logger: Optional[logging.Logger] = None, **kwargs) -> None:
+    def __init__(self, input_code: str, logger: logging.Logger | None = None, **kwargs) -> None:
         self._input_code = input_code
         self._logger = logger
         self._kwargs = kwargs
@@ -95,25 +95,25 @@ class Query:
         if "timeout" not in self._settings:
             self._settings["timeout"] = DEFAULT_TIMEOUT
 
-        self._run_timeout_secs: Optional[float] = None
+        self._run_timeout_secs: float | None = None
         self._request_timeout: RequestTimeout = RequestTimeout()
 
         # set by the client that executes this query
-        self._error: Optional[ClientError] = None
-        self._response: Optional[dict] = None
+        self._error: ClientError | None = None
+        self._response: dict | None = None
         self._response_bytes = 0.0
         self._nb_tries = 0
 
-        self._time_start: Optional[_Instant] = None
+        self._time_start: _Instant | None = None
         """time prior to executing the first try"""
 
-        self._time_start_try: Optional[_Instant] = None
+        self._time_start_try: _Instant | None = None
         """time prior to executing the most recent try"""
 
-        self._time_start_req: Optional[_Instant] = None
+        self._time_start_req: _Instant | None = None
         """time prior to executing the most recent try's query request"""
 
-        self._time_end_try: Optional[_Instant] = None
+        self._time_end_try: _Instant | None = None
         """time the most recent try finished"""
 
     def reset(self) -> None:
@@ -135,7 +135,7 @@ class Query:
         return self._kwargs
 
     @property
-    def logger(self) -> Optional[logging.Logger]:
+    def logger(self) -> logging.Logger | None:
         """If set, this is the logger used for logging output related to this query."""
         return self._logger
 
@@ -145,7 +145,7 @@ class Query:
         return self._nb_tries
 
     @property
-    def error(self) -> Optional[ClientError]:
+    def error(self) -> ClientError | None:
         """
         Error of the most recent try.
 
@@ -155,12 +155,12 @@ class Query:
         return self._error
 
     @property
-    def response(self) -> Optional[dict]:
+    def response(self) -> dict | None:
         """The entire JSON response of the query."""
         return self._response
 
     @property
-    def was_cached(self) -> Optional[bool]:
+    def was_cached(self) -> bool | None:
         """
         Indicates whether the query result was cached.
 
@@ -174,7 +174,7 @@ class Query:
         return self._nb_tries == 0
 
     @property
-    def result_set(self) -> Optional[list[dict]]:
+    def result_set(self) -> list[dict | None]:
         """
         The result set of the query.
 
@@ -192,7 +192,7 @@ class Query:
         return self._response["elements"]
 
     @property
-    def response_size_mib(self) -> Optional[float]:
+    def response_size_mib(self) -> float | None:
         """The size of the response in mebibytes."""
         if self._response is None:
             return None
@@ -236,7 +236,7 @@ class Query:
         self._settings["timeout"] = value
 
     @property
-    def run_timeout_secs(self) -> Optional[float]:
+    def run_timeout_secs(self) -> float | None:
         """
         A limit to ``run_duration_secs``, that cancels the query when exceeded.
 
@@ -251,7 +251,7 @@ class Query:
         return self._run_timeout_secs
 
     @run_timeout_secs.setter
-    def run_timeout_secs(self, value: Optional[float]) -> None:
+    def run_timeout_secs(self, value: float | None) -> None:
         if value is not None and value <= 0.0:
             msg = "run_timeout_secs must be > 0"
             raise ValueError(msg)
@@ -314,7 +314,7 @@ class Query:
         return self._response is not None
 
     @property
-    def request_duration_secs(self) -> Optional[float]:
+    def request_duration_secs(self) -> float | None:
         """
         How long it took to fetch the result set in seconds.
 
@@ -330,7 +330,7 @@ class Query:
         return self._time_end_try - self._time_start_req
 
     @property
-    def run_duration_secs(self) -> Optional[float]:
+    def run_duration_secs(self) -> float | None:
         """
         The total required time for this query in seconds (so far).
 
@@ -345,7 +345,7 @@ class Query:
         return self._time_start.elapsed_secs_since
 
     @property
-    def api_version(self) -> Optional[str]:
+    def api_version(self) -> str | None:
         """
         The Overpass API version used by the queried instance.
 
@@ -361,7 +361,7 @@ class Query:
         return self._response["generator"]
 
     @property
-    def timestamp_osm(self) -> Optional[datetime]:
+    def timestamp_osm(self) -> datetime | None:
         """
         All OSM edits that have been uploaded before this date are included.
 
@@ -375,7 +375,7 @@ class Query:
         return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
 
     @property
-    def timestamp_areas(self) -> Optional[datetime]:
+    def timestamp_areas(self) -> datetime | None:
         """
         All area data edits that have been uploaded before this date are included.
 
@@ -532,9 +532,9 @@ class RequestTimeout:
                              a new chunk of data (same as ``aiohttp.ClientTimeout.sock_read``).
     """
 
-    total_without_query_secs: Optional[float] = 20.0
-    sock_connect_secs: Optional[float] = None
-    each_sock_read_secs: Optional[float] = None
+    total_without_query_secs: float | None = 20.0
+    sock_connect_secs: float | None = None
+    each_sock_read_secs: float | None = None
 
     def __post_init__(self) -> None:
         if self.total_without_query_secs is not None and self.total_without_query_secs <= 0.0:

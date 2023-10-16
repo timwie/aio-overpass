@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, Optional, Union, cast
+from typing import Any, Union, cast
 
 from aio_overpass import Query
 
@@ -168,12 +168,12 @@ class Element(Spatial):
     __slots__ = ()
 
     id: int
-    tags: Optional[OverpassDict]
-    bounds: Optional[Bbox]
-    center: Optional[Point]
-    meta: Optional[Metadata]
+    tags: OverpassDict | None
+    bounds: Bbox | None
+    center: Point | None
+    meta: Metadata | None
     relations: list["Relationship"]
-    geometry: Optional[BaseGeometry]
+    geometry: BaseGeometry | None
 
     def tag(self, key: str, default: Any = None) -> Any:
         """
@@ -205,7 +205,7 @@ class Element(Spatial):
         return f"https://www.openstreetmap.org/{self.type}/{self.id}"
 
     @property
-    def wikidata_id(self) -> Optional[str]:
+    def wikidata_id(self) -> str | None:
         """
         [Wikidata](https://www.wikidata.org) item ID of this element.
 
@@ -227,7 +227,7 @@ class Element(Spatial):
         return None
 
     @property
-    def wikidata_link(self) -> Optional[str]:
+    def wikidata_link(self) -> str | None:
         """This element on wikidata.org."""
         if self.wikidata_id:
             return f"https://www.wikidata.org/wiki/{self.wikidata_id}"
@@ -299,7 +299,7 @@ def _geojson_properties(obj: Union[Element, "Relationship"]) -> GeoJsonDict:
     return properties
 
 
-def _geojson_geometry(obj: Union[Element, "Relationship"]) -> Optional[GeoJsonDict]:
+def _geojson_geometry(obj: Union[Element, "Relationship"]) -> GeoJsonDict | None:
     elem = obj if isinstance(obj, Element) else obj.member
 
     geom = elem.geometry
@@ -316,7 +316,7 @@ def _geojson_geometry(obj: Union[Element, "Relationship"]) -> Optional[GeoJsonDi
     return mapping
 
 
-def _geojson_bbox(obj: Union[Element, "Relationship"]) -> Optional[Bbox]:
+def _geojson_bbox(obj: Union[Element, "Relationship"]) -> Bbox | None:
     elem = obj if isinstance(obj, Element) else obj.member
 
     geom = elem.geometry
@@ -360,7 +360,7 @@ class Node(Element):
         - https://wiki.openstreetmap.org/wiki/Node
     """
 
-    geometry: Optional[Point]
+    geometry: Point | None
 
 
 @dataclass(slots=True, repr=False, eq=False)
@@ -384,7 +384,7 @@ class Way(Element):
         - https://wiki.openstreetmap.org/wiki/Way
     """
 
-    node_ids: Optional[list[int]]
+    node_ids: list[int | None]
     geometry: Union[LineString, LinearRing, Polygon, None]
 
 
@@ -424,7 +424,7 @@ class Relation(Element):
     members: list["Relationship"]
     geometry: Union[Polygon, MultiPolygon, None]
 
-    def __iter__(self) -> Iterator[tuple[Optional[str], Element]]:
+    def __iter__(self) -> Iterator[tuple[str | None, Element]]:
         for relship in self.members:
             yield relship.role, relship.member
 
@@ -445,7 +445,7 @@ class Relationship(Spatial):
 
     member: Element
     relation: Relation
-    role: Optional[str]
+    role: str | None
 
     @property
     def geojson(self) -> GeoJsonDict:
@@ -602,7 +602,7 @@ def _collect_relationships(collector: _ElementCollector) -> None:
             rel.members.append(relship)
 
 
-def _geometry(raw_elem: OverpassDict) -> Optional[BaseGeometry]:
+def _geometry(raw_elem: OverpassDict) -> BaseGeometry | None:
     """
     Construct the geometry a given OSM element makes up.
 
