@@ -1,9 +1,9 @@
 """Collect the routes of a ``RouteQuery`` with optimized geometry."""
 
 import itertools
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from dataclasses import dataclass, replace
-from typing import Any, Callable, cast
+from typing import Any, cast
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import GeoJsonDict, Node, Relation, Relationship, Spatial, Way
@@ -112,7 +112,7 @@ class OrderedRouteView(Spatial):
 
         ordering: list[OrderedRouteViewNode] = []
 
-        for a, b in zip(self.ordering, self.ordering[1:]):
+        for a, b in zip(self.ordering, self.ordering[1:], strict=False):
             if predicate(a, b):
                 yield replace(self, ordering=ordering)
                 ordering = [a]
@@ -327,14 +327,14 @@ def collect_ordered_routes(
 
     # Try to find linestrings that connect all pairs of stops.
     if n_jobs == 1:
-        for seg, route, graph in zip(views, routes, graphs):
+        for seg, route, graph in zip(views, routes, graphs, strict=False):
             seg.ordering = _paths(graph, targets=[stop._stop_point for stop in route.stops])
     else:
         # Note: keep in mind that these objects have to be serialized to use in a seperate process,
         # which could take a while for large objects.
         parallel_args = [
             (graph, [stop._stop_point for stop in route.stops])
-            for route, graph in zip(views, graphs)
+            for route, graph in zip(views, graphs, strict=True)
         ]
 
         # TODO think about using joblib.Parallel's "return_as"
@@ -342,7 +342,7 @@ def collect_ordered_routes(
         with joblib.parallel_backend(backend="loky", n_jobs=n_jobs):
             paths = joblib.Parallel()(joblib.delayed(_paths)(*args) for args in parallel_args)
 
-        for seg, path in zip(views, paths):
+        for seg, path in zip(views, paths, strict=True):
             seg.ordering = path
 
     return [*views, *views_empty]
@@ -384,7 +384,7 @@ def _route_graph(rel: Relation) -> MultiDiGraph:
         else:
             nodes = list(way.geometry.coords)
 
-        for a, b in zip(nodes, nodes[1:]):
+        for a, b in itertools.pairwise(nodes):
             if add_forward_edges:
                 graph.add_edge(a, b, **data)
 
@@ -590,7 +590,7 @@ def _traverse_path(
         msg = "expected non-empty list of nodes"
         raise ValueError(msg)
 
-    edges = list(zip(path_nodes, path_nodes[1:]))
+    edges = list(itertools.pairwise(path_nodes))
     n_seen_stops = len(progress.targets_visited)
     new_ordering = []
 

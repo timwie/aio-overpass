@@ -289,7 +289,7 @@ def _to_client_error(
           but not an ``aiohttp.ClientResponseError``.
         - ``ResponseError`` if ``obj`` is a response or an ``aiohttp.ClientResponseError``.
     """
-    if not isinstance(obj, (aiohttp.ClientResponseError, aiohttp.ClientResponse)):
+    if not isinstance(obj, aiohttp.ClientResponseError | aiohttp.ClientResponse):
         return CallError(cause=obj)
 
     error = ResponseError(
