@@ -100,7 +100,7 @@ jobs:
         continue-on-error: true
 
       - name: Validate __slots__
-        run: poetry slotscheck -m aio_overpass -v
+        run: poetry run slotscheck -m aio_overpass -v
 
   publish-package:
     name: Publish new release on PyPI
