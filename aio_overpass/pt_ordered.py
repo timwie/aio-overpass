@@ -31,7 +31,7 @@ __all__ = (
 )
 
 
-@dataclass
+@dataclass(slots=True)
 class OrderedRouteViewNode:
     """
     A node on the path of a route.
@@ -56,7 +56,7 @@ class OrderedRouteViewNode:
     distance: float
 
 
-@dataclass
+@dataclass(slots=True)
 class OrderedRouteView(Spatial):
     """
     A view of a public transportation route with simplified and directed path geometry.
@@ -526,7 +526,7 @@ def _paths(route_graph: MultiDiGraph, targets: list[Optional[Point]]) -> list[Or
 _GraphNode = tuple[float, float]
 
 
-@dataclass
+@dataclass(slots=True, repr=False, eq=False, match_args=False)
 class _Traversal:
     ordering: list[OrderedRouteViewNode]
     targets_visited: list[Optional[Point]]

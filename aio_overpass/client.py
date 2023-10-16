@@ -40,7 +40,7 @@ DEFAULT_INSTANCE = "https://overpass-api.de/api/"
 DEFAULT_USER_AGENT = f"aio-overpass/{__version__} (https://github.com/timwie/aio-overpass)"
 
 
-@dataclass
+@dataclass(slots=True)
 class Status:
     """
     Information about the API server's rate limit.
@@ -94,6 +94,15 @@ class Client:
     References:
         - https://wiki.openstreetmap.org/wiki/Overpass_API#Public_Overpass_API_instances
     """
+    __slots__ = (
+        "_concurrency",
+        "_maybe_any_status",
+        "_maybe_sem",
+        "_maybe_session",
+        "_runner",
+        "_url",
+        "_user_agent",
+    )
 
     def __init__(
         self,

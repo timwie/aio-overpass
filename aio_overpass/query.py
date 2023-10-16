@@ -63,6 +63,23 @@ class Query:
         - https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL
     """
 
+    __slots__ = (
+        "_error",
+        "_input_code",
+        "_kwargs",
+        "_logger",
+        "_nb_tries",
+        "_request_timeout",
+        "_response",
+        "_response_bytes",
+        "_run_timeout_secs",
+        "_settings",
+        "_time_end_try",
+        "_time_start",
+        "_time_start_req",
+        "_time_start_try",
+    )
+
     def __init__(self, input_code: str, logger: Optional[logging.Logger] = None, **kwargs) -> None:
         self._input_code = input_code
         self._logger = logger
@@ -435,6 +452,8 @@ class Query:
 
 
 class _QueryMutator:
+    __slots__ = ("_query",)
+
     def __init__(self, query: Query) -> None:
         self._query = query
 
@@ -445,7 +464,6 @@ class _QueryMutator:
         self._query._time_start_try = _Instant.now()
         self._query._time_start_req = None
         self._query._time_end_try = None
-        self._query.try_timeout_secs = None
 
     def begin_request(self) -> None:
         self._query._time_start_req = _Instant.now()
@@ -463,7 +481,7 @@ class _QueryMutator:
         self._query._nb_tries += 1
 
 
-@dataclass(frozen=True, repr=False, order=True)
+@dataclass(slots=True, frozen=True, repr=False, order=True)
 class _Instant:
     """
     Measurement of a monotonic clock.
@@ -497,7 +515,7 @@ class _Instant:
         return f"{type(self).__name__}({self.when:.02f})"
 
 
-@dataclass
+@dataclass(slots=True)
 class RequestTimeout:
     """
     Request timeout settings.
@@ -543,6 +561,8 @@ class QueryRunner(Protocol):
      - implement caching
     """
 
+    __slots__ = ()
+
     async def __call__(self, query: Query) -> None:
         """Called with the current query state before the client makes an API request."""
         pass
@@ -567,6 +587,11 @@ class DefaultQueryRunner(QueryRunner):
         cache_ttl_secs: Amount of seconds a query's result set is cached for.
                         Set to zero to disable caching. (zero by default)
     """
+
+    __slots__ = (
+        "_max_tries",
+        "_cache_ttl_secs",
+    )
 
     def __init__(self, max_tries: int = 5, cache_ttl_secs: int = 0) -> None:
         if max_tries < 1:

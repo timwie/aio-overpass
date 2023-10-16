@@ -68,6 +68,8 @@ class Spatial(ABC):
     considered here.
     """
 
+    __slots__ = ()
+
     @property
     @abstractmethod
     def geojson(self) -> GeoJsonDict:
@@ -91,7 +93,7 @@ class Spatial(ABC):
         return self.geojson
 
 
-@dataclass(repr=False)
+@dataclass(slots=True)
 class Metadata:
     """
     Metadata concerning the most recent edit of an OSM element.
@@ -162,6 +164,8 @@ class Element(Spatial):
         - https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL#out
         - https://wiki.openstreetmap.org/wiki/Overpass_API/Permanent_ID
     """
+
+    __slots__ = ()
 
     id: int
     tags: Optional[OverpassDict]
@@ -341,7 +345,7 @@ def _geojson_feature(obj: Union[Element, "Relationship"]) -> GeoJsonDict:
     return feature
 
 
-@dataclass(repr=False, eq=False)
+@dataclass(slots=True, repr=False, eq=False)
 class Node(Element):
     """
     A point in space, at a specific coordinate.
@@ -359,7 +363,7 @@ class Node(Element):
     geometry: Optional[Point]
 
 
-@dataclass(repr=False, eq=False)
+@dataclass(slots=True, repr=False, eq=False)
 class Way(Element):
     """
     A way is an ordered list of nodes.
@@ -384,7 +388,7 @@ class Way(Element):
     geometry: Union[LineString, LinearRing, Polygon, None]
 
 
-@dataclass(repr=False, eq=False)
+@dataclass(slots=True, repr=False, eq=False)
 class Relation(Element):
     """
     A relation is a group of nodes and ways that have a logical or geographic relationship.
@@ -425,7 +429,7 @@ class Relation(Element):
             yield relship.role, relship.member
 
 
-@dataclass(repr=False)
+@dataclass(slots=True, repr=False)
 class Relationship(Spatial):
     """
     The relationship of an element that is part of a relation, with an optional role.
@@ -468,6 +472,13 @@ _MemberKey = tuple[_ElementKey, str]
 
 
 class _ElementCollector:
+    __slots__ = (
+        "member_dict",
+        "result_set",
+        "typed_dict",
+        "untyped_dict",
+    )
+
     def __init__(self) -> None:
         self.result_set: list[_ElementKey] = []
         self.typed_dict: dict[_ElementKey, Element] = {}

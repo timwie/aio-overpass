@@ -35,6 +35,7 @@ def lint(c: Context):
     """Run linter and type checker"""
     c.run("ruff check aio_overpass/", echo=True, warn=True, pty=True)
     c.run("mypy aio_overpass/", echo=True, warn=True, pty=True)
+    c.run("slotscheck -m aio_overpass", echo=True, warn=True, pty=True)
 
 @task
 def papermill(c: Context):

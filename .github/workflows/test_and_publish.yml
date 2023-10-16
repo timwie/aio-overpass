@@ -80,7 +80,6 @@ jobs:
           cache: 'poetry'
           cache-dependency-path: poetry.lock
 
-
       - name: Check if pyproject.toml consistent with poetry.lock
         run: poetry check --lock --no-interaction
 
@@ -96,6 +95,9 @@ jobs:
       - name: Check types with mypy
         run: poetry run mypy aio_overpass/
         continue-on-error: true
+
+      - name: Validate __slots__
+        run: slotscheck -m aio_overpass -v
 
   publish-package:
     name: Publish new release on PyPI

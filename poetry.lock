@@ -2691,6 +2691,21 @@ files = [
 ]
 
 [[package]]
+name = "slotscheck"
+version = "0.17.0"
+description = "Ensure your __slots__ are working properly."
+optional = false
+python-versions = ">=3.8.1,<4"
+files = [
+    {file = "slotscheck-0.17.0-py3-none-any.whl", hash = "sha256:7ff6d6cc5e58e12f96c82bf192e6498412dd6fc3aa230937f32935c2151b3d2e"},
+    {file = "slotscheck-0.17.0.tar.gz", hash = "sha256:5e4ccb16148825b6a644705a4f8ca30855c853e4a777229ec5ed1ee4a55fa97c"},
+]
+
+[package.dependencies]
+click = ">=8.0,<9.0"
+tomli = {version = ">=0.2.6,<3.0.0", markers = "python_version < \"3.11\""}
+
+[[package]]
 name = "sniffio"
 version = "1.3.0"
 description = "Sniff out which async library your code is running under"
@@ -3139,4 +3154,4 @@ shapely = ["shapely"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "e8ba3afddaac18061439ad9247ed905e85357c66f08d2612df7d1f1a90c1ec21"
+content-hash = "41402f669680e513851cd93a9ca3350fbe34edb8257ed16b607c615b5c50798b"

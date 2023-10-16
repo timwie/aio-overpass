@@ -8,8 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 The Python versions supported by this release are 3.10-3.12.
 
 ### Changed
-* Drop Python 3.12 support. 
-* Drop Python 3.9 support.
+* Drop Python 3.12 support 
+* Drop Python 3.9 support
+* Add `__slots__` to a lot of classes
 
 <br>
 
