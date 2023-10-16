@@ -686,7 +686,7 @@ class DefaultQueryRunner(QueryRunner):
         # Do not retry if we exhausted all tries, when a retry would not change the result,
         # or when the timeout was reached.
         failed = query.nb_tries == self._max_tries or isinstance(
-            err, (ResponseError, QueryLanguageError, GiveupError)
+            err, ResponseError | QueryLanguageError | GiveupError
         )
 
         # Exhausted all tries; do not retry.

@@ -4,7 +4,7 @@ from collections import Counter
 from collections.abc import Generator
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Union, cast
+from typing import Any, cast
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import (
@@ -195,7 +195,7 @@ class Stop(Spatial):
     idx: int
     platform: Relationship | None
     stop_position: Relationship | None
-    stop_coords: Union[Node, Point, None]
+    stop_coords: Node | Point | None
 
     @property
     def name(self) -> str | None:

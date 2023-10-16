@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, Union, cast
+from typing import Any, cast
 
 from aio_overpass import Query
 
@@ -270,81 +270,6 @@ class Element(Spatial):
         return f"{type(self).__name__}({self.id})"
 
 
-_WIKIDATA_Q_ID = re.compile(r"^Q\d+$")
-
-
-def _geojson_properties(obj: Union[Element, "Relationship"]) -> GeoJsonDict:
-    elem = obj if isinstance(obj, Element) else obj.member
-
-    properties = {
-        "id": elem.id,
-        "type": elem.type,
-        "tags": elem.tags,
-        "bounds": elem.bounds,
-        "center": elem.center.coords[0] if elem.center else None,
-        "timestamp": elem.meta.timestamp if elem.meta else None,
-        "version": elem.meta.version if elem.meta else None,
-        "changeset": elem.meta.changeset if elem.meta else None,
-        "user": elem.meta.user_name if elem.meta else None,
-        "uid": elem.meta.user_id if elem.meta else None,
-        "nodes": getattr(elem, "nodes", None),
-    }
-
-    properties = {k: v for k, v in properties.items() if v is not None}
-
-    if isinstance(obj, Relationship):
-        properties["role"] = obj.role or ""
-        properties["__rel__"] = _geojson_properties(obj.relation)
-
-    return properties
-
-
-def _geojson_geometry(obj: Union[Element, "Relationship"]) -> GeoJsonDict | None:
-    elem = obj if isinstance(obj, Element) else obj.member
-
-    geom = elem.geometry
-    if not geom:
-        return None
-
-    # Flip coordinates for GeoJSON compliance.
-    geom = shapely.ops.transform(lambda lat, lon: (lon, lat), geom)
-
-    mapping = shapely.geometry.mapping(geom)
-    if mapping["type"] == "LinearRing":  # this geometry does not exist in GeoJSON
-        mapping["type"] = "LineString"
-
-    return mapping
-
-
-def _geojson_bbox(obj: Union[Element, "Relationship"]) -> Bbox | None:
-    elem = obj if isinstance(obj, Element) else obj.member
-
-    geom = elem.geometry
-    if not geom:
-        return None
-
-    bounds = geom.bounds  # can be (nan, nan, nan, nan)
-    if not any(math.isnan(c) for c in bounds):
-        (minlat, minlon, maxlat, maxlon) = bounds
-        return minlon, minlat, maxlon, maxlat
-
-    return None
-
-
-def _geojson_feature(obj: Union[Element, "Relationship"]) -> GeoJsonDict:
-    feature = {
-        "type": "Feature",
-        "geometry": _geojson_geometry(obj),
-        "properties": _geojson_properties(obj),
-    }
-
-    bbox = _geojson_bbox(obj)
-    if bbox:
-        feature["bbox"] = bbox  # type: ignore
-
-    return feature
-
-
 @dataclass(slots=True, repr=False, eq=False)
 class Node(Element):
     """
@@ -385,7 +310,7 @@ class Way(Element):
     """
 
     node_ids: list[int | None]
-    geometry: Union[LineString, LinearRing, Polygon, None]
+    geometry: LineString | LinearRing | Polygon | None
 
 
 @dataclass(slots=True, repr=False, eq=False)
@@ -422,7 +347,7 @@ class Relation(Element):
     """
 
     members: list["Relationship"]
-    geometry: Union[Polygon, MultiPolygon, None]
+    geometry: Polygon | MultiPolygon | None
 
     def __iter__(self) -> Iterator[tuple[str | None, Element]]:
         for relship in self.members:
@@ -669,7 +594,7 @@ def _geometry(raw_elem: OverpassDict) -> BaseGeometry | None:
     return None
 
 
-def _line(way: OverpassDict) -> Union[LineString, LinearRing, None]:
+def _line(way: OverpassDict) -> LineString | LinearRing | None:
     """Returns the geometry of a way in the result set."""
     if "geometry" not in way or len(way["geometry"]) < 2:
         return None
@@ -779,3 +704,77 @@ _AREA_TAG_VALUES_NONE_OF = {
     "man_made": {"no", "cutline", "embankment", "pipeline"},
     "natural": {"no", "coastline", "cliff", "ridge", "arete", "tree_row"},
 }
+
+_WIKIDATA_Q_ID = re.compile(r"^Q\d+$")
+
+
+def _geojson_properties(obj: Element | Relationship) -> GeoJsonDict:
+    elem = obj if isinstance(obj, Element) else obj.member
+
+    properties = {
+        "id": elem.id,
+        "type": elem.type,
+        "tags": elem.tags,
+        "bounds": elem.bounds,
+        "center": elem.center.coords[0] if elem.center else None,
+        "timestamp": elem.meta.timestamp if elem.meta else None,
+        "version": elem.meta.version if elem.meta else None,
+        "changeset": elem.meta.changeset if elem.meta else None,
+        "user": elem.meta.user_name if elem.meta else None,
+        "uid": elem.meta.user_id if elem.meta else None,
+        "nodes": getattr(elem, "nodes", None),
+    }
+
+    properties = {k: v for k, v in properties.items() if v is not None}
+
+    if isinstance(obj, Relationship):
+        properties["role"] = obj.role or ""
+        properties["__rel__"] = _geojson_properties(obj.relation)
+
+    return properties
+
+
+def _geojson_geometry(obj: Element | Relationship) -> GeoJsonDict | None:
+    elem = obj if isinstance(obj, Element) else obj.member
+
+    geom = elem.geometry
+    if not geom:
+        return None
+
+    # Flip coordinates for GeoJSON compliance.
+    geom = shapely.ops.transform(lambda lat, lon: (lon, lat), geom)
+
+    mapping = shapely.geometry.mapping(geom)
+    if mapping["type"] == "LinearRing":  # this geometry does not exist in GeoJSON
+        mapping["type"] = "LineString"
+
+    return mapping
+
+
+def _geojson_bbox(obj: Element | Relationship) -> Bbox | None:
+    elem = obj if isinstance(obj, Element) else obj.member
+
+    geom = elem.geometry
+    if not geom:
+        return None
+
+    bounds = geom.bounds  # can be (nan, nan, nan, nan)
+    if not any(math.isnan(c) for c in bounds):
+        (minlat, minlon, maxlat, maxlon) = bounds
+        return minlon, minlat, maxlon, maxlat
+
+    return None
+
+
+def _geojson_feature(obj: Element | Relationship) -> GeoJsonDict:
+    feature = {
+        "type": "Feature",
+        "geometry": _geojson_geometry(obj),
+        "properties": _geojson_properties(obj),
+    }
+
+    bbox = _geojson_bbox(obj)
+    if bbox:
+        feature["bbox"] = bbox  # type: ignore
+
+    return feature

@@ -3,7 +3,7 @@
 import itertools
 from collections.abc import Generator
 from dataclasses import dataclass, replace
-from typing import Any, Callable, Union, cast
+from typing import Any, Callable, cast
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import GeoJsonDict, Node, Relation, Relationship, Spatial, Way
@@ -200,7 +200,7 @@ class OrderedRouteView(Spatial):
         return lines
 
     @property
-    def path(self) -> Union[LineString, MultiLineString]:
+    def path(self) -> LineString | MultiLineString:
         """
         The geometry representing the path travelled on this view from the first to last stop.
 
@@ -417,7 +417,7 @@ def _is_track(relship: Relationship) -> bool:
 
 def _find_stop_coords(
     stop: Stop, track_graph: MultiDiGraph, track_nodes: MultiPoint, track_ways: MultiLineString
-) -> Union[Node, Point, None]:
+) -> Node | Point | None:
     """
     Find a node on the track that closesly represents the stop position.
 

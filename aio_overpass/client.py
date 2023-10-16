@@ -5,7 +5,6 @@ import logging
 import re
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import Union
 from urllib.parse import urljoin
 
 from aio_overpass import __version__
@@ -136,7 +135,7 @@ class Client:
 
     async def _rate_limiter(
         self,
-        timeout: Union[ClientTimeout, object] = sentinel,
+        timeout: ClientTimeout | object = sentinel,
     ) -> asyncio.BoundedSemaphore:
         """
         A rate-limiting semaphore for queries.
@@ -168,7 +167,7 @@ class Client:
 
     async def _status(
         self,
-        timeout: Union[ClientTimeout, object] = sentinel,
+        timeout: ClientTimeout | object = sentinel,
     ) -> "Status":
         try:
             async with self._session().get(

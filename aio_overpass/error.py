@@ -19,7 +19,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from json import JSONDecodeError
-from typing import Union, no_type_check
+from typing import no_type_check
 
 import aiohttp
 import aiohttp.typedefs
@@ -279,8 +279,8 @@ class QueryRejectError(QueryError):
 
 @no_type_check
 def _to_client_error(
-    obj: Union[aiohttp.ClientResponse, aiohttp.ClientError]
-) -> Union[CallError, ResponseError]:
+    obj: aiohttp.ClientResponse | aiohttp.ClientError,
+) -> CallError | ResponseError:
     """
     Build a ``ClientError`` from either an ``aiohttp`` client error or an unrecognized response.
 
