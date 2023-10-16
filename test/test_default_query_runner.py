@@ -14,7 +14,7 @@ async def test_caching(mock_response):
     data_file = test_dir / "route_data" / "ambiguous_stop_name1.json"
     response_str = data_file.read_text()
 
-    with open(data_file) as file:
+    with open(data_file, mode="r", encoding="utf-8") as file:
         response = json.load(file)
 
     mock_response.get(
@@ -55,7 +55,7 @@ async def test_cache_expiration(mock_response):
     data_file = test_dir / "route_data" / "ambiguous_stop_name2.json"
     response_str = data_file.read_text()
 
-    with open(data_file) as file:
+    with open(data_file, mode="r", encoding="utf-8") as file:
         response = json.load(file)
 
     mock_response.get(

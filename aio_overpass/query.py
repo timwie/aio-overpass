@@ -635,7 +635,7 @@ class DefaultQueryRunner(QueryRunner):
             return
 
         try:
-            with open(file_path) as file:
+            with open(file_path, mode="r", encoding="utf-8") as file:
                 response = json.load(file)
         except (OSError, json.JSONDecodeError):
             logger.exception(f"failed to read cached {query}")
@@ -662,7 +662,7 @@ class DefaultQueryRunner(QueryRunner):
         logger.debug(f"caching at {file_path}…")
 
         try:
-            with open(file_path, "w") as file:
+            with open(file_path, mode="w", encoding="utf-8") as file:
                 json.dump(query._response, file)
         except OSError:
             logger.exception(f"failed to cache {query}")
@@ -745,10 +745,10 @@ def __cache_expire(query: Query) -> None:
     file_name = f"{query.cache_key}.json"
     file_path = Path(tempfile.gettempdir()) / file_name
 
-    with open(file_path) as file:
+    with open(file_path, mode="r", encoding="utf-8") as file:
         response = json.load(file)
 
     response[_EXPIRATION_KEY] = 0
 
-    with open(file_path, "w") as file:
+    with open(file_path, mode="w", encoding="utf-8") as file:
         json.dump(response, file)
