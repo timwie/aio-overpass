@@ -10,6 +10,7 @@ The Python versions supported by this release are 3.10-3.12.
 ### Added
 * Add Python 3.12 support
 * Add `__slots__` to a lot of classes
+* Add `pt_ordered.to_ordered_routes()` and `to_ordered_route()`
 
 ### Changed
 * Increased `aiohttp` requirement to `~3.9.0b0`
@@ -25,6 +26,7 @@ The Python versions supported by this release are 3.10-3.12.
   was `None` when a query cooldown occurred
 * Fix an edge case where `DefaultQueryRunner` would raise an exception
   if a cache file could not be read
+* Fix `collect_ordered_routes()` breaking when a stop position is missing
 
 <br>
 

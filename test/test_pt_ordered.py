@@ -37,8 +37,12 @@ from pathlib import Path
 from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
 
 from aio_overpass.client import Client
-from aio_overpass.pt import RouteQuery, SingleRouteQuery
-from aio_overpass.pt_ordered import OrderedRouteView, collect_ordered_routes
+from aio_overpass.pt import RouteQuery, SingleRouteQuery, collect_routes
+from aio_overpass.pt_ordered import (
+    OrderedRouteView,
+    to_ordered_route,
+    collect_ordered_routes,
+)
 
 import pytest
 
@@ -95,6 +99,34 @@ async def test_simple_linestring(mock_response):
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
     # TODO simple_linestring
+
+
+@pytest.mark.asyncio
+async def test_simple_linestring_with_two_stop_pos_removed(mock_response):
+    mock_result_set(mock_response, "simple_linestring.json")
+
+    query = SingleRouteQuery(relation_id=0)
+
+    client = Client(runner=VerifyingQueryRunner())
+    await client.run_query(query)
+    await client.close()
+
+    (route,) = collect_routes(
+        query=query,
+        perimeter=None,
+    )
+
+    assert route.id == 1687358
+    assert route.scheme.version_number == 2
+
+    for s in route.stops[:2]:
+        s.platform = None
+        s.stop_position = None
+        s.stop_coords = None
+
+    view = to_ordered_route(route=route)
+
+    # TODO assertions: starts at third stop; two fewer paths
 
 
 @pytest.mark.asyncio

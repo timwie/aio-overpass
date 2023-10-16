@@ -2,13 +2,13 @@
 
 [[package]]
 name = "aiodns"
-version = "3.1.0"
+version = "3.1.1"
 description = "Simple DNS resolver for asyncio"
 optional = false
 python-versions = "*"
 files = [
-    {file = "aiodns-3.1.0-py3-none-any.whl", hash = "sha256:5268c89765a4a17d6875f70686d6ee406a0d4c40f0b65a0a311fb400aecfedf4"},
-    {file = "aiodns-3.1.0.tar.gz", hash = "sha256:fadb59304f4e38fd23b2f1953107df5cf29121d66c4e9c37a9bb13832c0c0513"},
+    {file = "aiodns-3.1.1-py3-none-any.whl", hash = "sha256:a387b63da4ced6aad35b1dda2d09620ad608a1c7c0fb71efa07ebb4cd511928d"},
+    {file = "aiodns-3.1.1.tar.gz", hash = "sha256:1073eac48185f7a4150cad7f96a5192d6911f12b4fb894de80a088508c9b3a99"},
 ]
 
 [package.dependencies]
@@ -1395,13 +1395,13 @@ test = ["ipykernel", "pre-commit", "pytest", "pytest-cov", "pytest-timeout"]
 
 [[package]]
 name = "jupyter-events"
-version = "0.7.0"
+version = "0.8.0"
 description = "Jupyter Event System library"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_events-0.7.0-py3-none-any.whl", hash = "sha256:4753da434c13a37c3f3c89b500afa0c0a6241633441421f6adafe2fb2e2b924e"},
-    {file = "jupyter_events-0.7.0.tar.gz", hash = "sha256:7be27f54b8388c03eefea123a4f79247c5b9381c49fb1cd48615ee191eb12615"},
+    {file = "jupyter_events-0.8.0-py3-none-any.whl", hash = "sha256:81f07375c7673ff298bfb9302b4a981864ec64edaed75ca0fe6f850b9b045525"},
+    {file = "jupyter_events-0.8.0.tar.gz", hash = "sha256:fda08f0defce5e16930542ce60634ba48e010830d50073c3dfd235759cee77bf"},
 ]
 
 [package.dependencies]
@@ -1434,13 +1434,13 @@ jupyter-server = ">=1.1.2"
 
 [[package]]
 name = "jupyter-server"
-version = "2.7.3"
+version = "2.8.0"
 description = "The backend—i.e. core services, APIs, and REST endpoints—to Jupyter web applications."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_server-2.7.3-py3-none-any.whl", hash = "sha256:8e4b90380b59d7a1e31086c4692231f2a2ea4cb269f5516e60aba72ce8317fc9"},
-    {file = "jupyter_server-2.7.3.tar.gz", hash = "sha256:d4916c8581c4ebbc534cebdaa8eca2478d9f3bfdd88eae29fcab0120eac57649"},
+    {file = "jupyter_server-2.8.0-py3-none-any.whl", hash = "sha256:c57270faa6530393ae69783a2d2f1874c718b9f109080581ea076b05713249fa"},
+    {file = "jupyter_server-2.8.0.tar.gz", hash = "sha256:b11e2ba80667c75f55630faf8ac3d5809f8734f9006d65cce117c46a0a516ab8"},
 ]
 
 [package.dependencies]

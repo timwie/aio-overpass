@@ -253,6 +253,7 @@ class OrderedRouteView(Spatial):
 def collect_ordered_routes(
     query: RouteQuery, perimeter: Polygon | None = None, n_jobs: int = 1
 ) -> list[OrderedRouteView]:
+    # TODO the way 'perimeter' works might be confusing
     """
     Produce ``OrderedRouteViews`` objects from a result set.
 
@@ -290,7 +291,16 @@ def collect_ordered_routes(
         all routes in the result set of the input query
     """
     routes = collect_routes(query, perimeter)
+    return to_ordered_routes(routes, n_jobs)
 
+
+def to_ordered_route(route: Route) -> OrderedRouteView:
+    # TODO doc
+    return next(iter(to_ordered_routes([route])))
+
+
+def to_ordered_routes(routes: list[Route], n_jobs: int = 1) -> list[OrderedRouteView]:
+    # TODO doc
     if not routes:
         return []
 
@@ -327,7 +337,8 @@ def collect_ordered_routes(
     # Try to find linestrings that connect all pairs of stops.
     if n_jobs == 1:
         for seg, route, graph in zip(views, routes, graphs, strict=False):
-            seg.ordering = _paths(graph, targets=[stop._stop_point for stop in route.stops])
+            targets = [stop._stop_point for stop in route.stops]
+            seg.ordering = _paths(graph, targets=targets)
     else:
         import joblib
 
@@ -523,7 +534,7 @@ def _paths(route_graph: MultiDiGraph, targets: list[Point | None]) -> list[Order
         path_idx=0,
     )
 
-    traversal = _traverse_graph(graph=route_graph, progress=traversal)
+    _traverse_graph(graph=route_graph, progress=traversal)
 
     return traversal.ordering
 
@@ -551,10 +562,10 @@ class _Traversal:
     path_idx: int
 
 
-def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> _Traversal:
+def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> None:
     """Find shortest paths between targets, while discouraging edges to be traversed twice."""
     if len(progress.targets_left) == 0:
-        return progress
+        return
 
     a = progress.targets_visited[-1]
     b = progress.targets_left[0]
@@ -565,15 +576,13 @@ def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> _Traversal:
     if u != v:
         try:
             path_nodes = nx.shortest_path(graph, source=u, target=v, weight=_WEIGHT_KEY)
-            next_progress = _traverse_path(graph, progress, path_nodes)
-            return _traverse_graph(graph, next_progress)
+            _traverse_path(graph, progress, path_nodes)
+            return _traverse_graph(graph, progress)
         except nx.NetworkXNoPath:
             pass
 
-    # FIXME: 'u' can be None
-    next_progress = _Traversal(
-        ordering=[
-            *progress.ordering,
+    if u is not None and progress.ordering:
+        progress.ordering.append(
             OrderedRouteViewNode(
                 lon=u[1],
                 lat=u[0],
@@ -581,19 +590,16 @@ def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> _Traversal:
                 path_idx=progress.path_idx,
                 n_seen_stops=len(progress.targets_visited),
                 distance=progress.distance,
-            ),
-        ],
-        targets_left=progress.targets_left[1:],
-        targets_visited=progress.targets_visited + progress.targets_left[:1],
-        distance=progress.distance,
-        path_idx=progress.path_idx + 1,
-    )
-    return _traverse_graph(graph, next_progress)
+            )
+        )
+
+    progress.targets_visited.append(progress.targets_left.pop(0))
+    progress.path_idx += 1
+
+    return _traverse_graph(graph, progress)
 
 
-def _traverse_path(
-    graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_GraphNode]
-) -> _Traversal:
+def _traverse_path(graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_GraphNode]) -> None:
     """
     Walk the path to visit the next stop, and collect path nodes along the way.
 
@@ -607,20 +613,20 @@ def _traverse_path(
         msg = "expected non-empty list of nodes"
         raise ValueError(msg)
 
-    edges = list(itertools.pairwise(path_nodes))
+    edges = itertools.pairwise(path_nodes)
     n_seen_stops = len(progress.targets_visited)
-    new_ordering = []
 
     last_node: _GraphNode | None = None
     last_way_id: int | None = None
 
+    skip_node: _GraphNode | None = None
+    if progress.ordering:
+        skip_node = (progress.ordering[-1].lat, progress.ordering[-1].lon)
+
     for u, v in edges:
         # don't duplicate last visited stop position node
-        if (
-            progress.ordering
-            and progress.ordering[-1].lat == u[0]
-            and progress.ordering[-1].lon == u[1]
-        ):
+        if skip_node is not None:
+            skip_node = None
             continue
 
         # The path does not specify exactly which edge was traversed, so we select
@@ -639,7 +645,7 @@ def _traverse_path(
 
         way_distance = graph[u][v][key][_WEIGHT_KEY] % _WEIGHT_MULTIPLIER
 
-        new_ordering.append(
+        progress.ordering.append(
             OrderedRouteViewNode(
                 lon=u[1],
                 lat=u[0],
@@ -658,7 +664,7 @@ def _traverse_path(
     assert last_node is not None
     assert last_way_id is not None
 
-    new_ordering.append(
+    progress.ordering.append(
         OrderedRouteViewNode(
             lon=last_node[1],
             lat=last_node[0],
@@ -669,13 +675,8 @@ def _traverse_path(
         )
     )
 
-    return _Traversal(
-        ordering=progress.ordering + new_ordering,
-        targets_left=progress.targets_left[1:],
-        targets_visited=progress.targets_visited + progress.targets_left[:1],
-        distance=progress.distance,
-        path_idx=progress.path_idx + 1,
-    )
+    progress.targets_visited.append(progress.targets_left.pop(0))
+    progress.path_idx += 1
 
 
 _WEIGHT_MULTIPLIER: float = 1e10
