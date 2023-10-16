@@ -7,11 +7,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 The Python versions supported by this release are 3.10-3.12.
 
-### Changed
-* Drop Python 3.12 support 
-* Drop Python 3.9 support
+### Added
+* Add Python 3.12 support
 * Add `__slots__` to a lot of classes
+
+### Changed
+* Increased `aiohttp` requirement to `~3.9.0b0`
 * Make `QueryRunner` an abstract class, not a protocol
+
+### Removed
+* Drop Python 3.9 support
+
+### Fixed
+* Fix error when `RequestTimeout.total_without_query_secs` was set to `None`
+* Fix an edge case that would lead to an error if `Query.run_timeout_secs`
+  was `None` when a query cooldown occurred
 
 <br>
 

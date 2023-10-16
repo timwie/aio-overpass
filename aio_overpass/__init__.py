@@ -2,7 +2,7 @@
 import importlib.metadata
 
 
-__version__ = importlib.metadata.version("aio-overpass")
+__version__: str = importlib.metadata.version("aio-overpass")
 
 # we add this to all modules for pdoc;
 # see https://pdoc.dev/docs/pdoc.html#use-numpydoc-or-google-docstrings

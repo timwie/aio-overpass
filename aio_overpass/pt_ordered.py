@@ -1,7 +1,7 @@
 """Collect the routes of a ``RouteQuery`` with optimized geometry."""
 
 import itertools
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Generator, Iterator
 from dataclasses import dataclass, replace
 from typing import Any, TypeAlias, cast
 
@@ -13,6 +13,7 @@ import shapely.ops
 from networkx import MultiDiGraph
 from shapely.geometry import (
     GeometryCollection,
+    LinearRing,
     LineString,
     MultiLineString,
     MultiPoint,
@@ -218,7 +219,9 @@ class OrderedRouteView(Spatial):
         stretches_grouped = itertools.groupby(iterable=paths, key=bool)
 
         # select all sets of consecutive lines to merge them
-        stretches = (line_strings for has_track, line_strings in stretches_grouped if has_track)
+        stretches: Iterator[Iterator[LineString]] = (
+            line_strings for has_track, line_strings in stretches_grouped if has_track
+        )
 
         merged_lines = []
 
@@ -364,6 +367,7 @@ def _route_graph(rel: Relation) -> MultiDiGraph:
 
     for relship in track:
         way = cast(Way, relship.member)
+        assert way.geometry is not None
 
         data = {_WAY_ID_KEY: way.id}
 
@@ -379,7 +383,8 @@ def _route_graph(rel: Relation) -> MultiDiGraph:
             add_forward_edges = add_backward_edges = True
 
         if isinstance(way.geometry, Polygon):
-            nodes = list(way.geometry.exterior.coords)
+            ext: LinearRing = way.geometry.exterior
+            nodes = list(ext.coords)
         else:
             nodes = list(way.geometry.coords)
 
@@ -435,6 +440,7 @@ def _find_stop_coords(
     # (a) check if the route relation has a stop_position for this stop
     if stop.stop_position:
         stop_node = cast(Node, stop.stop_position.member)
+        assert stop_node.geometry is not None
         if stop_node.geometry.coords[0] in track_graph:
             return stop_node
 
@@ -447,7 +453,7 @@ def _find_stop_coords(
     )
 
     stop_pos = next(
-        (el for el in station_stop_positions if el.geometry.coords[0] in track_graph), None
+        (el for el in station_stop_positions if el.geometry.coords[0] in track_graph), None  # type: ignore[union-attr]
     )
 
     if stop_pos:

@@ -261,8 +261,8 @@ class Query:
     def run_timeout_elapsed(self) -> bool:
         """Returns ``True`` if ``run_timeout_secs`` is set and has elapsed."""
         return (
-            self.run_timeout_secs
-            and self.run_duration_secs
+            self.run_timeout_secs is not None
+            and self.run_duration_secs is not None
             and self.run_timeout_secs < self.run_duration_secs
         )
 
@@ -285,7 +285,7 @@ class Query:
         return self._code(without_dynamic_settings=False)
 
     def _code(self, without_dynamic_settings: bool) -> str:
-        settings_iter = self._settings.items()
+        settings_iter = iter(self._settings.items())
 
         if without_dynamic_settings:
             settings_iter = ((k, v) for k, v in settings_iter if k not in {"maxsize", "timeout"})
@@ -326,6 +326,9 @@ class Query:
         """
         if self._response is None or self.was_cached:
             return None
+
+        assert self._time_end_try is not None
+        assert self._time_start_req is not None
 
         return self._time_end_try - self._time_start_req
 
@@ -655,6 +658,8 @@ class DefaultQueryRunner(QueryRunner):
             return
 
         now = int(time.time())
+
+        assert query._response is not None
         query._response[_EXPIRATION_KEY] = now + self._cache_ttl_secs
 
         file_name = f"{query.cache_key}.json"

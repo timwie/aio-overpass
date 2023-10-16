@@ -100,7 +100,7 @@ class CallTimeoutError(CallError):
         after_secs: the configured timeout for the request
     """
 
-    cause: asyncio.TimeoutError
+    cause: asyncio.TimeoutError  # type: ignore[assignment]
     after_secs: float
 
     def __post_init__(self) -> None:

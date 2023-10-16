@@ -177,7 +177,7 @@ class Client:
         except aiohttp.ClientError as err:
             raise _to_client_error(err) from err
 
-        slots = 0
+        slots: int | None = 0
         free_slots = None
         cooldown_secs = 0
         concurrency = self._concurrency
@@ -187,8 +187,8 @@ class Client:
             match_slots_available = re.findall("(\\d+) slots available now", text)
             match_cooldowns = re.findall("Slot available after: .+, in (\\d+) seconds", text)
 
-            (slots,) = match_slots_overall
-            slots = int(slots) or None
+            (slots_str,) = match_slots_overall
+            slots = int(slots_str) or None
 
             if slots:
                 cooldowns = [int(secs) for secs in match_cooldowns]
@@ -298,8 +298,13 @@ class Client:
 
         acquired_slot = False
 
+        if query.request_timeout.total_without_query_secs is not None:
+            total = float(query.timeout_secs) + query.request_timeout.total_without_query_secs
+        else:
+            total = None
+
         req_timeout = aiohttp.ClientTimeout(
-            total=float(query.timeout_secs) + query.request_timeout.total_without_query_secs,
+            total=total,
             connect=None,
             sock_connect=query.request_timeout.sock_connect_secs,
             sock_read=query.request_timeout.each_sock_read_secs,
@@ -327,11 +332,16 @@ class Client:
             query_mut.fail_try(_to_client_error(err))
 
         except asyncio.TimeoutError as err:
+            query_err: ClientError
+
             if query.run_timeout_elapsed:
+                assert query.run_duration_secs is not None
                 query_err = GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
             else:
                 assert not query.run_timeout_secs or acquired_slot
+                assert req_timeout.total
                 query_err = CallTimeoutError(cause=err, after_secs=req_timeout.total)
+
             query_mut.fail_try(query_err)
 
         except ClientError as err:
@@ -340,10 +350,12 @@ class Client:
         finally:
             query_mut.end_try()
             if acquired_slot:
+                assert self._maybe_sem is not None
                 self._maybe_sem.release()
 
     async def _wait_for_slot(self, query: Query) -> None:
         def next_timeout() -> aiohttp.ClientTimeout:
+            assert query.run_duration_secs is not None
             if query.run_timeout_secs:
                 remaining = query.run_timeout_secs - query.run_duration_secs
                 if remaining <= 0.0:
@@ -367,7 +379,12 @@ class Client:
             # cooldown in the next iteration.
             status = await self._status(timeout=next_timeout())
 
-            if (timeout := next_timeout()) and status.cooldown_secs > timeout.total:
+            if (
+                (timeout := next_timeout())
+                and timeout.total is not None
+                and status.cooldown_secs > timeout.total
+            ):
+                assert query.run_duration_secs
                 raise GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
 
             logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
