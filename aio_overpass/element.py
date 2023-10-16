@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import Any, cast, TypeAlias
 
 from aio_overpass import Query
 
@@ -30,17 +30,17 @@ __all__ = (
     "collect_elements",
 )
 
-GeoJsonDict = dict[str, Any]
+GeoJsonDict: TypeAlias = dict[str, Any]
 """
 A dictionary representing a GeoJSON object.
 """
 
-OverpassDict = dict[str, Any]
+OverpassDict: TypeAlias = dict[str, Any]
 """
 A dictionary representing a JSON object returned by the Overpass API.
 """
 
-Bbox = tuple[float, float, float, float]
+Bbox: TypeAlias = tuple[float, float, float, float]
 """
 The bounding box of a spatial object.
 
@@ -391,10 +391,10 @@ class Relationship(Spatial):
 _KNOWN_ELEMENTS = {"node", "way", "relation", "area"}
 
 
-_ElementKey = tuple[str, int]
+_ElementKey: TypeAlias = tuple[str, int]
 """Elements are uniquely identified by the tuple (type, id)."""
 
-_MemberKey = tuple[_ElementKey, str]
+_MemberKey: TypeAlias = tuple[_ElementKey, str]
 """Relation members are identified by their element key and role."""
 
 

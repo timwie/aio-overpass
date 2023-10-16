@@ -3,7 +3,7 @@
 import itertools
 from collections.abc import Callable, Generator
 from dataclasses import dataclass, replace
-from typing import Any, cast
+from typing import Any, cast, TypeAlias
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import GeoJsonDict, Node, Relation, Relationship, Spatial, Way
@@ -522,7 +522,7 @@ def _paths(route_graph: MultiDiGraph, targets: list[Point | None]) -> list[Order
     return traversal.ordering
 
 
-_GraphNode = tuple[float, float]
+_GraphNode: TypeAlias = tuple[float, float]
 
 
 @dataclass(slots=True, repr=False, eq=False, match_args=False)
