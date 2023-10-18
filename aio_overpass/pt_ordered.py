@@ -29,6 +29,8 @@ __all__ = (
     "OrderedRouteView",
     "OrderedRouteViewNode",
     "collect_ordered_routes",
+    "to_ordered_route",
+    "to_ordered_routes",
 )
 
 
@@ -120,7 +122,8 @@ class OrderedRouteView(Spatial):
             else:
                 ordering.append(a)
 
-        ordering.append(b)
+        ordering.append(b)  # pyright: ignore[reportUnboundVariable]
+
         yield replace(self, ordering=ordering)
 
     def _group_by(self, key: Callable[[OrderedRouteViewNode], Any]) -> list["OrderedRouteView"]:
@@ -295,12 +298,12 @@ def collect_ordered_routes(
 
 
 def to_ordered_route(route: Route) -> OrderedRouteView:
-    # TODO doc
+    """Like ``collect_ordered_routes()``, but for a single route."""
     return next(iter(to_ordered_routes([route])))
 
 
 def to_ordered_routes(routes: list[Route], n_jobs: int = 1) -> list[OrderedRouteView]:
-    # TODO doc
+    """Like ``collect_ordered_routes()``, but for a list of routes."""
     if not routes:
         return []
 

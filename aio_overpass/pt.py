@@ -342,7 +342,7 @@ class RouteScheme(Enum):
             case RouteScheme.OTHER:
                 return None
             case _:
-                raise AssertionError()
+                raise AssertionError
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}.{self.name}"
@@ -523,7 +523,7 @@ class Route(Spatial):
     def bounds(self) -> Bbox | None:
         """The bounding box around all stops of this route."""
         geom = GeometryCollection([stop._geometry for stop in self.stops if stop._geometry])
-        return geom.bounds or None
+        return geom.bounds or None  # pyright: ignore[reportGeneralTypeIssues]
 
     @property
     def geojson(self) -> GeoJsonDict:

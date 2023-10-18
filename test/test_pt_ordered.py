@@ -38,11 +38,7 @@ from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
 
 from aio_overpass.client import Client
 from aio_overpass.pt import RouteQuery, SingleRouteQuery, collect_routes
-from aio_overpass.pt_ordered import (
-    OrderedRouteView,
-    to_ordered_route,
-    collect_ordered_routes,
-)
+from aio_overpass.pt_ordered import OrderedRouteView, collect_ordered_routes, to_ordered_route
 
 import pytest
 

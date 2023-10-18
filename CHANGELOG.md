@@ -27,6 +27,7 @@ The Python versions supported by this release are 3.10-3.12.
 * Fix an edge case where `DefaultQueryRunner` would raise an exception
   if a cache file could not be read
 * Fix `collect_ordered_routes()` breaking when a stop position is missing
+* Fix `collect_elements()` raising when the result set is empty
 
 <br>
 

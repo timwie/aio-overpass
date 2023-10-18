@@ -1,8 +1,11 @@
 import json
 import re
 
+from shapely import Point
+
 from aio_overpass import Query
-from aio_overpass.element import Element
+from aio_overpass.element import Element, Relationship, Node, Spatial, Bbox
+from aio_overpass.pt import Route, RouteScheme, Stop, Connection
 from aio_overpass.query import DefaultQueryRunner, QueryRunner
 
 import geojson
@@ -141,6 +144,11 @@ def verify_query_state(query: Query) -> None:
 
 
 def verify_element(elem: Element) -> None:
+    if _already_validated(elem):
+        return
+
+    assert isinstance(elem, Element)
+
     assert elem.id >= 0
 
     for relship in elem.relations:
@@ -151,6 +159,9 @@ def verify_element(elem: Element) -> None:
         assert elem.tag(k) == v
 
     assert elem.type in {"node", "way", "relation"}
+
+    if elem.geometry is not None:
+        assert elem.geometry.is_valid
 
     assert geojson.loads(json.dumps(elem.geojson))  # valid GeoJSON
 
@@ -164,3 +175,85 @@ def verify_element(elem: Element) -> None:
     # elem.link
     # elem.wikidata_id
     # elem.wikidata_link
+
+
+def verify_relationship(relship: Relationship) -> None:
+    if _already_validated(relship):
+        return
+
+    verify_element(relship.member)
+    verify_element(relship.relation)
+    if relship.role is not None:
+        assert isinstance(relship.role, str) and relship.role
+
+
+def verify_route(route: Route) -> None:
+    if _already_validated(route):
+        return
+
+    verify_element(route.relation)
+
+    assert route.scheme in RouteScheme
+
+    for stop in route.stops:
+        verify_stop(stop)
+
+    # id
+    # tags
+    # tag
+    # ways
+    # masters
+    # name_from
+    # name_to
+    # name_via
+    # name
+    # vehicle
+    # bounds
+
+    assert isinstance(route.bounds, tuple)
+    assert len(route.bounds) == 4
+    assert all(isinstance(c, float) for c in route.bounds)
+
+    # TODO geojson
+
+
+def verify_stop(stop: Stop) -> None:
+    if _already_validated(stop):
+        return
+
+    assert stop.idx >= 0
+
+    if stop.platform:
+        verify_relationship(stop.platform)
+
+    if stop.stop_position:
+        verify_relationship(stop.stop_position)
+
+    if stop.stop_coords is not None:
+        if isinstance(stop.stop_coords, Node):
+            verify_element(stop.stop_coords)
+        else:
+            assert isinstance(stop.stop_coords, Point)
+            assert stop.stop_coords.is_valid
+
+    if stop.name is not None:
+        assert isinstance(stop.name, str) and stop.name
+
+    assert stop.connection in Connection
+
+    for rel in stop.stop_areas:
+        verify_element(rel)
+
+    # _stop_point
+    # _geometry
+    # TODO geojson
+
+
+# TODO verify OrderedRouteView
+
+
+def _already_validated(obj: Spatial) -> bool:
+    if getattr(obj, "__validated__", False):
+        return True
+    object.__setattr__(obj, "__validated__", True)
+    return False

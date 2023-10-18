@@ -256,7 +256,7 @@ class QueryRejectCause(Enum):
             case QueryRejectCause.EXCEEDED_MAXSIZE:
                 return "exceeded 'maxsize'"
             case _:
-                raise AssertionError()
+                raise AssertionError
 
 
 @dataclass

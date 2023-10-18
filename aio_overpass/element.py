@@ -68,7 +68,7 @@ class Spatial(ABC):
     considered here.
     """
 
-    __slots__ = ()
+    __slots__ = ("__validated__",)  # we use that field in tests
 
     @property
     @abstractmethod
@@ -199,7 +199,7 @@ class Element(Spatial):
             case Relation():
                 return "relation"
             case _:
-                raise ValueError()
+                raise AssertionError
 
     @property
     def link(self) -> str:
@@ -455,7 +455,7 @@ def collect_elements(query: Query) -> list[Element]:
 
 
 def _collect_untyped(query: Query, collector: _ElementCollector) -> None:
-    if not query.result_set:
+    if query.result_set is None:
         raise AssertionError
 
     # Here we populate 'untyped_dict' with both top level elements, and
@@ -513,9 +513,9 @@ def _collect_typed(collector: _ElementCollector) -> None:
                 cls = Relation
                 args["members"] = []  # add later
             case _:
-                raise AssertionError()
+                raise AssertionError
 
-        elem = cls(**args)
+        elem = cls(**args)  # pyright: ignore[reportGeneralTypeIssues]
         collector.typed_dict[elem_key] = elem
 
 
