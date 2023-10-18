@@ -8,6 +8,7 @@ from aio_overpass.pt_ordered import collect_ordered_routes
 from aio_overpass.query import DefaultQueryRunner
 from test.util import verify_route
 
+
 assert __name__ == "__main__"
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

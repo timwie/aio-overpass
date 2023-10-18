@@ -1,7 +1,6 @@
-from test.util import VerifyingQueryRunner
-
 from aio_overpass import Client
 from aio_overpass.client import Status
+from test.util import VerifyingQueryRunner
 
 import pytest
 from aioresponses import aioresponses

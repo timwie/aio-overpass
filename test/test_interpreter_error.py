@@ -1,12 +1,10 @@
 import asyncio
 import re
-from test.util import VerifyingQueryRunner, verify_query_state
 
 from aio_overpass import Client, Query
 from aio_overpass.error import (
     CallError,
     CallTimeoutError,
-    GiveupError,
     QueryLanguageError,
     QueryRejectCause,
     QueryRejectError,
@@ -15,6 +13,7 @@ from aio_overpass.error import (
     RunnerError,
 )
 from aio_overpass.query import QueryRunner
+from test.util import VerifyingQueryRunner, verify_query_state
 
 import pytest
 from aioresponses import aioresponses

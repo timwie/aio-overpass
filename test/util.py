@@ -1,16 +1,16 @@
 import json
 import re
 
-from shapely import Point
-
 from aio_overpass import Query
-from aio_overpass.element import Element, Relationship, Node, Spatial, Bbox
-from aio_overpass.pt import Route, RouteScheme, Stop, Connection
+from aio_overpass.element import Element, Node, Relationship, Spatial
+from aio_overpass.pt import Connection, Route, RouteScheme, Stop
 from aio_overpass.query import DefaultQueryRunner, QueryRunner
 
 import geojson
 import pytest
 from aioresponses import aioresponses
+from shapely import MultiPolygon, Point, Polygon, intersection_all, is_valid_reason
+from shapely.geometry.base import BaseGeometry
 
 
 URL_INTERPRETER = re.compile(r"^https://overpass-api\.de/api/interpreter\?data=.+$")
@@ -144,29 +144,31 @@ def verify_query_state(query: Query) -> None:
 
 
 def verify_element(elem: Element) -> None:
+    msg = repr(elem)
+
     if _already_validated(elem):
         return
 
-    assert isinstance(elem, Element)
+    assert isinstance(elem, Element), msg
 
-    assert elem.id >= 0
+    assert elem.id >= 0, msg
 
     for relship in elem.relations:
-        assert relship.member is elem
-        assert relship in relship.relation.members
+        assert relship.member is elem, msg
+        assert relship in relship.relation.members, msg
 
     for k, v in (elem.tags or {}).items():
-        assert elem.tag(k) == v
+        assert elem.tag(k) == v, msg
 
     assert elem.type in {"node", "way", "relation"}
 
     if elem.geometry is not None:
-        assert elem.geometry.is_valid
+        _verify_geometry(elem.geometry, msg)
 
-    assert geojson.loads(json.dumps(elem.geojson))  # valid GeoJSON
+    assert geojson.loads(json.dumps(elem.geojson)), msg  # valid GeoJSON
 
-    assert str(elem)  # just test this doesn't raise
-    assert repr(elem)  # just test this doesn't raise
+    assert str(elem), msg  # just test this doesn't raise
+    assert repr(elem), msg  # just test this doesn't raise
 
     # elem.tags
     # elem.bounds
@@ -178,22 +180,29 @@ def verify_element(elem: Element) -> None:
 
 
 def verify_relationship(relship: Relationship) -> None:
+    msg = repr(relship)
+
     if _already_validated(relship):
         return
 
     verify_element(relship.member)
     verify_element(relship.relation)
     if relship.role is not None:
-        assert isinstance(relship.role, str) and relship.role
+        assert isinstance(relship.role, str) and relship.role, msg
+
+    assert str(relship), msg  # just test this doesn't raise
+    assert repr(relship), msg  # just test this doesn't raise
 
 
 def verify_route(route: Route) -> None:
+    msg = repr(route)
+
     if _already_validated(route):
         return
 
     verify_element(route.relation)
 
-    assert route.scheme in RouteScheme
+    assert route.scheme in RouteScheme, msg
 
     for stop in route.stops:
         verify_stop(stop)
@@ -210,18 +219,23 @@ def verify_route(route: Route) -> None:
     # vehicle
     # bounds
 
-    assert isinstance(route.bounds, tuple)
-    assert len(route.bounds) == 4
-    assert all(isinstance(c, float) for c in route.bounds)
+    assert isinstance(route.bounds, tuple), msg
+    assert len(route.bounds) == 4, msg
+    assert all(isinstance(c, float) for c in route.bounds), msg
+
+    assert str(route), msg  # just test this doesn't raise
+    assert repr(route), msg  # just test this doesn't raise
 
     # TODO geojson
 
 
 def verify_stop(stop: Stop) -> None:
+    msg = repr(stop)
+
     if _already_validated(stop):
         return
 
-    assert stop.idx >= 0
+    assert stop.idx >= 0, msg
 
     if stop.platform:
         verify_relationship(stop.platform)
@@ -233,16 +247,19 @@ def verify_stop(stop: Stop) -> None:
         if isinstance(stop.stop_coords, Node):
             verify_element(stop.stop_coords)
         else:
-            assert isinstance(stop.stop_coords, Point)
-            assert stop.stop_coords.is_valid
+            assert isinstance(stop.stop_coords, Point), msg
+            assert stop.stop_coords.is_valid, msg
 
     if stop.name is not None:
-        assert isinstance(stop.name, str) and stop.name
+        assert isinstance(stop.name, str) and stop.name, msg
 
-    assert stop.connection in Connection
+    assert stop.connection in Connection, msg
 
     for rel in stop.stop_areas:
         verify_element(rel)
+
+    assert str(stop), msg  # just test this doesn't raise
+    assert repr(stop), msg  # just test this doesn't raise
 
     # _stop_point
     # _geometry
@@ -250,6 +267,30 @@ def verify_stop(stop: Stop) -> None:
 
 
 # TODO verify OrderedRouteView
+
+
+def _verify_geometry(geom: BaseGeometry, msg: str) -> None:
+    if geom.is_valid:
+        return
+
+    reason = is_valid_reason(geom)
+    geom_msg = f"{msg} - {reason} - {geom}"
+
+    if reason.startswith("Self-intersection") and isinstance(geom, MultiPolygon):
+        # we allow self-intersecting multi-polygons, if
+        # (1) the intersection is just lines or points, and…
+        intersection = intersection_all(geom.geoms)
+        assert not isinstance(intersection, Polygon | MultiPolygon), geom_msg
+
+        # (2) all the polygons inside are valid
+        for poly in geom.geoms:
+            poly_reason = is_valid_reason(geom)
+            poly_msg = f"{msg} - {poly_reason} - {poly}"
+            assert poly.is_valid, poly_msg
+
+        return
+
+    raise AssertionError(geom_msg)
 
 
 def _already_validated(obj: Spatial) -> bool:

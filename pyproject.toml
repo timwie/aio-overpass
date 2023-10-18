@@ -131,7 +131,7 @@ line_length=100
 indent='    '
 multi_line_output=6
 lines_after_imports=2
-known_first_party="aio_overpass"
+known_first_party="aio_overpass,test"
 sections="STDLIB,FIRSTPARTY,THIRDPARTY,LOCALFOLDER"
 
 [tool.mypy]

@@ -1,9 +1,9 @@
 import json
 from pathlib import Path
-from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
 
 from aio_overpass import Client, Query
 from aio_overpass.query import _EXPIRATION_KEY, __cache_delete, __cache_expire, _fibo_backoff_secs
+from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
 
 import pytest
 
