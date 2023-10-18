@@ -2,14 +2,14 @@ import json
 import re
 
 from aio_overpass import Query
-from aio_overpass.element import Element, Node, Relationship, Spatial
+from aio_overpass.element import Element, Node, Relationship, Spatial, _flatten
 from aio_overpass.pt import Connection, Route, RouteScheme, Stop
 from aio_overpass.query import DefaultQueryRunner, QueryRunner
 
 import geojson
 import pytest
 from aioresponses import aioresponses
-from shapely import MultiPolygon, Point, Polygon, intersection_all, is_valid_reason
+from shapely import MultiPolygon, Point, Polygon, intersection_all, is_valid_reason, make_valid
 from shapely.geometry.base import BaseGeometry
 
 
@@ -284,13 +284,35 @@ def _verify_geometry(geom: BaseGeometry, msg: str) -> None:
 
         # (2) all the polygons inside are valid
         for poly in geom.geoms:
+            # TODO use "_verify_polygon" here, too
             poly_reason = is_valid_reason(geom)
             poly_msg = f"{msg} - {poly_reason} - {poly}"
             assert poly.is_valid, poly_msg
 
         return
 
+    if isinstance(geom, Polygon):
+        # TODO here we find a replacement polygon; add that to the library
+        _verify_polygon(geom, geom_msg)
+        return
+
+    if isinstance(geom, MultiPolygon):
+        # TODO here we find a replacement multi-polygon; add that to the library
+        valid_polygons = [g for g in _flatten(make_valid(geom)) if isinstance(g, Polygon)]
+        assert valid_polygons, geom_msg
+        return
+
+    # TODO add handling of invalid geometries to the library
     raise AssertionError(geom_msg)
+
+
+def _verify_polygon(poly: Polygon, msg: str) -> Polygon:
+    if poly.is_valid:
+        return poly
+
+    valid_polygons = [g for g in _flatten(make_valid(poly)) if isinstance(g, Polygon)]
+    assert len(valid_polygons) == 1, msg
+    return valid_polygons[0]
 
 
 def _already_validated(obj: Spatial) -> bool:
