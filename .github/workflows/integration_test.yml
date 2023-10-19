@@ -1,4 +1,4 @@
-name: Run test scripts
+name: Run integration tests
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   script:
-    name: Run script
+    name: Run integration test
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -37,5 +37,5 @@ jobs:
       - name: Install dependencies & library
         run: poetry install --all-extras --no-interaction
 
-      - name: Run script
-        run: poetry run python -m test.scripts.${{ matrix.file }}
+      - name: Run test
+        run: poetry run python -m test.integration.${{ matrix.file }}
