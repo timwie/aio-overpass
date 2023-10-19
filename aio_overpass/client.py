@@ -52,12 +52,19 @@ class Status:
         cooldown_secs: The number of seconds until a slot opens for this IP
                        (or 0 if there is a free slot).
         concurrency: Maximum concurrent queries configured for this client.
+        endpoint: Announced endpoint. For example, there are two distinct servers
+                  that both can be reached by the main Overpass API instance.
+                  Depending on server load, a query may be sent to either of them.
+                  This value is the server name, f.e. ``"gall.openstreetmap.de/"``.
+        nb_running_queries: Number of currently running queries for this IP.
     """
 
     slots: int | None
     free_slots: int | None
     cooldown_secs: int
     concurrency: int
+    endpoint: str | None
+    nb_running_queries: int
 
     def __repr__(self) -> str:
         f, s, c = self.free_slots, self.slots, self.cooldown_secs
@@ -181,14 +188,25 @@ class Client:
         free_slots = None
         cooldown_secs = 0
         concurrency = self._concurrency
+        endpoint = None
+        nb_running_queries = 0
 
         try:
-            match_slots_overall = re.findall("Rate limit: (\\d+)", text)
-            match_slots_available = re.findall("(\\d+) slots available now", text)
-            match_cooldowns = re.findall("Slot available after: .+, in (\\d+) seconds", text)
+            match_slots_overall = re.findall(r"Rate limit: (\d+)", text)
+            match_slots_available = re.findall(r"(\d+) slots available now", text)
+            match_cooldowns = re.findall(r"Slot available after: .+, in (\d+) seconds", text)
+            match_endpoint = re.findall(r"Announced endpoint: (.+)", text)
+            match_running_queries = re.findall(
+                r"\d+\t\d+\t\d+\t\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", text
+            )
 
             (slots_str,) = match_slots_overall
             slots = int(slots_str) or None
+
+            endpoint = match_endpoint[0] if match_endpoint else None
+            endpoint = None if endpoint == "none" else endpoint
+
+            nb_running_queries = len(match_running_queries)
 
             if slots:
                 cooldowns = [int(secs) for secs in match_cooldowns]
@@ -211,6 +229,8 @@ class Client:
             free_slots=free_slots,
             cooldown_secs=cooldown_secs,
             concurrency=concurrency,
+            endpoint=endpoint,
+            nb_running_queries=nb_running_queries,
         )
         return self._maybe_any_status
 

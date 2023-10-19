@@ -14,6 +14,8 @@ The Python versions supported by this release are 3.10-3.12.
 * Add `GeometryDetails`, which provides information on whether an
   element's geometry is "valid"
 * Add `Way.geometry_details` and `Relation.geometry_details`
+* Add `Status.endpoint`
+* Add `Status.nb_running_queries`
 
 ### Changed
 * Increased `aiohttp` requirement to `~3.9.0b0`

@@ -36,6 +36,8 @@ Currently running queries (pid, space limit, time limit, start time):
         free_slots=2,
         cooldown_secs=0,
         concurrency=2,
+        endpoint=None,
+        nb_running_queries=0,
     )
 
     assert actual == expected
@@ -71,6 +73,8 @@ Currently running queries (pid, space limit, time limit, start time):
         free_slots=6,
         cooldown_secs=0,
         concurrency=6,
+        endpoint="gall.openstreetmap.de/",
+        nb_running_queries=0,
     )
 
     assert actual == expected
@@ -106,6 +110,48 @@ Currently running queries (pid, space limit, time limit, start time):
         free_slots=1,
         cooldown_secs=0,
         concurrency=2,
+        endpoint=None,
+        nb_running_queries=1,
+    )
+
+    assert actual == expected
+
+    await c.close()
+
+
+@pytest.mark.asyncio
+async def test_multiple_running_queries():
+    body = r"""
+Connected as: 49993325
+Current time: 2023-10-19T23:25:17Z
+Announced endpoint: none
+Rate limit: 0
+Currently running queries (pid, space limit, time limit, start time):
+2751707	536870912	900	2023-10-19T23:23:40Z
+2752374	536870912	180	2023-10-19T23:25:17Z
+2752375	536870912	180	2023-10-19T23:25:17Z
+    """
+    concurrency = 8
+
+    c = Client(runner=VerifyingQueryRunner(), concurrency=concurrency)
+
+    with aioresponses() as m:
+        m.get(
+            url=URL_STATUS,
+            body=body,
+            status=200,
+            content_type="text/plain",
+        )
+
+        actual = await c.status()
+
+    expected = Status(
+        slots=None,
+        free_slots=None,
+        cooldown_secs=0,
+        concurrency=concurrency,
+        endpoint=None,
+        nb_running_queries=3,
     )
 
     assert actual == expected
@@ -141,6 +187,8 @@ Currently running queries (pid, space limit, time limit, start time):
         free_slots=0,
         cooldown_secs=20,
         concurrency=2,
+        endpoint=None,
+        nb_running_queries=0,
     )
 
     assert actual == expected
