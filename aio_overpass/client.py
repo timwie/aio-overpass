@@ -245,7 +245,7 @@ class Client:
         except aiohttp.ClientError as err:
             raise _to_client_error(err) from err
 
-    async def run_query(self, query: Query) -> None:
+    async def run_query(self, query: Query, raise_on_failure: bool = True) -> None:
         """
         Send a query to the API, and await its completion.
 
@@ -253,18 +253,23 @@ class Client:
         to open up, the query requests themselves (which may be retried), status requests
         when the server is busy, and cooldown periods.
 
-        The query runner is invoked before every try.
+        The query runner is invoked before every try, and once after the last try.
 
         To run multiple queries concurrently, wrap the returned coroutines in an ``asyncio`` task,
         f.e. with ``asyncio.create_task()`` and subsequent ``asyncio.gather()``.
 
         Args:
             query: the query to run on this API instance
+            raise_on_failure: if ``True``, raises ``query.error`` if the query failed
 
         Raises:
             ClientError: when query or status requests fail. If the query was retried, the error
                          of the last try will be raised. The same exception is also captured in
-                         ``query.error``.
+                         ``query.error``. Raising can be prevented by setting ``raise_on_failure``
+                         to ``False``.
+            RunnerError: when a call to the query runner raises. This exception is raised
+                         even if ``raise_on_failure` is ``False``, since it is likely an error
+                         that is not just specific to this query.
         """
         if query.done:
             return  # nothing to do
@@ -273,16 +278,20 @@ class Client:
             query.reset()  # reset failed queries
 
         while True:
-            await self._invoke_runner(query)
+            await self._invoke_runner(query, raise_on_failure=raise_on_failure)
             if query.done:
                 return
             await self._run_query_once(query)
 
-    async def _invoke_runner(self, query: Query) -> None:
+    async def _invoke_runner(self, query: Query, raise_on_failure: bool) -> None:
         try:
             await self._runner(query)
-        except ClientError:
-            raise
+        except ClientError as err:
+            if err is not query.error:
+                msg = "query runner raised a ClientError other than 'query.error'"
+                raise ValueError(msg) from err
+            if raise_on_failure:
+                raise
         except BaseException as err:
             raise RunnerError(err) from err
 

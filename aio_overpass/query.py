@@ -557,11 +557,14 @@ class QueryRunner(ABC):
     """
     A query runner is an async function that is called before a client makes an API request.
 
-    Query runners can be used to
-     - retry queries when they fail
-     - modify queries, f.e. to lower/increase their maxsize/timeout
-     - log query results & errors
-     - implement caching
+    Query runners can be used to…
+     - …retry queries when they fail
+     - …modify queries, f.e. to lower/increase their maxsize/timeout
+     - …log query results & errors
+     - …implement caching
+
+    The absolute minimum a query runner function has to do is to simply return to (re)try
+    a query, or to raise ``query.error`` to stop trying.
     """
 
     __slots__ = ()
@@ -582,9 +585,7 @@ class DefaultQueryRunner(QueryRunner):
      - …limits the number of tries
      - …optionally caches query results in temp files
 
-    This runner does *not*…
-     - …limit the total time a query runs, including retries
-     - …lower timeout and maxsize settings if the server rejected a query
+    This runner does *not* lower timeout and maxsize settings if the server rejected a query.
 
     Args:
         max_tries: The maximum number of times a query is tried. (5 by default)

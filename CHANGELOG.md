@@ -25,6 +25,9 @@ The Python versions supported by this release are 3.10-3.12.
   `Relation.geometry_details`
 * `DefaultQueryRunner` no longer blocks the event loop while reading
   from or writing to a cache file
+* Add `raise_on_failure` argument to `Client.run_query()`, which can be
+  disabled to not raise `Query.error` if a query fails
+  
 
 ### Removed
 * Drop Python 3.9 support
@@ -40,7 +43,7 @@ The Python versions supported by this release are 3.10-3.12.
 
 <br>
 
-## [0.8.0] – 2023-10-06
+## [0.8.0] – 2023-10-07
 ### Added
 * Add the `Element.geometry` property
 
