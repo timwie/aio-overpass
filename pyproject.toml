@@ -71,18 +71,22 @@ shapely = ["shapely"]
 aioresponses = "^0.7.4"
 black = "^23.10.0"
 codecov = "^2.1.13"
-geojson = { version = "^3.0.1", python = "<3.12" }
+geojson = [
+    # TODO "geojson" for 3.12 - https://github.com/jazzband/geojson/issues/221
+    { version = "^3.0.1", python = "<3.12" },
+    { git = "https://github.com/jazzband/geojson.git", python = ">=3.12" },
+]
 invoke = "^2.2.0"
 isort = "^5.12.0"
 mypy = "^1.6.1"
 pdoc = "^14.1.0"
+pyright = "^1.1.332"
 pytest = "^7.4.2"
 pytest-asyncio = "^0.21.1"
 pytest-cov = "^4.1.0"
+pytest-xdist = "^3.3.1"
 ruff = "^0.1.0"
 slotscheck = "^0.17.0"
-pyright = "^1.1.332"
-pytest-xdist = "^3.3.1"
 
 [tool.poetry.group.notebooks]
 optional = true
@@ -115,9 +119,6 @@ ignore = [
     "UP015",
 ]
 
-# TODO can we select "FIX" with warnings instead of errors?
-#   https://github.com/astral-sh/ruff/issues/1256
-
 [tool.ruff.pydocstyle]
 convention = "google"
 
@@ -139,6 +140,11 @@ sections="STDLIB,FIRSTPARTY,THIRDPARTY,LOCALFOLDER"
 # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-library-stubs-or-py-typed-marker
 ignore_missing_imports = true
 
+[tool.pyright]
+# https://microsoft.github.io/pyright/#/configuration
+pythonVersion = "3.10"
+verboseOutput = true
+
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.7.0"]
 build-backend = "poetry.core.masonry.api"

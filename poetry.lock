@@ -1100,6 +1100,21 @@ files = [
 ]
 
 [[package]]
+name = "geojson"
+version = "3.0.1"
+description = "Python bindings and utilities for GeoJSON"
+optional = false
+python-versions = ">=3.7"
+files = []
+develop = false
+
+[package.source]
+type = "git"
+url = "https://github.com/jazzband/geojson.git"
+reference = "HEAD"
+resolved_reference = "2e6acb7eae2773cccd4147e284671931be469ffe"
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -3446,4 +3461,4 @@ shapely = ["shapely"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "ec840b413019ded0550fe8499b2ce86e0588a1a17ed78b6b53dabe588899e0fd"
+content-hash = "18adee88c84db706686ef1e325ec5295d9472e4c18862e92d5dd15b2b82158f5"
