@@ -23,6 +23,8 @@ The Python versions supported by this release are 3.10-3.12.
   by `shapely` instead of the original geometries by the Overpass API.
   To access the original geometry, use `Way.geometry_details` and
   `Relation.geometry_details`
+* `DefaultQueryRunner` no longer blocks the event loop while reading
+  from or writing to a cache file
 
 ### Removed
 * Drop Python 3.9 support

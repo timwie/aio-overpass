@@ -680,12 +680,12 @@ class DefaultQueryRunner(QueryRunner):
 
         # Check cache ahead of first try
         if query.nb_tries == 0:
-            self._cache_read(query)
+            await asyncio.to_thread(self._cache_read, query)
 
         # Success or cached
         if query.done:
             if not query.was_cached:
-                self._cache_write(query)
+                await asyncio.to_thread(self._cache_write, query)
             return
 
         err = query.error
