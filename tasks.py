@@ -58,7 +58,7 @@ def papermill(c: Context):
 @task
 def test(c: Context):
     """Run tests"""
-    c.run("pytest -vv --cov=aio_overpass/", echo=True, pty=True)
+    c.run("pytest -n auto -vv --cov=aio_overpass/", echo=True, pty=True)
 
 @task
 def test_publish(c: Context):

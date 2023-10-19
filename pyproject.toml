@@ -82,6 +82,7 @@ pytest-cov = "^4.1.0"
 ruff = "^0.1.0"
 slotscheck = "^0.17.0"
 pyright = "^1.1.332"
+pytest-xdist = "^3.3.1"
 
 [tool.poetry.group.notebooks]
 optional = true
