@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, TypeAlias, cast
+from typing import Any, Generic, TypeAlias, TypeVar, cast
 
 from aio_overpass import Query
 
@@ -26,6 +26,7 @@ __all__ = (
     "Way",
     "Relation",
     "Relationship",
+    "GeometryDetails",
     "Metadata",
     "collect_elements",
 )
@@ -111,6 +112,47 @@ class Metadata:
     changeset: int
     user_name: str
     user_id: int
+
+
+G = TypeVar("G", bound=BaseGeometry)
+
+
+@dataclass(slots=True)
+class GeometryDetails(Generic[G]):
+    """
+    Element geometry with more info on its validity.
+
+    Shapely validity is based on an [OGC standard](https://www.ogc.org/standard/sfa/).
+
+    For MultiPolygons, one assertion is that its elements may only touch at a finite number
+    of Points, which means they may not share an edge on their exteriors. In terms of
+    OSM multipolygons, it makes sense to lift this requirement, and such geometries
+    end up in the ``accepted`` field.
+
+    For invalid MultiPolygon and Polygons, we use Shapely's ``make_valid()``. If and only if
+    the amount of polygons stays the same before and after making them valid,
+    they will end up in the ``valid`` field.
+
+    Attributes:
+        valid: if set, this is the original valid geometry
+        accepted: if set, this is the original geometry that is invalid by Shapely standards,
+                  but accepted by us
+        fixed: if set, this is the geometry fixed by ``make_valid()``
+        invalid: if set, this is the original invalid geometry
+        invalid_reason: if the original geometry is invalid by Shapely standards,
+                        this message states why
+    """
+
+    valid: G | None = None
+    accepted: G | None = None
+    fixed: G | None = None
+    invalid: G | None = None
+    invalid_reason: str | None = None
+
+    @property
+    def best(self) -> G | None:
+        """The "best" geometry, prioritizing ``fixed`` over ``invalid``."""
+        return self.valid or self.accepted or self.fixed or self.invalid
 
 
 @dataclass(repr=False, eq=False)
@@ -306,6 +348,7 @@ class Way(Element):
         geometry: A Linestring if the way is open, a LinearRing if the way is closed,
                   a Polygon if the way is closed and its tags indicate that it represents an area,
                   or ``None`` if the geometry is not included in the query's result set.
+        geometry_details: More info on the validity of ``geometry``.
 
     References:
         - https://wiki.openstreetmap.org/wiki/Way
@@ -313,6 +356,7 @@ class Way(Element):
 
     node_ids: list[int] | None
     geometry: LineString | LinearRing | Polygon | None
+    geometry_details: GeometryDetails[LineString | LinearRing | Polygon] | None
 
 
 @dataclass(slots=True, repr=False, eq=False)
@@ -341,6 +385,7 @@ class Relation(Element):
                   result geometry. This is ``None`` if the geometry of the relation members is not
                   included in the query's result set, or if the relation is not deemed to represent
                   an area.
+        geometry_details: More info on the validity of ``geometry``.
 
     References:
         - https://wiki.openstreetmap.org/wiki/Relation
@@ -350,6 +395,7 @@ class Relation(Element):
 
     members: list["Relationship"]
     geometry: Polygon | MultiPolygon | None
+    geometry_details: GeometryDetails[Polygon | MultiPolygon] | None
 
     def __iter__(self) -> Iterator[tuple[str | None, Element]]:
         for relship in self.members:
@@ -483,6 +529,8 @@ def _collect_typed(collector: _ElementCollector) -> None:
     for elem_key, elem_dict in collector.untyped_dict.items():
         (elem_type, elem_id) = elem_key
 
+        geometry = _geometry(elem_dict)
+
         args = dict(
             id=elem_id,
             tags=elem_dict.get("tags"),
@@ -498,7 +546,7 @@ def _collect_typed(collector: _ElementCollector) -> None:
             if "timestamp" in elem_dict
             else None,
             relations=[],  # add later
-            geometry=_geometry(elem_dict),
+            geometry=geometry,
         )
 
         cls: type[Element]
@@ -506,12 +554,21 @@ def _collect_typed(collector: _ElementCollector) -> None:
         match elem_type:
             case "node":
                 cls = Node
+                assert geometry is None or geometry.is_valid
             case "way":
                 cls = Way
                 args["node_ids"] = elem_dict.get("nodes")
+                args["geometry_details"] = None
+                if geometry and (geometry_details := _try_validate_geometry(geometry)) is not None:
+                    args["geometry_details"] = geometry_details
+                    args["geometry"] = geometry_details.best
             case "relation":
                 cls = Relation
                 args["members"] = []  # add later
+                args["geometry_details"] = None
+                if geometry and (geometry_details := _try_validate_geometry(geometry)) is not None:
+                    args["geometry_details"] = geometry_details
+                    args["geometry"] = geometry_details.best
             case _:
                 raise AssertionError
 
@@ -528,6 +585,47 @@ def _collect_relationships(collector: _ElementCollector) -> None:
             relship = Relationship(member=mem, relation=rel, role=mem_role or None)
             mem.relations.append(relship)
             rel.members.append(relship)
+
+
+def _try_validate_geometry(geom: G) -> GeometryDetails[G]:
+    if geom.is_valid:
+        return GeometryDetails(valid=geom)
+
+    invalid_reason = shapely.is_valid_reason(geom)
+
+    if invalid_reason.startswith("Self-intersection") and isinstance(geom, MultiPolygon):
+        # we allow self-intersecting multi-polygons, if
+        # (1) the intersection is just lines or points, and
+        # (2) all the polygons inside are valid
+        intersection = shapely.intersection_all(geom.geoms)
+        accept = not isinstance(intersection, Polygon | MultiPolygon) and all(
+            poly.is_valid for poly in geom.geoms
+        )
+
+        if accept:
+            return GeometryDetails(accepted=geom, invalid_reason=invalid_reason)
+
+        return GeometryDetails(invalid=geom, invalid_reason=invalid_reason)
+
+    if isinstance(geom, Polygon):
+        valid_polygons = [g for g in _flatten(shapely.make_valid(geom)) if isinstance(g, Polygon)]
+        if len(valid_polygons) == 1:
+            return GeometryDetails(
+                fixed=valid_polygons[0],
+                invalid=geom,
+                invalid_reason=invalid_reason,
+            )
+
+    if isinstance(geom, MultiPolygon):
+        valid_polygons = [g for g in _flatten(shapely.make_valid(geom)) if isinstance(g, Polygon)]
+        if len(valid_polygons) == len(geom.geoms):
+            return GeometryDetails(
+                fixed=MultiPolygon(valid_polygons),
+                invalid=geom,
+                invalid_reason=invalid_reason,
+            )
+
+    return GeometryDetails(invalid=geom, invalid_reason=invalid_reason)
 
 
 def _geometry(raw_elem: OverpassDict) -> BaseGeometry | None:

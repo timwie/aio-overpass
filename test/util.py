@@ -1,8 +1,10 @@
 import json
 import re
+from dataclasses import dataclass
+from typing import Generic, TypeVar
 
 from aio_overpass import Query
-from aio_overpass.element import Element, Node, Relationship, Spatial, _flatten
+from aio_overpass.element import Element, Node, Relation, Relationship, Spatial, Way, _flatten
 from aio_overpass.pt import Connection, Route, RouteScheme, Stop
 from aio_overpass.query import DefaultQueryRunner, QueryRunner
 
@@ -162,8 +164,12 @@ def verify_element(elem: Element) -> None:
 
     assert elem.type in {"node", "way", "relation"}
 
-    if elem.geometry is not None:
-        _verify_geometry(elem.geometry, msg)
+    if isinstance(elem, Way | Relation) and elem.geometry:
+        assert not elem.geometry_details.valid or elem.geometry_details.valid.is_valid
+        assert not elem.geometry_details.accepted or not elem.geometry_details.accepted.is_valid
+        assert not elem.geometry_details.invalid or not elem.geometry_details.invalid.is_valid
+        assert not elem.geometry_details.invalid or elem.geometry_details.invalid_reason
+        assert elem.geometry is elem.geometry_details.best
 
     assert geojson.loads(json.dumps(elem.geojson)), msg  # valid GeoJSON
 
@@ -267,52 +273,6 @@ def verify_stop(stop: Stop) -> None:
 
 
 # TODO verify OrderedRouteView
-
-
-def _verify_geometry(geom: BaseGeometry, msg: str) -> None:
-    if geom.is_valid:
-        return
-
-    reason = is_valid_reason(geom)
-    geom_msg = f"{msg} - {reason} - {geom}"
-
-    if reason.startswith("Self-intersection") and isinstance(geom, MultiPolygon):
-        # we allow self-intersecting multi-polygons, if
-        # (1) the intersection is just lines or points, and…
-        intersection = intersection_all(geom.geoms)
-        assert not isinstance(intersection, Polygon | MultiPolygon), geom_msg
-
-        # (2) all the polygons inside are valid
-        for poly in geom.geoms:
-            # TODO use "_verify_polygon" here, too
-            poly_reason = is_valid_reason(geom)
-            poly_msg = f"{msg} - {poly_reason} - {poly}"
-            assert poly.is_valid, poly_msg
-
-        return
-
-    if isinstance(geom, Polygon):
-        # TODO here we find a replacement polygon; add that to the library
-        _verify_polygon(geom, geom_msg)
-        return
-
-    if isinstance(geom, MultiPolygon):
-        # TODO here we find a replacement multi-polygon; add that to the library
-        valid_polygons = [g for g in _flatten(make_valid(geom)) if isinstance(g, Polygon)]
-        assert valid_polygons, geom_msg
-        return
-
-    # TODO add handling of invalid geometries to the library
-    raise AssertionError(geom_msg)
-
-
-def _verify_polygon(poly: Polygon, msg: str) -> Polygon:
-    if poly.is_valid:
-        return poly
-
-    valid_polygons = [g for g in _flatten(make_valid(poly)) if isinstance(g, Polygon)]
-    assert len(valid_polygons) == 1, msg
-    return valid_polygons[0]
 
 
 def _already_validated(obj: Spatial) -> bool:

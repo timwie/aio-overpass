@@ -11,11 +11,18 @@ The Python versions supported by this release are 3.10-3.12.
 * Add Python 3.12 support
 * Add `__slots__` to a lot of classes
 * Add `pt_ordered.to_ordered_routes()` and `to_ordered_route()`
+* Add `GeometryDetails`, which provides information on whether an
+  element's geometry is "valid"
+* Add `Way.geometry_details` and `Relation.geometry_details`
 
 ### Changed
 * Increased `aiohttp` requirement to `~3.9.0b0`
 * Enable `speedups` extra of `aiohttp`
 * Make `QueryRunner` an abstract class, not a protocol
+* `Way.geometry` and `Relation.geometry` may now be geometries fixed
+  by `shapely` instead of the original geometries by the Overpass API.
+  To access the original geometry, use `Way.geometry_details` and
+  `Relation.geometry_details`
 
 ### Removed
 * Drop Python 3.9 support
