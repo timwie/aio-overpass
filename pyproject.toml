@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-overpass"
-version = "0.8.0"
+version = "0.9.0"
 description = "Async client for the Overpass API"
 authors = ["Tim Wiechers <mail@timwie.dev>"]
 license = "MIT"
@@ -85,7 +85,7 @@ pytest = "^7.4.2"
 pytest-asyncio = "^0.21.1"
 pytest-cov = "^4.1.0"
 pytest-xdist = "^3.3.1"
-ruff = "^0.1.0"
+ruff = "^0.1.1"
 slotscheck = "^0.17.0"
 
 [tool.poetry.group.notebooks]

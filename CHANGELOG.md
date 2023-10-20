@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## Unreleased
+## [0.9.0] – 2023-10-20
 The Python versions supported by this release are 3.10-3.12.
 
 ### Added
@@ -190,5 +190,6 @@ The Python versions supported by this release are 3.10-3.12.
 [0.6.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.6.0
 [0.7.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.7.0
 [0.8.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.8.0
+[0.9.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.9.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/

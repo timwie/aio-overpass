@@ -1,0 +1,23 @@
+name: Manually publish release on PyPI
+
+on: [workflow_dispatch]
+
+jobs:
+  publish-package:
+    name: Publish new release on PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/aio-overpass
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Build the source and wheels archives
+        run: poetry build --no-interaction
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
