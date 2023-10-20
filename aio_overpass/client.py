@@ -36,7 +36,10 @@ __all__ = (
 
 
 DEFAULT_INSTANCE = "https://overpass-api.de/api/"
+"""Main Overpass API instance."""
+
 DEFAULT_USER_AGENT = f"aio-overpass/{__version__} (https://github.com/timwie/aio-overpass)"
+"""User agent that points to the ``aio-overpass`` repo."""
 
 
 @dataclass(slots=True)

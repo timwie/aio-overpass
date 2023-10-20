@@ -17,9 +17,7 @@ from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 
 __docformat__ = "google"
 __all__ = (
-    "GeoJsonDict",
-    "OverpassDict",
-    "Bbox",
+    "collect_elements",
     "Spatial",
     "Element",
     "Node",
@@ -28,7 +26,9 @@ __all__ = (
     "Relationship",
     "GeometryDetails",
     "Metadata",
-    "collect_elements",
+    "Bbox",
+    "GeoJsonDict",
+    "OverpassDict",
 )
 
 GeoJsonDict: TypeAlias = dict[str, Any]
@@ -434,7 +434,7 @@ class Relationship(Spatial):
         return f"{type(self).__name__}({self.member}{role} in {self.relation})"
 
 
-_KNOWN_ELEMENTS = {"node", "way", "relation", "area"}
+_KNOWN_ELEMENTS = {"node", "way", "relation"}
 
 
 _ElementKey: TypeAlias = tuple[str, int]
@@ -463,11 +463,7 @@ def collect_elements(query: Query) -> list[Element]:
     """
     Produce typed elements from the result set of a query.
 
-    This function collects elements that are of type "node", "way", "relation", or "area".
-    Derived elements with other types - f.e. produced by ``make`` and ``convert`` statements
-    or when using ``out count`` - are ignored. An exception is made for areas, which are so
-    closely derived from ways and relations that it makes sense to represent them as such.
-    If you need to work with other derived elements, you should not use this function.
+    This function exclusively collects elements that are of type "node", "way", or "relation".
 
     Element data is "conflated", which means that if elements appear more than once in a
     result set, their data is merged. This is useful f.e. when querying tags for relation members:
@@ -477,6 +473,14 @@ def collect_elements(query: Query) -> list[Element]:
     the top level. This function will have these two occurrences point to the same, single object.
 
     The order of elements and relation members is retained.
+
+    If you want to query Overpass' "area" elements, you should use the `way(pivot)` or `rel(pivot)`
+    filter to select the element of the chosen type that defines the outline of the given area.
+    Otherwise, they will be ignored.
+
+    Derived elements with other types - f.e. produced by ``make`` and ``convert`` statements
+    or when using ``out count`` - are ignored. If you need to work with other derived elements,
+    you should not use this function.
 
     Args:
         query: a finished query

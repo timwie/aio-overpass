@@ -29,19 +29,21 @@ The Python versions supported by this release are 3.10-3.12.
   from or writing to a cache file
 * Add `raise_on_failure` argument to `Client.run_query()`, which can be
   disabled to not raise `Query.error` if a query fails
-  
 
 ### Removed
 * Drop Python 3.9 support
+* `collect_elements()` already no longer worked for "area" elements with the previous
+  release, but its documentation did not reflect that change
 
 ### Fixed
-* Fix error when `RequestTimeout.total_without_query_secs` was set to `None`
+* Fix an error when `RequestTimeout.total_without_query_secs` was set to `None`
 * Fix an edge case that would lead to an error if `Query.run_timeout_secs`
   was `None` when a query cooldown occurred
 * Fix an edge case where `DefaultQueryRunner` would raise an exception
   if a cache file could not be read
 * Fix `collect_ordered_routes()` breaking when a stop position is missing
 * Fix `collect_elements()` raising when the result set is empty
+* Fix `collect_elements()` breaking when the result set included "area" elements
 
 <br>
 
