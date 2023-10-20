@@ -37,10 +37,10 @@ __all__ = (
 
 
 DEFAULT_MAXSIZE = 512
-"""Default ``maxsize`` setting in mebibytes"""
+"""Default ``maxsize`` setting in mebibytes."""
 
 DEFAULT_TIMEOUT = 180
-"""Default ``timeout`` setting in seconds"""
+"""Default ``timeout`` setting in seconds."""
 
 _COPYRIGHT = "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."  # noqa: E501
 """This is the same copyright notice included in result sets"""
@@ -51,7 +51,7 @@ _SETTING_PATTERN = re.compile(r"\[(\w+?):(.+?)]\s*;?")
 
 class Query:
     """
-    State of a query that is either pending, successful, or failed.
+    State of a query that is either pending, running, successful, or failed.
 
     Args:
         input_code: The input Overpass QL code. Note that some settings might be changed
@@ -156,7 +156,12 @@ class Query:
 
     @property
     def response(self) -> dict | None:
-        """The entire JSON response of the query."""
+        """
+        The entire JSON response of the query.
+
+        Returns:
+            the response, or ``None`` if the query has not successfully finished (yet)
+        """
         return self._response
 
     @property
@@ -183,6 +188,10 @@ class Query:
         OpenStreetMap and its contributors. If you alter or build upon this data, you may
         distribute the result only under the same licence.
 
+        Returns:
+            the elements of the result set, or ``None`` if the query has not successfully
+            finished (yet)
+
         References:
             - https://www.openstreetmap.org/copyright
             - https://opendatacommons.org/licenses/odbl/1-0/
@@ -193,7 +202,12 @@ class Query:
 
     @property
     def response_size_mib(self) -> float | None:
-        """The size of the response in mebibytes."""
+        """
+        The size of the response in mebibytes.
+
+        Returns:
+            the size, or ``None`` if the query has not successfully finished (yet)
+        """
         if self._response is None:
             return None
         return self._response_bytes / 1024.0 / 1024.0
@@ -322,7 +336,8 @@ class Query:
         the result is written to this query object. Although it depends on how busy
         the API instance is, this can give some indication of how long a query takes.
 
-        This is ``None`` if there is no result set yet, or when it was cached.
+        Returns:
+            the duration or ``None`` if there is no result set yet, or when it was cached.
         """
         if self._response is None or self.was_cached:
             return None
@@ -337,7 +352,8 @@ class Query:
         """
         The total required time for this query in seconds (so far).
 
-        This is ``None`` if the query has not been run yet, or when its result was cached.
+        Returns:
+            the duration or ``None`` if there is no result set yet, or when it was cached.
         """
         if self._time_start is None:
             return None
@@ -353,7 +369,8 @@ class Query:
         The Overpass API version used by the queried instance.
 
         Returns:
-            f.e. ``"Overpass API 0.7.56.8 7d656e78"``.
+            f.e. ``"Overpass API 0.7.56.8 7d656e78"``, or ``None`` if the query
+            has not successfully finished (yet)
 
         References:
             - https://wiki.openstreetmap.org/wiki/Overpass_API/versions
@@ -370,6 +387,9 @@ class Query:
 
         It can take a couple of minutes for changes to the database to show up in the
         Overpass API query results.
+
+        Returns:
+            the timestamp, or ``None`` if the query has not successfully finished (yet)
         """
         if self._response is None:
             return None
@@ -384,7 +404,10 @@ class Query:
 
         If the query involves area data processing, this is the date of the latest edit
         that has been considered in the most recent batch run of the area generation.
-        Otherwise, it is set to ``None``.
+
+        Returns:
+            the timestamp, or ``None`` if the query has not successfully finished (yet), or
+            if it does not involve area data processing.
         """
         if self._response is None:
             return None

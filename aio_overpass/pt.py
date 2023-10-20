@@ -27,15 +27,15 @@ from shapely.geometry import GeometryCollection, Point, Polygon
 
 __docformat__ = "google"
 __all__ = (
-    "Route",
-    "Stop",
-    "Connection",
-    "Vehicle",
-    "RouteScheme",
+    "collect_routes",
     "RouteQuery",
     "SingleRouteQuery",
     "RoutesWithinQuery",
-    "collect_routes",
+    "Route",
+    "Vehicle",
+    "Stop",
+    "Connection",
+    "RouteScheme",
 )
 
 

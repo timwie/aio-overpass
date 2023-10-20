@@ -1,18 +1,16 @@
 import json
 import re
-from dataclasses import dataclass
-from typing import Generic, TypeVar
 
 from aio_overpass import Query
-from aio_overpass.element import Element, Node, Relation, Relationship, Spatial, Way, _flatten
+from aio_overpass.element import Element, Node, Relation, Relationship, Spatial, Way
 from aio_overpass.pt import Connection, Route, RouteScheme, Stop
 from aio_overpass.query import DefaultQueryRunner, QueryRunner
 
 import geojson
 import pytest
+import shapely.geometry
 from aioresponses import aioresponses
-from shapely import MultiPolygon, Point, Polygon, intersection_all, is_valid_reason, make_valid
-from shapely.geometry.base import BaseGeometry
+from shapely import Point
 
 
 URL_INTERPRETER = re.compile(r"^https://overpass-api\.de/api/interpreter\?data=.+$")
@@ -172,6 +170,15 @@ def verify_element(elem: Element) -> None:
         assert elem.geometry is elem.geometry_details.best
 
     assert geojson.loads(json.dumps(elem.geojson)), msg  # valid GeoJSON
+
+    # TODO "Feature" is unsupported by shapely until shapely 2.1.0 releases
+    #   https://github.com/shapely/shapely/pull/1815
+    # TODO "FeatureCollection" is not specified by __geo_interface__ at all
+    # try:
+    #     roundtrip_geometry = shapely.geometry.shape(elem.__geo_interface__)
+    # except BaseException as err:
+    #     raise AssertionError(f"{msg}: bad __geo_interface__: {err}: {elem.__geo_interface__}")
+    # assert not elem.geometry or elem.geometry == roundtrip_geometry, msg
 
     assert str(elem), msg  # just test this doesn't raise
     assert repr(elem), msg  # just test this doesn't raise

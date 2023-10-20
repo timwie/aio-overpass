@@ -26,11 +26,11 @@ from .pt import _MAX_DISTANCE_TO_TRACK, Route, RouteQuery, Stop, collect_routes
 
 __docformat__ = "google"
 __all__ = (
-    "OrderedRouteView",
-    "OrderedRouteViewNode",
     "collect_ordered_routes",
     "to_ordered_route",
     "to_ordered_routes",
+    "OrderedRouteView",
+    "OrderedRouteViewNode",
 )
 
 
@@ -260,7 +260,7 @@ def collect_ordered_routes(
     """
     Produce ``OrderedRouteViews`` objects from a result set.
 
-    Compare to ``collect_routes()``, this function tries to build the geometry representing the
+    Compared to ``collect_routes()``, this function tries to build the geometry representing the
     path travelled on every route from the first to last stop. If there are no holes in a route's
     relation, this can typically generate a single line string to represent the entire path of
     a route. Note that routes tagged with the PTv1 scheme will be ignored (in an effort to keep

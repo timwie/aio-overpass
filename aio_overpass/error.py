@@ -124,7 +124,7 @@ class ResponseError(ClientError):
         request_info: Contains information about request.
         history: History from failed response.
         status: HTTP status code of response, e.g. ``400``.
-        message: Message of response, e.g. ``"OK"``.
+        message: Message of response, e.g. ``"Bad Request"``.
         headers: Headers in response, a list of pairs.
     """
 

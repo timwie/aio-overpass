@@ -60,10 +60,10 @@ class Spatial(ABC):
     ``geojson`` property. Exporting objects in the GeoJSON format should make it possible
     to integrate them with other tools for visualization, or further analysis.
 
-    Objects of this class have the ``__geo_interface__`` property to follow a protocol proposed
-    by Sean Gillies, which can make it easier to use spatial data in other Python software
-    (https://gist.github.com/sgillies/2217756). An example of this is the ``shape()`` function
-    that builds Shapely geometries from any object with the ``__geo_interface__`` property.
+    Objects of this class have the ``__geo_interface__`` property to follow a protocol
+    [proposed](https://gist.github.com/sgillies/2217756) by Sean Gillies, which can make
+    it easier to use spatial data in other Python software . An example of this is the ``shape()``
+    function that builds Shapely geometries from any object with the ``__geo_interface__`` property.
 
     The ability to re-import the exported GeoJSON structures as ``Spatial`` objects is not
     considered here.
@@ -284,7 +284,7 @@ class Element(Spatial):
 
         Objects are mapped as the following:
          - ``Node`` -> ``Feature`` with optional ``Point`` geometry
-         - ``Way`` -> ``Feature`` with optional ``LineString`` or `Polygon`` geometry
+         - ``Way`` -> ``Feature`` with optional ``LineString`` or ``Polygon`` geometry
          - ``Relation`` with geometry -> ``Feature`` with ``Polygon`` or ``MultiPolygon`` geometry
          - ``Relation`` -> ``FeatureCollection`` (nested ``Relations`` are mapped to unlocated
            ``Features``)
