@@ -48,6 +48,8 @@ async def test_caching(mock_response):
     assert q2.response == response
     assert q2.was_cached
 
+    await c.close()
+
 
 @pytest.mark.asyncio
 async def test_cache_expiration(mock_response):
@@ -89,6 +91,8 @@ async def test_cache_expiration(mock_response):
     del q2.response[_EXPIRATION_KEY]
     assert q2.response == response
     assert not q2.was_cached
+
+    await c.close()
 
 
 def test_fibonacci_backoff():

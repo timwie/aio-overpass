@@ -78,6 +78,7 @@ geojson = [
 ]
 invoke = "^2.2.0"
 isort = "^5.12.0"
+loguru = "^0.7.2"
 mypy = "^1.6.1"
 pdoc = "^14.1.0"
 pyright = "^1.1.332"

@@ -297,11 +297,14 @@ def _to_client_error(
     if not isinstance(obj, aiohttp.ClientResponseError | aiohttp.ClientResponse):
         return CallError(cause=obj)
 
+    message = obj.message if isinstance(obj, aiohttp.ClientResponseError) else obj.reason
+    assert message
+
     error = ResponseError(
         request_info=obj.request_info,
         history=obj.history,
         status=obj.status,
-        message=obj.message if isinstance(obj, aiohttp.ClientResponseError) else obj.reason,
+        message=message,
         headers=obj.headers,
     )
 

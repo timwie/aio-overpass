@@ -1,7 +1,6 @@
 """Interface for making API calls."""
 
 import asyncio
-import logging
 import re
 from contextlib import suppress
 from dataclasses import dataclass
@@ -319,7 +318,7 @@ class Client:
             raise RunnerError(err) from err
 
     async def _run_query_once(self, query: Query) -> None:
-        logger = query.logger or logging.getLogger(f"{type(self).__module__}.{type(self).__name__}")
+        logger = query.logger
 
         if query.done:
             return
@@ -397,7 +396,7 @@ class Client:
 
             return aiohttp.ClientTimeout(total=remaining)
 
-        logger = query.logger or logging.getLogger(f"{type(self).__module__}.{type(self).__name__}")
+        logger = query.logger
 
         check_cooldown = (
             isinstance(query.error, QueryRejectError)

@@ -62,7 +62,7 @@ async def mock_run_query(mock_response, body, content_type, **kwargs):
 
 @pytest.mark.asyncio
 async def test_too_many_queries(mock_response):
-    body = r"""
+    body = """
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -97,7 +97,7 @@ async def test_too_many_queries(mock_response):
 
 @pytest.mark.asyncio
 async def test_too_busy(mock_response):
-    body = r"""
+    body = """
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -132,7 +132,7 @@ async def test_too_busy(mock_response):
 
 @pytest.mark.asyncio
 async def test_other_query_error(mock_response):
-    body = r"""
+    body = """
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -164,7 +164,7 @@ async def test_other_query_error(mock_response):
 
 @pytest.mark.asyncio
 async def test_syntax_error(mock_response):
-    body = r"""
+    body = """
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
    <head>
@@ -197,21 +197,21 @@ async def test_syntax_error(mock_response):
         await mock_run_query(mock_response, body, content_type="text/html")
 
     expected = [
-        r"""line 1: parse error: Key expected - '%' found.""",
-        r"""line 1: parse error: '!', '~', '=', '!=', or ']'  expected - '%' found.""",
-        r"""line 1: parse error: Value expected - '%' found.""",
-        r"""line 1: parse error: ',' or ']' expected - '%' found.""",
-        r"""line 1: parse error: Key expected - '%' found.""",
-        r"""line 1: parse error: '!', '~', '=', '!=', or ']'  expected - '%' found.""",
-        r"""line 1: parse error: Value expected - '%' found.""",
-        r"""line 1: parse error: ',' or ']' expected - '%' found.""",
-        r"""line 1: static error: For the attribute "k" of the element "has-kv" the only allowed values are non-empty strings.""",
-        r"""line 1: static error: For the attribute "k" of the element "has-kv" the only allowed values are non-empty strings.""",
-        r"""line 1: parse error: Key expected - '%' found.""",
-        r"""line 1: parse error: '!', '~', '=', '!=', or ']'  expected - '%' found.""",
-        r"""line 1: parse error: Value expected - '%' found.""",
-        r"""line 1: parse error: ',' or ']' expected - '%' found.""",
-        r"""line 1: static error: For the attribute "k" of the element "has-kv" the only allowed values are non-empty strings.""",
+        """line 1: parse error: Key expected - '%' found.""",
+        """line 1: parse error: '!', '~', '=', '!=', or ']'  expected - '%' found.""",
+        """line 1: parse error: Value expected - '%' found.""",
+        """line 1: parse error: ',' or ']' expected - '%' found.""",
+        """line 1: parse error: Key expected - '%' found.""",
+        """line 1: parse error: '!', '~', '=', '!=', or ']'  expected - '%' found.""",
+        """line 1: parse error: Value expected - '%' found.""",
+        """line 1: parse error: ',' or ']' expected - '%' found.""",
+        """line 1: static error: For the attribute "k" of the element "has-kv" the only allowed values are non-empty strings.""",
+        """line 1: static error: For the attribute "k" of the element "has-kv" the only allowed values are non-empty strings.""",
+        """line 1: parse error: Key expected - '%' found.""",
+        """line 1: parse error: '!', '~', '=', '!=', or ']'  expected - '%' found.""",
+        """line 1: parse error: Value expected - '%' found.""",
+        """line 1: parse error: ',' or ']' expected - '%' found.""",
+        """line 1: static error: For the attribute "k" of the element "has-kv" the only allowed values are non-empty strings.""",
     ]
     assert err.value.remarks == expected
 
@@ -225,7 +225,7 @@ async def test_other_query_error_remark(mock_response):
     # https://community.openstreetmap.org/t/altere-karte-als-png/71872/6
     # https://wiki.openstreetmap.org/wiki/Overpass_API/status#Won't_fix_2015-02-05
 
-    body = r"""
+    body = """
 {
   "version": 0.6,
   "generator": "Overpass API 0.7.56.3 eb200aeb",
@@ -273,7 +273,7 @@ async def test_exceeded_maxsize(mock_response):
     assert err.value.cause == QueryRejectCause.EXCEEDED_MAXSIZE
 
     expected = [
-        r"""runtime error: Query run out of memory in "recurse" at line 1 using about 541 MB of RAM.""",
+        """runtime error: Query run out of memory in "recurse" at line 1 using about 541 MB of RAM.""",
     ]
     assert err.value.remarks == expected
 
@@ -303,7 +303,7 @@ async def test_exceeded_timeout(mock_response):
     assert err.value.cause == QueryRejectCause.EXCEEDED_TIMEOUT
 
     expected = [
-        r"""runtime error: Query timed out in "query" at line 3 after 2 seconds.""",
+        """runtime error: Query timed out in "query" at line 3 after 2 seconds.""",
     ]
     assert err.value.remarks == expected
 
@@ -322,6 +322,8 @@ async def test_connection_refused():
     _ = str(err.value)
     _ = repr(err.value)
 
+    await c.close()
+
 
 @pytest.mark.asyncio
 async def test_internal_server_error():
@@ -332,8 +334,16 @@ async def test_internal_server_error():
         m.get(URL_STATUS, status=500, repeat=True)
         await c.run_query(q)
 
+        assert err.value.request_info is not None
+        assert err.value.history is not None
+        assert err.value.status
+        assert err.value.message
+        assert err.value.headers
+
     _ = str(err.value)
     _ = repr(err.value)
+
+    await c.close()
 
 
 @pytest.mark.asyncio
@@ -356,6 +366,8 @@ async def test_timeout_error():
     _ = str(err2.value)
     _ = repr(err2.value)
 
+    await c.close()
+
 
 @pytest.mark.asyncio
 async def test_runner_error():
@@ -374,6 +386,8 @@ async def test_runner_error():
 
     _ = str(err.value)
     _ = repr(err.value)
+
+    await c.close()
 
 
 @pytest.mark.asyncio
@@ -407,6 +421,8 @@ async def test_status_error(mock_response):
     _ = repr(err1.value)
     _ = str(err2.value)
     _ = repr(err2.value)
+
+    await c.close()
 
 
 @pytest.mark.asyncio
@@ -442,8 +458,16 @@ async def test_unexpected_message_error(mock_response):
     with pytest.raises(QueryResponseError) as err:
         await c.run_query(q)
 
+        assert err.value.request_info is not None
+        assert err.value.history is not None
+        assert err.value.status
+        assert err.value.message
+        assert err.value.headers
+
     _ = str(err.value)
     _ = repr(err.value)
+
+    await c.close()
 
 
 @pytest.mark.asyncio
@@ -451,7 +475,6 @@ async def test_no_message_error(mock_response):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
 
-    msg = "something that does not match a ql error"
     body = rf"""
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -480,3 +503,5 @@ async def test_no_message_error(mock_response):
 
     _ = str(err.value)
     _ = repr(err.value)
+
+    await c.close()

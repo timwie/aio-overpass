@@ -8,7 +8,6 @@ from aio_overpass.query import DefaultQueryRunner, QueryRunner
 
 import geojson
 import pytest
-import shapely.geometry
 from aioresponses import aioresponses
 from shapely import Point
 
@@ -22,11 +21,11 @@ URL_KILL = "https://overpass-api.de/api/kill_my_queries"
 def mock_response():
     with aioresponses() as m:
         mock_status = """
-        Connected as: 1807920285
-        Current time: 2020-11-22T13:32:57Z
-        Rate limit: 2
-        2 slots available now.
-        Currently running queries (pid, space limit, time limit, start time):
+Connected as: 1807920285
+Current time: 2020-11-22T13:32:57Z
+Rate limit: 2
+2 slots available now.
+Currently running queries (pid, space limit, time limit, start time):
         """
 
         m.get(

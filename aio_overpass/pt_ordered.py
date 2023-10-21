@@ -233,10 +233,10 @@ class OrderedRouteView(Spatial):
 
             for line in line_strings:
                 if not coords:
-                    coords.extend(line.coords)
+                    coords.extend(line.coords)  # pyright: ignore
                 else:
                     # ignore first coord, it's equal to the previous one
-                    coords.extend(line.coords[1:])
+                    coords.extend(line.coords[1:])  # pyright: ignore
 
             merged_line = LineString(coords)
             merged_lines.append(merged_line)
@@ -514,7 +514,7 @@ def _paths(route_graph: MultiDiGraph, targets: list[Point | None]) -> list[Order
                  represented by ``None``
     """
     # set edge weights to metric distance
-    for u, v in route_graph.edges():
+    for u, v in route_graph.edges():  # pyright: ignore
         if _WEIGHT_KEY in route_graph[u][v][0]:
             continue
 
@@ -568,7 +568,7 @@ class _Traversal:
 def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> None:
     """Find shortest paths between targets, while discouraging edges to be traversed twice."""
     if len(progress.targets_left) == 0:
-        return
+        return None
 
     a = progress.targets_visited[-1]
     b = progress.targets_left[0]
@@ -579,7 +579,7 @@ def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> None:
     if u != v:
         try:
             path_nodes = nx.shortest_path(graph, source=u, target=v, weight=_WEIGHT_KEY)
-            _traverse_path(graph, progress, path_nodes)
+            _traverse_path(graph, progress, path_nodes)  # pyright: ignore
             return _traverse_graph(graph, progress)
         except nx.NetworkXNoPath:
             pass
@@ -634,8 +634,9 @@ def _traverse_path(graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_
 
         # The path does not specify exactly which edge was traversed, so we select
         # the parallel edge of (u, v) that has the smallest weight, and increase it.
-        u, v, key, _ = min(
-            graph.edges([u, v], keys=True, data=True), key=lambda t: t[3][_WEIGHT_KEY]
+        u, v, key, _ = min(  # pyright: ignore
+            graph.edges([u, v], keys=True, data=True),
+            key=lambda t: t[3][_WEIGHT_KEY],  # pyright: ignore
         )
 
         graph[u][v][key][_WEIGHT_KEY] += _WEIGHT_MULTIPLIER

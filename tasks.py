@@ -1,9 +1,11 @@
 from invoke import task, Context
 
+
 @task
 def doc(c: Context):
     """Generate documentation"""
     c.run("pdoc -o ./doc aio_overpass/", echo=True, pty=True)
+
 
 @task
 def doco(c: Context):
@@ -17,6 +19,7 @@ def doco(c: Context):
     url = f"file://{path}"
     webbrowser.open(url, new=0, autoraise=True)
 
+
 @task
 def fmt(c: Context):
     """Run code formatters"""
@@ -24,11 +27,14 @@ def fmt(c: Context):
     c.run("isort test/", echo=True, pty=True)
     c.run("black aio_overpass/", echo=True, pty=True)
     c.run("black test/", echo=True, pty=True)
+    c.run("black tasks.py", echo=True, pty=True)
+
 
 @task
 def install(c: Context):
     """Install all dependencies"""
     c.run("poetry install --all-extras --with notebooks", echo=True, pty=True)
+
 
 @task
 def lint(c: Context):
@@ -37,6 +43,7 @@ def lint(c: Context):
     c.run("mypy aio_overpass/", echo=True, warn=True, pty=True)
     c.run("slotscheck -m aio_overpass", echo=True, warn=True, pty=True)
     c.run("pyright aio_overpass/", echo=True, warn=True, pty=True)
+
 
 @task
 def papermill(c: Context):
@@ -52,23 +59,31 @@ def papermill(c: Context):
 
     for file in files:
         name, id, zoom = file["name"], file["id"], file["zoom"]
-        c.run(f"papermill examples/pt_ordered.ipynb examples/pt_ordered_{name}.ipynb -p id {id} -p zoom {zoom} -p interactive False", echo=True)
+        c.run(
+            f"papermill examples/pt_ordered.ipynb examples/pt_ordered_{name}.ipynb -p id {id} -p zoom {zoom} -p interactive False",
+            echo=True,
+        )
         c.run("jupyter trust examples/*.ipynb", echo=True)
+
 
 @task
 def test(c: Context):
     """Run tests"""
     c.run("pytest -n auto -vv --cov=aio_overpass/", echo=True, pty=True)
+    c.run("rm .coverage*", echo=True, pty=True)
+
 
 @task
 def test_publish(c: Context):
     """Perform a dry run of publishing the package"""
     c.run("poetry publish --build --dry-run --no-interaction", echo=True, pty=True)
 
+
 @task
 def tree(c: Context):
     """Display the tree of dependencies"""
     c.run("poetry show --without=dev,notebooks --tree", echo=True, pty=True)
+
 
 @task
 def update(c: Context):

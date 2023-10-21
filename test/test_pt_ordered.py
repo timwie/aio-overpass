@@ -120,8 +120,7 @@ async def test_simple_linestring_with_two_stop_pos_removed(mock_response):
         s.stop_position = None
         s.stop_coords = None
 
-    view = to_ordered_route(route=route)
-
+    _view = to_ordered_route(route=route)
     # TODO assertions: starts at third stop; two fewer paths
 
 

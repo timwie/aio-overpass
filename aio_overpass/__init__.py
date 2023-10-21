@@ -14,11 +14,11 @@ __all__ = (
     "ClientError",
     "Query",
     "client",
-    "element",
+    "element",  # pyright: ignore[reportUnsupportedDunderAll]
     "error",
-    "pt",
-    "pt_ordered",
-    "ql",
+    "pt",  # pyright: ignore[reportUnsupportedDunderAll]
+    "pt_ordered",  # pyright: ignore[reportUnsupportedDunderAll]
+    "ql",  # pyright: ignore[reportUnsupportedDunderAll]
     "query",
 )
 

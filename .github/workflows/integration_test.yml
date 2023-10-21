@@ -17,8 +17,10 @@ jobs:
         file: [
           "any_element_barmbek_nord",
           "any_element_carabanchel",
+          "any_element_city_of_london",
           "any_route_barmbek_nord",
           "any_route_carabanchel",
+          "any_route_city_of_london",
         ]
     steps:
       - name: Check out repository

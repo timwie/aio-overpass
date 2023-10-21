@@ -97,7 +97,6 @@ jobs:
 
       - name: Check types with pyright
         run: poetry run pyright aio_overpass/
-        continue-on-error: true
 
       - name: Validate __slots__
         run: poetry run slotscheck -m aio_overpass -v

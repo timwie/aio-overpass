@@ -4,6 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
+## Unreleased
+### Changed
+* `logger` argument of `Query` can no longer be `None`,
+  and defaults to a logger that does nothing
+
+<br>
+
 ## [0.9.0] – 2023-10-20
 The Python versions supported by this release are 3.10-3.12.
 

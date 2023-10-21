@@ -30,7 +30,7 @@ async def test_cancel_no_queries():
 
 @pytest.mark.asyncio
 async def test_cancel_one_query():
-    body = r"""
+    body = """
 Killing query (pid 7118) from IP 2a02:8108:41c0:2d95:109a:1b1:dacd:c917 ...
 Done!
     """
@@ -53,7 +53,7 @@ Done!
 
 @pytest.mark.asyncio
 async def test_cancel_one_duplicate_query():
-    body = r"""
+    body = """
 Killing query (pid 7118) from IP 2a02:8108:41c0:2d95:109a:1b1:dacd:c917 ...
 Done!
 Killing query (pid 7118) from IP 2a02:8108:41c0:2d95:109a:1b1:dacd:c917 ...
@@ -78,7 +78,7 @@ Done!
 
 @pytest.mark.asyncio
 async def test_cancel_two_queries():
-    body = r"""
+    body = """
 Killing query (pid 7118) from IP 2a02:8108:41c0:2d95:109a:1b1:dacd:c917 ...
 Done!
 Killing query (pid 7119) from IP 2a02:8108:41c0:2d95:109a:1b1:dacd:c917 ...

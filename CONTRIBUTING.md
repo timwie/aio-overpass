@@ -26,6 +26,12 @@ to set it up. Afterwards you can create a dedicated venv like this:
 ```console
 $ pyenv install 3.10.13
 $ pyenv virtualenv 3.10.13 aio-overpass310
+
+# you might be missing some build dependencies for this,
+# f.e. on a fresh install of Fedora, you can install them like this:
+$ sudo dnf install \
+    gcc zlib-devel openssl-devel xz-devel tk-devel \
+    sqlite-devel ncurses-devel readline-devel
 ```
 
 From now on, make sure that the venv is activated: `$ pyenv activate aio-overpass310`.

@@ -11,7 +11,7 @@ URL_STATUS = "https://overpass-api.de/api/status"
 
 @pytest.mark.asyncio
 async def test_idle():
-    body = r"""
+    body = """
 Connected as: 1807920285
 Current time: 2020-07-10T14:56:19Z
 Rate limit: 2
@@ -47,7 +47,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
 @pytest.mark.asyncio
 async def test_idle_with_load_balancing():
-    body = r"""
+    body = """
 Connected as: 2185740403
 Current time: 2023-06-22T21:51:45Z
 Announced endpoint: gall.openstreetmap.de/
@@ -84,7 +84,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
 @pytest.mark.asyncio
 async def test_one_slot_available():
-    body = r"""
+    body = """
 Connected as: 1807920285
 Current time: 2020-11-21T12:45:33Z
 Rate limit: 2
@@ -121,7 +121,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
 @pytest.mark.asyncio
 async def test_multiple_running_queries():
-    body = r"""
+    body = """
 Connected as: 49993325
 Current time: 2023-10-19T23:25:17Z
 Announced endpoint: none
@@ -161,7 +161,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
 @pytest.mark.asyncio
 async def test_no_slot_available():
-    body = r"""
+    body = """
 Connected as: 1807920285
 Current time: 2020-11-21T12:45:45Z
 Rate limit: 2

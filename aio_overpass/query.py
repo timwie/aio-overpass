@@ -48,6 +48,9 @@ _COPYRIGHT = "The data included in this document is from www.openstreetmap.org. 
 _SETTING_PATTERN = re.compile(r"\[(\w+?):(.+?)]\s*;?")
 """A pattern to match setting declarations (not the entire settings statement)."""
 
+_NULL_LOGGER = logging.getLogger()
+_NULL_LOGGER.addHandler(logging.NullHandler())
+
 
 class Query:
     """
@@ -80,7 +83,7 @@ class Query:
         "_time_start_try",
     )
 
-    def __init__(self, input_code: str, logger: logging.Logger | None = None, **kwargs) -> None:
+    def __init__(self, input_code: str, logger: logging.Logger = _NULL_LOGGER, **kwargs) -> None:
         self._input_code = input_code
         self._logger = logger
         self._kwargs = kwargs
@@ -135,8 +138,8 @@ class Query:
         return self._kwargs
 
     @property
-    def logger(self) -> logging.Logger | None:
-        """If set, this is the logger used for logging output related to this query."""
+    def logger(self) -> logging.Logger:
+        """The logger used for logging output related to this query."""
         return self._logger
 
     @property
@@ -633,17 +636,13 @@ class DefaultQueryRunner(QueryRunner):
         self._max_tries = max_tries
         self._cache_ttl_secs = cache_ttl_secs
 
-    @classmethod
-    def _logger(cls, query: Query) -> logging.Logger:
-        return query.logger or logging.getLogger(f"{cls.__module__}.{cls.__name__}")
-
     @staticmethod
     def _force_disable_caching() -> bool:
         # this force disables caching when running test scripts in GitHub Actions
         return os.getenv("GITHUB_ACTIONS") == "true" and "pytest" not in sys.modules
 
     def _cache_read(self, query: Query) -> None:
-        logger = DefaultQueryRunner._logger(query)
+        logger = query.logger
 
         if self._force_disable_caching():
             logger.debug("caching is disabled in GitHub actions")
@@ -677,7 +676,7 @@ class DefaultQueryRunner(QueryRunner):
         logger.info(f"{query} was cached")
 
     def _cache_write(self, query: Query) -> None:
-        logger = DefaultQueryRunner._logger(query)
+        logger = query.logger
 
         if not self._cache_ttl_secs or self._force_disable_caching():
             return
@@ -700,7 +699,7 @@ class DefaultQueryRunner(QueryRunner):
 
     async def __call__(self, query: Query) -> None:
         """Called with the current query state before the client makes an API request."""
-        logger = DefaultQueryRunner._logger(query)
+        logger = query.logger
 
         # Check cache ahead of first try
         if query.nb_tries == 0:
