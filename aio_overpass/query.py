@@ -748,9 +748,6 @@ class DefaultQueryRunner(QueryRunner):
                 logger.info(f"increased [maxsize:*] for {query} from {old} to {new}")
 
 
-_EXPIRATION_KEY = "__expiration__"
-
-
 def _fibo_backoff_secs(tries: int) -> float:
     """Fibonacci sequence without zero: 1, 1, 2, 3, 5, 8, etc."""
     a, b = 1.0, 1.0
@@ -782,6 +779,7 @@ def __cache_expire(query: Query) -> None:
         json.dump(response, file)
 
 
+_EXPIRATION_KEY = "__expiration__"
 _IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
-_IS_UNIT_TEST = "pytest" not in sys.modules
+_IS_UNIT_TEST = "pytest" in sys.modules
 _FORCE_DISABLE_CACHE = _IS_CI and not _IS_UNIT_TEST
