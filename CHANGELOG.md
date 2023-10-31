@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Changed
+* Change `networkx` requirement from `>=2.7` to `~3`
 * `logger` argument of `Query` can no longer be `None`,
   and defaults to a logger that does nothing
 
