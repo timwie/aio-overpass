@@ -636,16 +636,11 @@ class DefaultQueryRunner(QueryRunner):
         self._max_tries = max_tries
         self._cache_ttl_secs = cache_ttl_secs
 
-    @staticmethod
-    def _force_disable_caching() -> bool:
-        # this force disables caching when running test scripts in GitHub Actions
-        return os.getenv("GITHUB_ACTIONS") == "true" and "pytest" not in sys.modules
-
     def _cache_read(self, query: Query) -> None:
         logger = query.logger
 
-        if self._force_disable_caching():
-            logger.debug("caching is disabled in GitHub actions")
+        if _FORCE_DISABLE_CACHE:
+            logger.debug("caching is forced disabled")
             return
         if not self._cache_ttl_secs:
             logger.debug("caching is disabled")
@@ -678,7 +673,7 @@ class DefaultQueryRunner(QueryRunner):
     def _cache_write(self, query: Query) -> None:
         logger = query.logger
 
-        if not self._cache_ttl_secs or self._force_disable_caching():
+        if not self._cache_ttl_secs or _FORCE_DISABLE_CACHE:
             return
 
         now = int(time.time())
@@ -712,7 +707,6 @@ class DefaultQueryRunner(QueryRunner):
             return
 
         err = query.error
-
         # Do not retry if we exhausted all tries, when a retry would not change the result,
         # or when the timeout was reached.
         failed = query.nb_tries == self._max_tries or isinstance(
@@ -722,6 +716,10 @@ class DefaultQueryRunner(QueryRunner):
         # Exhausted all tries; do not retry.
         if err and failed:
             logger.error(f"give up on {query}", exc_info=err)
+
+            if isinstance(err, ResponseError):
+                logger.error(f"unexpected response body:\n{err.body}")
+
             raise err
 
         if isinstance(err, QueryRejectError):
@@ -782,3 +780,8 @@ def __cache_expire(query: Query) -> None:
 
     with open(file_path, mode="w", encoding="utf-8") as file:
         json.dump(response, file)
+
+
+_IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
+_IS_UNIT_TEST = "pytest" not in sys.modules
+_FORCE_DISABLE_CACHE = _IS_CI and not _IS_UNIT_TEST

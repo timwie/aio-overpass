@@ -61,7 +61,7 @@ class RunnerError(ClientError):
     cause: BaseException
 
     def __post_init__(self) -> None:
-        # imitate "raise QueryRunnerError(...) from cause"
+        # imitate "raise RunnerError(...) from cause"
         self.__cause__ = self.cause
 
     def __str__(self) -> str:
@@ -104,7 +104,7 @@ class CallTimeoutError(CallError):
     after_secs: float
 
     def __post_init__(self) -> None:
-        # imitate "raise CallError(...) from cause"
+        # imitate "raise CallTimeoutError(...) from cause"
         self.__cause__ = self.cause
 
     def __str__(self) -> str:
@@ -117,32 +117,27 @@ class ResponseError(ClientError):
     Unexpected API response.
 
     This error is raised when a request fails, but we can't specifically say why.
-    This may indicate a bug on our end, since the client is meant to process almost any
-    response of an Overpass API instance.
+    Internal server errors (``status=500``) are likely represented by this error class.
+    Different status codes may also indicate a bug on our end, since the client is meant
+    to process almost any response of an Overpass API instance.
 
     Attributes:
-        request_info: Contains information about request.
-        history: History from failed response.
-        status: HTTP status code of response, e.g. ``400``.
-        message: Message of response, e.g. ``"Bad Request"``.
-        headers: Headers in response, a list of pairs.
+        response: the unexpected response
+        body: the response body
+        cause: an optional exception that may have caused this error
     """
 
-    request_info: aiohttp.RequestInfo
-    history: tuple[aiohttp.ClientResponse, ...]
-    status: int
-    message: str
-    headers: aiohttp.typedefs.LooseHeaders | None
+    response: aiohttp.ClientResponse
+    body: str
+    cause: aiohttp.ClientResponseError | JSONDecodeError | None
 
-    @property
-    def response(self) -> aiohttp.ClientResponse:
-        """Client response returned by ``aiohttp.ClientSession.request()`` and family."""
-        return self.history[-1]
+    def __post_init__(self) -> None:
+        # imitate "raise ResponseError(...) from cause"
+        self.__cause__ = self.cause
 
     def __str__(self) -> str:
-        return (
-            f"unexpected response: {self.status}, {self.message!r}, {self.request_info.real_url!r}"
-        )
+        message = "<no message>" if self.cause is None else str(self.cause)
+        return f"unexpected response: {message}"
 
 
 @dataclass
@@ -283,7 +278,7 @@ class QueryRejectError(QueryError):
 
 
 @no_type_check
-def _to_client_error(
+async def _to_client_error(
     obj: aiohttp.ClientResponse | aiohttp.ClientError,
 ) -> CallError | ResponseError:
     """
@@ -294,24 +289,17 @@ def _to_client_error(
           but not an ``aiohttp.ClientResponseError``.
         - ``ResponseError`` if ``obj`` is a response or an ``aiohttp.ClientResponseError``.
     """
-    if not isinstance(obj, aiohttp.ClientResponseError | aiohttp.ClientResponse):
-        return CallError(cause=obj)
+    match obj:
+        case aiohttp.ClientResponse():
+            response = obj
+            cause = None
+        case aiohttp.ClientResponseError():
+            response = obj.history[-1]
+            cause = obj
+        case _:
+            return CallError(cause=obj)  # we didn't get a response
 
-    message = obj.message if isinstance(obj, aiohttp.ClientResponseError) else obj.reason
-    assert message
-
-    error = ResponseError(
-        request_info=obj.request_info,
-        history=obj.history,
-        status=obj.status,
-        message=message,
-        headers=obj.headers,
-    )
-
-    if isinstance(obj, aiohttp.ClientResponseError):
-        error.__cause__ = obj
-
-    return error
+    return await _response_error(response, cause)
 
 
 async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict) -> dict:
@@ -331,21 +319,21 @@ async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict)
     try:
         json = await response.json()
     except aiohttp.ClientResponseError as err:
-        raise _to_client_error(err) from err
+        raise await _to_client_error(err) from err
     except JSONDecodeError as err:
-        raise _response_error(response) from err
+        raise await _response_error(response, cause=err) from err
 
     if json is None:
-        raise _response_error(response)
+        raise await _response_error(response, cause=None)
 
-    _raise_for_json_remarks(response, json, query_kwargs)
+    await _raise_for_json_remarks(response, json, query_kwargs)
 
-    _raise_for_status(response, query_kwargs)
+    await _raise_for_status(response, query_kwargs)
 
     return json
 
 
-def _raise_for_status(response: aiohttp.ClientResponse, query_kwargs: dict) -> None:
+async def _raise_for_status(response: aiohttp.ClientResponse, query_kwargs: dict) -> None:
     """
     Raise a fitting exception based on the status code.
 
@@ -365,7 +353,7 @@ def _raise_for_status(response: aiohttp.ClientResponse, query_kwargs: dict) -> N
         raise QueryRejectError(kwargs=query_kwargs, remarks=[], cause=QueryRejectCause.TOO_BUSY)
 
     if response.status >= _BAD_REQUEST:
-        raise _to_client_error(response)
+        raise await _to_client_error(response)
 
 
 _BAD_REQUEST = 400
@@ -373,8 +361,10 @@ _TOO_MANY_REQUESTS = 429
 _GATEWAY_TIMEOUT = 504
 
 
-def _raise_for_json_remarks(
-    response: aiohttp.ClientResponse, json: dict, query_kwargs: dict
+async def _raise_for_json_remarks(
+    response: aiohttp.ClientResponse,
+    json: dict,
+    query_kwargs: dict,
 ) -> None:
     """
     Raise a fitting exception based on a remark in a JSON response.
@@ -391,7 +381,7 @@ def _raise_for_json_remarks(
     if timeout_cause:
         raise QueryRejectError(kwargs=query_kwargs, remarks=[remark], cause=timeout_cause)
 
-    raise _query_response_error(kwargs=query_kwargs, remarks=[remark], response=response)
+    raise await _query_response_error(kwargs=query_kwargs, remarks=[remark], response=response)
 
 
 async def _raise_for_html_response(response: aiohttp.ClientResponse, query_kwargs: dict) -> None:
@@ -412,7 +402,7 @@ async def _raise_for_html_response(response: aiohttp.ClientResponse, query_kwarg
     errors = [html.unescape(err.strip()) for err in pattern.findall(text)]
 
     if not errors:  # unexpected format
-        raise _to_client_error(response)
+        raise await _to_client_error(response)
 
     if any(_is_ql_error(msg) for msg in errors):
         raise QueryLanguageError(kwargs=query_kwargs, remarks=errors)
@@ -422,7 +412,7 @@ async def _raise_for_html_response(response: aiohttp.ClientResponse, query_kwarg
     if reject_causes:
         raise QueryRejectError(kwargs=query_kwargs, remarks=errors, cause=reject_causes[0])
 
-    raise _query_response_error(kwargs=query_kwargs, remarks=errors, response=response)
+    raise await _query_response_error(kwargs=query_kwargs, remarks=errors, response=response)
 
 
 def _match_reject_cause(error_msg: str) -> QueryRejectCause | None:
@@ -456,27 +446,26 @@ def _is_ql_error(message: str) -> bool:
     return "encoding error:" in message or "parse error:" in message or "static error:" in message
 
 
-def _response_error(response: aiohttp.ClientResponse) -> ResponseError:
+async def _response_error(
+    response: aiohttp.ClientResponse,
+    cause: aiohttp.ClientResponseError | JSONDecodeError | None,
+) -> ResponseError:
     return ResponseError(
-        request_info=response.request_info,
-        history=response.history,
-        status=response.status,
-        message=str(response.reason) if response.reason else "",
-        headers=response.headers,
+        response=response,
+        body=await response.text(),
+        cause=cause,
     )
 
 
-def _query_response_error(
+async def _query_response_error(
     kwargs: dict,
     remarks: list[str],
     response: aiohttp.ClientResponse,
 ) -> QueryResponseError:
     return QueryResponseError(
+        response=response,
+        body=await response.text(),
+        cause=None,
         kwargs=kwargs,
         remarks=remarks,
-        request_info=response.request_info,
-        history=response.history,
-        status=response.status,
-        message=str(response.reason) if response.reason else "",
-        headers=response.headers,
     )

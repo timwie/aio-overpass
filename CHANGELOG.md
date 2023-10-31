@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Changed
+* Replaced all fields in `ResponseError`:
+  * Remove `request_info`, `history`, `status`, `message`, and `headers`
+  * Add `response`, `body`, and `cause`
+* The default query runner will log `ResponseError.body` if such an error occurs
 * Change `networkx` requirement from `>=2.7` to `~3`
 * `logger` argument of `Query` can no longer be `None`,
   and defaults to a logger that does nothing

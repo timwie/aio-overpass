@@ -174,17 +174,17 @@ class Client:
             with suppress(aiohttp.ServerDisconnectedError):
                 await self._maybe_session.close()
 
-    async def _status(
-        self,
-        timeout: ClientTimeout | object = sentinel,
-    ) -> "Status":
+    async def _status(self, timeout: ClientTimeout | object = sentinel) -> "Status":
         try:
             async with self._session().get(
                 url=urljoin(self._url, "status"), timeout=timeout
             ) as response:
-                text = await response.text()
+                return await self._status_from_response(response)
         except aiohttp.ClientError as err:
-            raise _to_client_error(err) from err
+            raise await _to_client_error(err) from err
+
+    async def _status_from_response(self, response: aiohttp.ClientResponse) -> "Status":
+        text = await response.text()
 
         slots: int | None = 0
         free_slots = None
@@ -224,7 +224,7 @@ class Client:
                 # or self._concurrency otherwise
                 concurrency = min(slots or self._concurrency, self._concurrency)
         except ValueError as err:
-            raise _to_client_error(response) from err
+            raise await _to_client_error(response) from err
 
         self._maybe_any_status = Status(
             slots=slots,
@@ -265,7 +265,7 @@ class Client:
                 killed_pids = re.findall("\\(pid (\\d+)\\)", body)
                 return len(set(killed_pids))
         except aiohttp.ClientError as err:
-            raise _to_client_error(err) from err
+            raise await _to_client_error(err) from err
 
     async def run_query(self, query: Query, raise_on_failure: bool = True) -> None:
         """
@@ -360,7 +360,7 @@ class Client:
                 )
 
         except aiohttp.ClientError as err:
-            query_mut.fail_try(_to_client_error(err))
+            query_mut.fail_try(await _to_client_error(err))
 
         except asyncio.TimeoutError as err:
             query_err: ClientError

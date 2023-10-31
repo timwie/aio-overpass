@@ -334,11 +334,9 @@ async def test_internal_server_error():
         m.get(URL_STATUS, status=500, repeat=True)
         await c.run_query(q)
 
-        assert err.value.request_info is not None
-        assert err.value.history is not None
-        assert err.value.status
-        assert err.value.message
-        assert err.value.headers
+        assert err.value.response.status == 500
+        assert err.value.body == ""
+        assert err.value.cause is None
 
     _ = str(err.value)
     _ = repr(err.value)
@@ -431,7 +429,7 @@ async def test_unexpected_message_error(mock_response):
     q = Query("")
 
     msg = "something that does not match a ql error"
-    body = rf"""
+    body = f"""
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -458,11 +456,9 @@ async def test_unexpected_message_error(mock_response):
     with pytest.raises(QueryResponseError) as err:
         await c.run_query(q)
 
-        assert err.value.request_info is not None
-        assert err.value.history is not None
-        assert err.value.status
-        assert err.value.message
-        assert err.value.headers
+        assert err.value.response.status == 400
+        assert err.value.body == body
+        assert err.value.cause is None
 
     _ = str(err.value)
     _ = repr(err.value)
@@ -475,7 +471,7 @@ async def test_no_message_error(mock_response):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
 
-    body = rf"""
+    body = """
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -491,6 +487,8 @@ async def test_no_message_error(mock_response):
 </body>
 </html>
     """
+
+    # TODO not a great mock, since "history" is empty in the ResponseError
 
     mock_response.get(
         url=URL_INTERPRETER,
