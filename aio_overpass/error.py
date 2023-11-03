@@ -136,8 +136,9 @@ class ResponseError(ClientError):
         self.__cause__ = self.cause
 
     def __str__(self) -> str:
-        message = "<no message>" if self.cause is None else str(self.cause)
-        return f"unexpected response: {message}"
+        if self.cause is None:
+            return f"unexpected response: {self.response.status}"
+        return f"unexpected response: {self.response.status}: {self.cause}"
 
 
 @dataclass
