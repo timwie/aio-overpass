@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-overpass"
-version = "0.9.0"
+version = "0.10.0"
 description = "Async client for the Overpass API"
 authors = ["Tim Wiechers <mail@timwie.dev>"]
 license = "MIT"
@@ -57,7 +57,7 @@ classifiers = [
 [tool.poetry.dependencies]
 aiohttp = { version = "~3.9.0b0", extras = ["speedups"] }
 joblib = { version = "~1.3", optional = true }
-networkx = { version = "~3", optional = true }
+networkx = { version = "^3", optional = true }
 numpy = [
     { version = "^1.23", optional = true, python = ">=3.10,<3.12" },
     { version = "^1.26", optional = true, python = ">=3.12,<3.13" },

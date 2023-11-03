@@ -3490,4 +3490,4 @@ shapely = ["numpy", "numpy", "shapely"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "946510d5d5f87e3e901f134e05b9e50bd117ad199ba51347e69eef4de4a30943"
+content-hash = "d778a793c0b9355610039711baf7a085b42f267d6d5aae80e7e2e97f66d0ede4"

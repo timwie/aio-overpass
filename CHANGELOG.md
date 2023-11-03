@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## Unreleased
+## [0.10.0] – 2023-11-04
 ### Added
 * Add `ServerError`, which is similar to `ResponseError`, but for
   responses with status code >= `500`. The crucial difference is
@@ -15,9 +15,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Remove `request_info`, `history`, `status`, `message`, and `headers`
   * Add `response`, `body`, and `cause`
 * The default query runner will log `ResponseError.body` if such an error occurs
-* Change `networkx` requirement from `>=2.7` to `~3`
 * `logger` argument of `Query` can no longer be `None`,
   and defaults to a logger that does nothing
+* Change `networkx` requirement from `>=2.7` to `^3`
+* There is now an explicit `numpy` requirement when enabling the `shapely` extra:
+  `^1.26` for Python 3.12 and above, and `^1.23` for Python 3.11 and below
 
 <br>
 
@@ -208,5 +210,6 @@ The Python versions supported by this release are 3.10-3.12.
 [0.7.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.7.0
 [0.8.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.8.0
 [0.9.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.9.0
+[0.10.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.10.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
