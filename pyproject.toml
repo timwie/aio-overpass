@@ -80,7 +80,7 @@ isort = "^5.12.0"
 loguru = "^0.7.2"
 mypy = "^1.6.1"
 pdoc = "^14.1.0"
-pyright = "^1.1.333"
+pyright = "^1.1.334"
 pytest = "^7.4.3"
 pytest-asyncio = "^0.21.1"
 pytest-cov = "^4.1.0"
@@ -93,10 +93,10 @@ optional = true
 
 [tool.poetry.group.notebooks.dependencies]
 folium = "^0.14.0"
-jupyterlab = "^4.0.7"
-papermill = "^2.4.0"
+jupyterlab = "^4.0.8"
+papermill = "^2.5.0"
 randomcolor = "^0.4.4.6"
-selenium = "^4.14.0"
+selenium = "^4.15.2"
 tabulate = "^0.9.0"
 
 [tool.ruff]
@@ -146,5 +146,5 @@ pythonVersion = "3.10"
 verboseOutput = true
 
 [build-system]
-requires = ["poetry-core>=1.7.0"]
+requires = ["poetry-core>=1.8.0"]
 build-backend = "poetry.core.masonry.api"

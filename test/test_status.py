@@ -1,5 +1,6 @@
 from aio_overpass import Client
 from aio_overpass.client import Status
+from aio_overpass.error import ServerError
 from test.util import VerifyingQueryRunner
 
 import pytest
@@ -192,5 +193,26 @@ Currently running queries (pid, space limit, time limit, start time):
     )
 
     assert actual == expected
+
+    await c.close()
+
+
+@pytest.mark.asyncio
+async def test_server_error():
+    body = """
+open64: 2 No such file or directory /osm3s_osm_base Dispatcher_Client::1. Probably the server is down.
+    """
+
+    c = Client(runner=VerifyingQueryRunner())
+
+    with aioresponses() as m, pytest.raises(ServerError):
+        m.get(
+            url=URL_STATUS,
+            body=body,
+            status=504,
+            content_type="text/plain",
+        )
+
+        await c.status()
 
     await c.close()

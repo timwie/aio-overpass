@@ -23,7 +23,7 @@ combinations of them. To make use of it, you should familiarize yourself with
   its [blog](https://dev.overpass-api.de/blog/),
   its [user's manual](https://dev.overpass-api.de/overpass-doc/en/index.html)
   and  its [release notes](https://wiki.openstreetmap.org/wiki/Overpass_API/versions)
-- [Overpass Turbo], the best choice to prototype your queries in your browser
+- [Overpass Turbo] to prototype your queries in your browser
 
 <br>
 

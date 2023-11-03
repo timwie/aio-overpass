@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <br>
 
 ## Unreleased
+### Added
+* Add `ServerError`, which is similar to `ResponseError`, but for
+  responses with status code >= `500`. The crucial difference is
+  that it will be retried by default
+
 ### Changed
 * Replaced all fields in `ResponseError`:
   * Remove `request_info`, `history`, `status`, `message`, and `headers`

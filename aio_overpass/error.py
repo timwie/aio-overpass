@@ -1,12 +1,13 @@
 """
 Error types.
 
+TODO add ServerError
 ```
                             (ClientError)
                                   ╷
-                   ┌──────────────┼────────────┬────────────────┬────────────────┐
-                   ╵              ╵            ╵                ╵                ╵
-               RunnerError   (QueryError)   GiveupError    ResponseError     CallError
+     ┌──────────────┬─────────────┼────────────┬────────────────┬────────────────┐
+     ╵              ╵             ╵            ╵                ╵                ╵
+ServerError    RunnerError   (QueryError)   GiveupError    ResponseError     CallError
                                   ╷                             ╷                ╷
          ┌────────────────────────┼──────────────────────┐      │                │
          ╵                        ╵                      ╵      ╵                ╵
@@ -30,6 +31,7 @@ __all__ = (
     "ClientError",
     "CallError",
     "CallTimeoutError",
+    "ServerError",
     "ResponseError",
     "GiveupError",
     "QueryError",
@@ -117,8 +119,7 @@ class ResponseError(ClientError):
     Unexpected API response.
 
     This error is raised when a request fails, but we can't specifically say why.
-    Internal server errors (``status=500``) are likely represented by this error class.
-    Different status codes may also indicate a bug on our end, since the client is meant
+    This may also indicate a bug on our end, since the client is meant
     to process almost any response of an Overpass API instance.
 
     Attributes:
@@ -139,6 +140,27 @@ class ResponseError(ClientError):
         if self.cause is None:
             return f"unexpected response: {self.response.status}"
         return f"unexpected response: {self.response.status}: {self.cause}"
+
+
+@dataclass
+class ServerError(ClientError):
+    """
+    Server error response.
+
+    Responses with status code ``500`` and above are represented by this error class.
+    These are errors that happen on the Overpass API instance. It's usually worth
+    retrying, since these errors may just be temporary.
+
+    Attributes:
+        response: the response
+        body: the response body
+    """
+
+    response: aiohttp.ClientResponse
+    body: str
+
+    def __str__(self) -> str:
+        return f"server error: {self.response.status}"
 
 
 @dataclass
@@ -192,7 +214,14 @@ class QueryResponseError(ResponseError, QueryError):
     """
 
     def __str__(self) -> str:
-        return QueryError.__str__(self)
+        query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
+
+        if self.remarks:
+            first = f"'{self.remarks[0]}'"
+            rest = f" (+{len(self.remarks) - 1} more)" if len(self.remarks) > 1 else ""
+            return f"{query} failed: {first}{rest}"
+
+        return f"{query} failed with status {self.response.status}"
 
 
 @dataclass
@@ -281,14 +310,15 @@ class QueryRejectError(QueryError):
 @no_type_check
 async def _to_client_error(
     obj: aiohttp.ClientResponse | aiohttp.ClientError,
-) -> CallError | ResponseError:
+) -> CallError | ResponseError | ServerError:
     """
     Build a ``ClientError`` from either an ``aiohttp`` client error or an unrecognized response.
 
     Returns:
         - ``CallError`` if ``obj`` is an ``aiohttp.ClientError``,
           but not an ``aiohttp.ClientResponseError``.
-        - ``ResponseError`` if ``obj`` is a response or an ``aiohttp.ClientResponseError``.
+        - ``ResponseError`` if the status code is < 500.
+        - ``ServerError`` if the status code is >= 500.
     """
     match obj:
         case aiohttp.ClientResponse():
@@ -300,7 +330,7 @@ async def _to_client_error(
         case _:
             return CallError(cause=obj)  # we didn't get a response
 
-    return await _response_error(response, cause)
+    return await __server_or_response_error(response, cause)
 
 
 async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict) -> dict:
@@ -309,83 +339,53 @@ async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict)
 
     Raises:
         CallError: When there is any sort of connection error.
-        ResponseError: When encountering an unexpected response.
         RejectError: When encountering "Too Many Requests" or "Gateway Timeout";
                      when there's a JSON remark indicating query rejection or cancellation;
                      when there's an HTML error message indicating query rejection or cancellation.
         QueryError: When there's any other JSON remark or HTML error message.
+        ResponseError: When encountering an unexpected response with status code < 500.
+        ServerError: When encountering an unexpected response with status code >= 500.
     """
-    await _raise_for_html_response(response, query_kwargs)
+    await __raise_for_plaintext_result(response)
 
+    await __raise_for_html_result(response, query_kwargs)
+
+    return await __raise_for_json_result(response, query_kwargs)
+
+
+async def __raise_for_json_result(response: aiohttp.ClientResponse, query_kwargs: dict) -> dict:
     try:
         json = await response.json()
+        if json is None:
+            raise await __server_or_response_error(response, cause=None)
     except aiohttp.ClientResponseError as err:
-        raise await _to_client_error(err) from err
+        raise await __server_or_response_error(response, cause=err) from err
     except JSONDecodeError as err:
-        raise await _response_error(response, cause=err) from err
+        raise await __server_or_response_error(response, cause=err) from err
 
-    if json is None:
-        raise await _response_error(response, cause=None)
+    if remark := json.get("remark"):
+        if timeout_cause := __match_reject_cause(remark):
+            raise QueryRejectError(kwargs=query_kwargs, remarks=[remark], cause=timeout_cause)
 
-    await _raise_for_json_remarks(response, json, query_kwargs)
+        raise QueryResponseError(
+            response=response,
+            body=await response.text(),
+            cause=None,
+            kwargs=query_kwargs,
+            remarks=[remark],
+        )
 
-    await _raise_for_status(response, query_kwargs)
+    expected_fields = ("version", "generator", "osm3s", "elements")
+    expected_osm3s_fields = ("timestamp_osm_base", "copyright")
+    if any(f not in json for f in expected_fields) or any(
+        f not in json["osm3s"] for f in expected_osm3s_fields
+    ):
+        raise await __server_or_response_error(response, cause=None)
 
     return json
 
 
-async def _raise_for_status(response: aiohttp.ClientResponse, query_kwargs: dict) -> None:
-    """
-    Raise a fitting exception based on the status code.
-
-    Raises:
-        RejectError: for status "Too Many Requests" and "Gateway Timeout"
-        ResponseError: for any status >= 400
-
-    References:
-        - HTTP status codes: http://overpass-api.de/command_line.html
-    """
-    if response.status == _TOO_MANY_REQUESTS:
-        raise QueryRejectError(
-            kwargs=query_kwargs, remarks=[], cause=QueryRejectCause.TOO_MANY_QUERIES
-        )
-
-    if response.status == _GATEWAY_TIMEOUT:
-        raise QueryRejectError(kwargs=query_kwargs, remarks=[], cause=QueryRejectCause.TOO_BUSY)
-
-    if response.status >= _BAD_REQUEST:
-        raise await _to_client_error(response)
-
-
-_BAD_REQUEST = 400
-_TOO_MANY_REQUESTS = 429
-_GATEWAY_TIMEOUT = 504
-
-
-async def _raise_for_json_remarks(
-    response: aiohttp.ClientResponse,
-    json: dict,
-    query_kwargs: dict,
-) -> None:
-    """
-    Raise a fitting exception based on a remark in a JSON response.
-
-    Raises:
-        RejectError: if the API server remarked that the query was rejected or cancelled
-        QueryError: if the API server remarked something else
-    """
-    remark = json.get("remark")
-    if not remark:
-        return
-
-    timeout_cause = _match_reject_cause(remark)
-    if timeout_cause:
-        raise QueryRejectError(kwargs=query_kwargs, remarks=[remark], cause=timeout_cause)
-
-    raise await _query_response_error(kwargs=query_kwargs, remarks=[remark], response=response)
-
-
-async def _raise_for_html_response(response: aiohttp.ClientResponse, query_kwargs: dict) -> None:
+async def __raise_for_html_result(response: aiohttp.ClientResponse, query_kwargs: dict) -> None:
     """
     Raise a fitting exception based on error remarks in an HTML response.
 
@@ -403,20 +403,32 @@ async def _raise_for_html_response(response: aiohttp.ClientResponse, query_kwarg
     errors = [html.unescape(err.strip()) for err in pattern.findall(text)]
 
     if not errors:  # unexpected format
-        raise await _to_client_error(response)
+        raise await __server_or_response_error(response, cause=None)
 
-    if any(_is_ql_error(msg) for msg in errors):
+    if any(__is_ql_error(msg) for msg in errors):
         raise QueryLanguageError(kwargs=query_kwargs, remarks=errors)
 
-    reject_causes = [cause for err in errors if (cause := _match_reject_cause(err))]
+    reject_causes = [cause for err in errors if (cause := __match_reject_cause(err))]
 
     if reject_causes:
         raise QueryRejectError(kwargs=query_kwargs, remarks=errors, cause=reject_causes[0])
 
-    raise await _query_response_error(kwargs=query_kwargs, remarks=errors, response=response)
+    raise QueryResponseError(
+        response=response,
+        body=await response.text(),
+        cause=None,
+        kwargs=query_kwargs,
+        remarks=errors,
+    )
 
 
-def _match_reject_cause(error_msg: str) -> QueryRejectCause | None:
+async def __raise_for_plaintext_result(response: aiohttp.ClientResponse) -> None:
+    if response.content_type != "text/plain":
+        return
+    raise await __server_or_response_error(response, cause=None)
+
+
+def __match_reject_cause(error_msg: str) -> QueryRejectCause | None:
     """
     Check if the given error message indicates that a query was rejected or cancelled.
 
@@ -443,30 +455,26 @@ def _match_reject_cause(error_msg: str) -> QueryRejectCause | None:
     return None
 
 
-def _is_ql_error(message: str) -> bool:
-    return "encoding error:" in message or "parse error:" in message or "static error:" in message
+def __is_ql_error(error_msg: str) -> bool:
+    """Check if the given error message indicates that a query has bad QL code."""
+    return (
+        "encoding error:" in error_msg
+        or "parse error:" in error_msg
+        or "static error:" in error_msg
+    )
 
 
-async def _response_error(
+async def __server_or_response_error(
     response: aiohttp.ClientResponse,
     cause: aiohttp.ClientResponseError | JSONDecodeError | None,
-) -> ResponseError:
+) -> ServerError | ResponseError:
+    if response.status >= 500:
+        return ServerError(
+            response=response,
+            body=await response.text(),
+        )
     return ResponseError(
         response=response,
         body=await response.text(),
         cause=cause,
-    )
-
-
-async def _query_response_error(
-    kwargs: dict,
-    remarks: list[str],
-    response: aiohttp.ClientResponse,
-) -> QueryResponseError:
-    return QueryResponseError(
-        response=response,
-        body=await response.text(),
-        cause=None,
-        kwargs=kwargs,
-        remarks=remarks,
     )

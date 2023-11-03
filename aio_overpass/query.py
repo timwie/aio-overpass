@@ -22,6 +22,7 @@ from aio_overpass.error import (
     QueryRejectCause,
     QueryRejectError,
     ResponseError,
+    ServerError,
 )
 
 
@@ -707,11 +708,15 @@ class DefaultQueryRunner(QueryRunner):
             return
 
         err = query.error
+
         # Do not retry if we exhausted all tries, when a retry would not change the result,
         # or when the timeout was reached.
         failed = query.nb_tries == self._max_tries or isinstance(
             err, ResponseError | QueryLanguageError | GiveupError
         )
+
+        if isinstance(err, ServerError):
+            logger.error(f"server error body:\n{err.body}")
 
         # Exhausted all tries; do not retry.
         if err and failed:

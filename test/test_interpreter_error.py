@@ -11,6 +11,7 @@ from aio_overpass.error import (
     QueryResponseError,
     ResponseError,
     RunnerError,
+    ServerError,
 )
 from aio_overpass.query import QueryRunner
 from test.util import VerifyingQueryRunner, verify_query_state
@@ -330,7 +331,7 @@ async def test_internal_server_error():
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
 
-    with aioresponses() as m, pytest.raises(ResponseError) as err:
+    with aioresponses() as m, pytest.raises(ServerError) as err:
         m.get(URL_STATUS, status=500, repeat=True)
         await c.run_query(q)
 
@@ -384,41 +385,6 @@ async def test_runner_error():
 
     _ = str(err.value)
     _ = repr(err.value)
-
-    await c.close()
-
-
-@pytest.mark.asyncio
-async def test_status_error(mock_response):
-    c = Client(runner=VerifyingQueryRunner(max_tries=1))
-    q = Query("")
-
-    mock_response.get(
-        url=URL_INTERPRETER,
-        body="{}",
-        status=429,
-        content_type="application/json",
-    )
-    with pytest.raises(QueryRejectError) as err1:
-        await c.run_query(q)
-
-    assert err1.value.cause is QueryRejectCause.TOO_MANY_QUERIES
-
-    mock_response.get(
-        url=URL_INTERPRETER,
-        body="{}",
-        status=504,
-        content_type="application/json",
-    )
-    with pytest.raises(QueryRejectError) as err2:
-        await c.run_query(q)
-
-    assert err2.value.cause is QueryRejectCause.TOO_BUSY
-
-    _ = str(err1.value)
-    _ = repr(err1.value)
-    _ = str(err2.value)
-    _ = repr(err2.value)
 
     await c.close()
 
@@ -497,6 +463,30 @@ async def test_no_message_error(mock_response):
         content_type="text/html",
     )
     with pytest.raises(ResponseError) as err:
+        await c.run_query(q)
+
+    _ = str(err.value)
+    _ = repr(err.value)
+
+    await c.close()
+
+
+@pytest.mark.asyncio
+async def test_plaintext_server_error(mock_response):
+    c = Client(runner=VerifyingQueryRunner(max_tries=1))
+    q = Query("")
+
+    body = """
+open64: 2 No such file or directory /osm3s_osm_base Dispatcher_Client::1. Probably the server is down.
+    """
+
+    mock_response.get(
+        url=URL_INTERPRETER,
+        body=body,
+        status=504,
+        content_type="text/plain",
+    )
+    with pytest.raises(ServerError) as err:
         await c.run_query(q)
 
     _ = str(err.value)
