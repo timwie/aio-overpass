@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Add `Spatial.geo_interfaces` to map objects to `SpatialDicts`
 
 ### Changed
+* Increased `aiohttp` requirement to `~3.9.0rc0`
 * `ResponseError` is reverted to include server-side errors,
   replacing `ServerError`
 * Retry all `ResponseErrors` by default

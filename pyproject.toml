@@ -55,10 +55,7 @@ classifiers = [
 "Coverage" = "https://codecov.io/gh/timwie/aio-overpass"
 
 [tool.poetry.dependencies]
-# TODO "aioresponses" is broken for 3.9.0b1, so we're currently stuck with this
-#   or our tests will fail
-#   https://github.com/pnuckowski/aioresponses/issues/247
-aiohttp = { version = "==3.9.0b0", extras = ["speedups"] }
+aiohttp = { version = "~3.9.0rc0", extras = ["speedups"] }
 joblib = { version = "~1.3", optional = true }
 networkx = { version = "^3", optional = true }
 numpy = [
@@ -74,7 +71,10 @@ networkx = ["networkx"]
 shapely = ["numpy", "shapely"]
 
 [tool.poetry.group.dev.dependencies]
-aioresponses = "^0.7.4"
+# TODO "aioresponses" is broken since 3.9.0b1
+#   https://github.com/pnuckowski/aioresponses/issues/247
+# aioresponses = "^0.7.4"
+aioresponses = { git = "https://github.com/JCHacking/aioresponses.git", branch = "fix_aiohttp3.9_writer_can_not_await" }
 black = "^23.11.0"
 codecov = "^2.1.13"
 geojson = "^3.1.0"
