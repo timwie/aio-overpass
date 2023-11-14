@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## Unreleased
+## [0.11.0] – 2023-11-14
 ### Added
 * Add the `should_retry` property to all error classes,
   which is used by the default query runner to decide whether to retry or not
@@ -238,5 +238,6 @@ The Python versions supported by this release are 3.10-3.12.
 [0.8.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.8.0
 [0.9.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.9.0
 [0.10.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.10.0
+[0.11.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.11.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/

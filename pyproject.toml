@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-overpass"
-version = "0.10.0"
+version = "0.11.0"
 description = "Async client for the Overpass API"
 authors = ["Tim Wiechers <mail@timwie.dev>"]
 license = "MIT"
@@ -47,7 +47,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3 :: Only",
 ]
 
 [tool.poetry.urls]
