@@ -158,6 +158,7 @@ async def test_other_query_error(mock_response):
     ]
     assert err.value.remarks == expected
 
+    assert err.value.should_retry
     _ = str(err.value)
     _ = repr(err.value)
 
@@ -247,6 +248,7 @@ async def test_other_query_error_remark(mock_response):
     ]
     assert err.value.remarks == expected
 
+    assert err.value.should_retry
     _ = str(err.value)
     _ = repr(err.value)
 
@@ -422,6 +424,7 @@ async def test_unexpected_message_error(mock_response):
     with pytest.raises(QueryResponseError) as err:
         await c.run_query(q)
 
+        assert err.value.should_retry
         assert err.value.response.status == 400
         assert err.value.body == body
         assert err.value.cause is None

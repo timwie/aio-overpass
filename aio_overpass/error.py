@@ -4,9 +4,9 @@ Error types.
 ```
                             (ClientError)
                                   ╷
-     ┌──────────────┬─────────────┼────────────┬────────────────┬────────────────┐
-     ╵              ╵             ╵            ╵                ╵                ╵
-ServerError    RunnerError   (QueryError)   GiveupError    ResponseError     CallError
+                   ┌──────────────┼────────────┬────────────────┬────────────────┐
+                   ╵              ╵            ╵                ╵                ╵
+               RunnerError   (QueryError)   GiveupError    ResponseError     CallError
                                   ╷                             ╷                ╷
          ┌────────────────────────┼──────────────────────┐      │                │
          ╵                        ╵                      ╵      ╵                ╵
@@ -71,6 +71,7 @@ class RunnerError(ClientError):
 
     @property
     def should_retry(self) -> bool:
+        """Returns ``True`` if it's worth retrying when encountering this error."""
         return False
 
     def __str__(self) -> str:
@@ -93,6 +94,7 @@ class CallError(ClientError):
 
     @property
     def should_retry(self) -> bool:
+        """Returns ``True`` if it's worth retrying when encountering this error."""
         return True
 
     def __post_init__(self) -> None:
@@ -118,6 +120,7 @@ class CallTimeoutError(CallError):
 
     @property
     def should_retry(self) -> bool:
+        """Returns ``True`` if it's worth retrying when encountering this error."""
         return True
 
     def __post_init__(self) -> None:
@@ -157,6 +160,7 @@ class ResponseError(ClientError):
 
     @property
     def should_retry(self) -> bool:
+        """Returns ``True`` if it's worth retrying when encountering this error."""
         return True
 
     @property
@@ -193,6 +197,7 @@ class GiveupError(ClientError):
 
     @property
     def should_retry(self) -> bool:
+        """Returns ``True`` if it's worth retrying when encountering this error."""
         return False
 
     def __str__(self) -> str:
@@ -215,6 +220,7 @@ class QueryError(ClientError):
 
     @property
     def should_retry(self) -> bool:
+        """Returns ``True`` if it's worth retrying when encountering this error."""
         return False
 
     def __str__(self) -> str:
@@ -235,7 +241,8 @@ class QueryResponseError(ResponseError, QueryError):
 
     @property
     def should_retry(self) -> bool:
-        return ResponseError.should_retry(self)
+        """Returns ``True`` if it's worth retrying when encountering this error."""
+        return ResponseError.should_retry.fget(self)  # type: ignore
 
     def __str__(self) -> str:
         query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
@@ -258,6 +265,7 @@ class QueryLanguageError(QueryError):
 
     @property
     def should_retry(self) -> bool:
+        """Returns ``True`` if it's worth retrying when encountering this error."""
         return False
 
 
@@ -325,6 +333,7 @@ class QueryRejectError(QueryError):
 
     @property
     def should_retry(self) -> bool:
+        """Returns ``True`` if it's worth retrying when encountering this error."""
         return True
 
     def __str__(self) -> str:

@@ -15,14 +15,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from aio_overpass.error import (
-    ClientError,
-    GiveupError,
-    QueryLanguageError,
-    QueryRejectCause,
-    QueryRejectError,
-    ResponseError,
-)
+from aio_overpass.error import ClientError, QueryRejectCause, QueryRejectError, ResponseError
 
 
 __docformat__ = "google"
