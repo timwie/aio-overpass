@@ -190,7 +190,7 @@ class Element(Spatial):
             OSM IDs may change at any time, e.g. if an object is deleted and re-added.
         tags: A list of key-value pairs that describe the element, or ``None`` if the element's
               tags not included in the query's result set.
-        bounds: The bounding box of this element, or ``None`` when not using ``out bbox``.
+        bounds: The bounding box of this element, or ``None`` when not using ``out bb``.
                 The ``bounds`` property of Shapely geometries can be used as a replacement.
         center: The center of ``bounds``. If you need a coordinate that is inside the element's
                 geometry, consider Shapely's ``representative_point()`` and ``centroid``.
@@ -842,15 +842,17 @@ def _geojson_properties(obj: Element | Relationship) -> GeoJsonDict:
 def _geojson_geometry(obj: Element | Relationship) -> GeoJsonDict | None:
     elem = obj if isinstance(obj, Element) else obj.member
 
-    geom = elem.geometry
-    if not geom:
+    if not elem.geometry:
         return None
 
     # Flip coordinates for GeoJSON compliance.
-    geom = shapely.ops.transform(lambda lat, lon: (lon, lat), geom)
+    geom = shapely.ops.transform(lambda lat, lon: (lon, lat), elem.geometry)
 
+    # GeoJSON-like mapping that implements __geo_interface__.
     mapping = shapely.geometry.mapping(geom)
-    if mapping["type"] == "LinearRing":  # this geometry does not exist in GeoJSON
+
+    # This geometry does not exist in GeoJSON.
+    if mapping["type"] == "LinearRing":
         mapping["type"] = "LineString"
 
     return mapping
@@ -861,7 +863,7 @@ def _geojson_bbox(obj: Element | Relationship) -> Bbox | None:
 
     geom = elem.geometry
     if not geom:
-        return None
+        return elem.bounds
 
     bounds = geom.bounds  # can be (nan, nan, nan, nan)
     if not any(math.isnan(c) for c in bounds):
