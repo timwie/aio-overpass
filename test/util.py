@@ -8,6 +8,7 @@ from aio_overpass.query import DefaultQueryRunner, QueryRunner
 
 import geojson
 import pytest
+import shapely.geometry
 from aioresponses import aioresponses
 from shapely import Point
 
@@ -170,14 +171,13 @@ def verify_element(elem: Element) -> None:
 
     assert geojson.loads(json.dumps(elem.geojson)), msg  # valid GeoJSON
 
-    # TODO "Feature" is unsupported by shapely until shapely 2.1.0 releases
-    #   https://github.com/shapely/shapely/pull/1815
-    # TODO "FeatureCollection" is not specified by __geo_interface__ at all
-    # try:
-    #     roundtrip_geometry = shapely.geometry.shape(elem.__geo_interface__)
-    # except BaseException as err:
-    #     raise AssertionError(f"{msg}: bad __geo_interface__: {err}: {elem.__geo_interface__}")
-    # assert not elem.geometry or elem.geometry == roundtrip_geometry, msg
+    try:
+        for spatial_dict in elem.geo_interfaces:
+            # TODO "Feature" is unsupported by shapely until shapely 2.1.0 releases
+            if spatial_dict.__geo_interface__["type"] != "Feature":
+                _ = shapely.geometry.shape(spatial_dict)
+    except BaseException as err:
+        raise AssertionError(f"{msg}: bad __geo_interface__: {err}")
 
     assert str(elem), msg  # just test this doesn't raise
     assert repr(elem), msg  # just test this doesn't raise

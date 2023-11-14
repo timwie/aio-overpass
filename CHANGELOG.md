@@ -9,19 +9,26 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Add the `should_retry` property to all error classes,
   which is used by the default query runner to decide whether to retry or not
 * Add the `ResponseError.is_server_error` property
+* Add the `SpatialDict` class, which has the `__geo_interface__` property
+  * Compared to the old `Spatial.__geo_interface__`, this property does not
+    contain `FeatureCollections`, which is not specified by the protocol
+* Add `Spatial.geo_interfaces` to map objects to `SpatialDicts`
 
 ### Changed
 * `ResponseError` is reverted to include server-side errors,
   replacing `ServerError`
 * Retry all `ResponseErrors` by default
 * In the default runner, only log response bodies of `ResponseErrors`
-  when `is_server_error` is true
+  when `is_server_error` is false
 * GeoJSON `"bbox"` will use `Element.bounds` if `geometry` is not set
 * Add `py.typed` to make the package PEP 561 compatible
 
 ### Removed
-* `ServerError` is removed, which reverts the last release's decision
+* Remove `ServerError`, which reverts the last release's decision
   to split these error cases off `ResponseError`
+* Remove `Spatial.__geo_interface__`
+
+<br>
 
 ## [0.10.0] – 2023-11-04
 ### Added
