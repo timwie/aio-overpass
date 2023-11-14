@@ -4,6 +4,25 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
+## Unreleased
+### Added
+* Add the `should_retry` property to all error classes,
+  which is used by the default query runner to decide whether to retry or not
+* Add the `ResponseError.is_server_error` property
+
+### Changed
+* `ResponseError` is reverted to include server-side errors,
+  replacing `ServerError`
+* Retry all `ResponseErrors` by default
+* In the default runner, only log response bodies of `ResponseErrors`
+  when `is_server_error` is true
+* GeoJSON `"bbox"` will use `Element.bounds` if `geometry` is not set
+* Add `py.typed` to make the package PEP 561 compatible
+
+### Removed
+* `ServerError` is removed, which reverts the last release's decision
+  to split these error cases off `ResponseError`
+
 ## [0.10.0] – 2023-11-04
 ### Added
 * Add `ServerError`, which is similar to `ResponseError`, but for

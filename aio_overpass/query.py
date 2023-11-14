@@ -22,7 +22,6 @@ from aio_overpass.error import (
     QueryRejectCause,
     QueryRejectError,
     ResponseError,
-    ServerError,
 )
 
 
@@ -709,22 +708,13 @@ class DefaultQueryRunner(QueryRunner):
 
         err = query.error
 
+        if isinstance(err, ResponseError) and not err.is_server_error:
+            logger.error(f"unexpected response body:\n{err.body}")
+
         # Do not retry if we exhausted all tries, when a retry would not change the result,
         # or when the timeout was reached.
-        failed = query.nb_tries == self._max_tries or isinstance(
-            err, ResponseError | QueryLanguageError | GiveupError
-        )
-
-        if isinstance(err, ServerError):
-            logger.error(f"server error body:\n{err.body}")
-
-        # Exhausted all tries; do not retry.
-        if err and failed:
+        if err and (query.nb_tries == self._max_tries or not err.should_retry):
             logger.error(f"give up on {query}", exc_info=err)
-
-            if isinstance(err, ResponseError):
-                logger.error(f"unexpected response body:\n{err.body}")
-
             raise err
 
         if isinstance(err, QueryRejectError):

@@ -11,7 +11,6 @@ from aio_overpass.error import (
     QueryResponseError,
     ResponseError,
     RunnerError,
-    ServerError,
 )
 from aio_overpass.query import QueryRunner
 from test.util import VerifyingQueryRunner, verify_query_state
@@ -331,13 +330,14 @@ async def test_internal_server_error():
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
 
-    with aioresponses() as m, pytest.raises(ServerError) as err:
+    with aioresponses() as m, pytest.raises(ResponseError) as err:
         m.get(URL_STATUS, status=500, repeat=True)
         await c.run_query(q)
 
         assert err.value.response.status == 500
         assert err.value.body == ""
         assert err.value.cause is None
+        assert err.value.is_server_error
 
     _ = str(err.value)
     _ = repr(err.value)
@@ -454,8 +454,6 @@ async def test_no_message_error(mock_response):
 </html>
     """
 
-    # TODO not a great mock, since "history" is empty in the ResponseError
-
     mock_response.get(
         url=URL_INTERPRETER,
         body=body,
@@ -486,10 +484,33 @@ open64: 2 No such file or directory /osm3s_osm_base Dispatcher_Client::1. Probab
         status=504,
         content_type="text/plain",
     )
-    with pytest.raises(ServerError) as err:
+    with pytest.raises(ResponseError) as err:
         await c.run_query(q)
 
+    assert err.value.is_server_error
     _ = str(err.value)
     _ = repr(err.value)
 
     await c.close()
+
+
+@pytest.mark.asyncio
+async def test_cutoff_json_error(mock_response):
+    body = r"""
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.56.3 eb200aeb",
+  "osm3s": {
+    "timestamp_osm_base": "2020-07-10T02:51:02Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    """
+
+    with pytest.raises(ResponseError) as err:
+        await mock_run_query(mock_response, body, content_type="application/json")
+
+    assert err.value.is_server_error
+
+    _ = str(err.value)
+    _ = repr(err.value)

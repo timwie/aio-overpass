@@ -1,7 +1,6 @@
 """
 Error types.
 
-TODO add ServerError
 ```
                             (ClientError)
                                   ╷
@@ -31,7 +30,6 @@ __all__ = (
     "ClientError",
     "CallError",
     "CallTimeoutError",
-    "ServerError",
     "ResponseError",
     "GiveupError",
     "QueryError",
@@ -45,6 +43,11 @@ __all__ = (
 
 class ClientError(Exception):
     """Base exception for failed Overpass API requests and queries."""
+
+    @property
+    def should_retry(self) -> bool:
+        """Returns ``True`` if it's worth retrying when encountering this error."""
+        return False
 
 
 @dataclass
@@ -66,6 +69,10 @@ class RunnerError(ClientError):
         # imitate "raise RunnerError(...) from cause"
         self.__cause__ = self.cause
 
+    @property
+    def should_retry(self) -> bool:
+        return False
+
     def __str__(self) -> str:
         return str(self.cause)
 
@@ -83,6 +90,10 @@ class CallError(ClientError):
     """
 
     cause: aiohttp.ClientError
+
+    @property
+    def should_retry(self) -> bool:
+        return True
 
     def __post_init__(self) -> None:
         # imitate "raise CallError(...) from cause"
@@ -105,6 +116,10 @@ class CallTimeoutError(CallError):
     cause: asyncio.TimeoutError  # type: ignore[assignment]
     after_secs: float
 
+    @property
+    def should_retry(self) -> bool:
+        return True
+
     def __post_init__(self) -> None:
         # imitate "raise CallTimeoutError(...) from cause"
         self.__cause__ = self.cause
@@ -118,9 +133,17 @@ class ResponseError(ClientError):
     """
     Unexpected API response.
 
-    This error is raised when a request fails, but we can't specifically say why.
-    This may also indicate a bug on our end, since the client is meant
-    to process almost any response of an Overpass API instance.
+    On the one hand, this can be an error that happened on the Overpass API instance,
+    which is usually signalled by a status code ``>= 500``. In rare cases,
+    the ``cause`` being a ``JSONDecodeError`` also signals this, since it can happen
+    that the API returns a cutoff JSON response. In both of these cases,
+    ``is_server_error()`` will return ``True``.
+
+    On the other hand, this error may indicate that a request failed, but we can't
+    specifically say why. This could be a bug on our end, since the client
+    is meant to process almost any response of an Overpass API instance.
+    Here, ``is_server_error()`` will return ``False``, and the default query runner
+    will log the response body.
 
     Attributes:
         response: the unexpected response
@@ -132,35 +155,24 @@ class ResponseError(ClientError):
     body: str
     cause: aiohttp.ClientResponseError | JSONDecodeError | None
 
+    @property
+    def should_retry(self) -> bool:
+        return True
+
+    @property
+    def is_server_error(self) -> bool:
+        """Returns ``True`` if this presumably a server-side error."""
+        # see class doc for details
+        return self.response.status >= 500 or isinstance(self.cause, JSONDecodeError)
+
     def __post_init__(self) -> None:
         # imitate "raise ResponseError(...) from cause"
         self.__cause__ = self.cause
 
     def __str__(self) -> str:
         if self.cause is None:
-            return f"unexpected response: {self.response.status}"
-        return f"unexpected response: {self.response.status}: {self.cause}"
-
-
-@dataclass
-class ServerError(ClientError):
-    """
-    Server error response.
-
-    Responses with status code ``500`` and above are represented by this error class.
-    These are errors that happen on the Overpass API instance. It's usually worth
-    retrying, since these errors may just be temporary.
-
-    Attributes:
-        response: the response
-        body: the response body
-    """
-
-    response: aiohttp.ClientResponse
-    body: str
-
-    def __str__(self) -> str:
-        return f"server error: {self.response.status}"
+            return f"unexpected response ({self.response.status})"
+        return f"unexpected response ({self.response.status}): {self.cause}"
 
 
 @dataclass
@@ -178,6 +190,10 @@ class GiveupError(ClientError):
 
     kwargs: dict
     after_secs: float
+
+    @property
+    def should_retry(self) -> bool:
+        return False
 
     def __str__(self) -> str:
         query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
@@ -197,6 +213,10 @@ class QueryError(ClientError):
     kwargs: dict
     remarks: list[str]
 
+    @property
+    def should_retry(self) -> bool:
+        return False
+
     def __str__(self) -> str:
         query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
         first = f"'{self.remarks[0]}'"
@@ -212,6 +232,10 @@ class QueryResponseError(ResponseError, QueryError):
     This error is raised when a query fails (thus extends ``QueryError``),
     but we can't specifically say why (thus also extends ``ResponseError``).
     """
+
+    @property
+    def should_retry(self) -> bool:
+        return ResponseError.should_retry(self)
 
     def __str__(self) -> str:
         query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
@@ -231,6 +255,10 @@ class QueryLanguageError(QueryError):
 
     Retrying is pointless when encountering this error.
     """
+
+    @property
+    def should_retry(self) -> bool:
+        return False
 
 
 class QueryRejectCause(Enum):
@@ -295,6 +323,10 @@ class QueryRejectError(QueryError):
 
     cause: QueryRejectCause
 
+    @property
+    def should_retry(self) -> bool:
+        return True
+
     def __str__(self) -> str:
         match self.cause:
             case QueryRejectCause.TOO_BUSY | QueryRejectCause.TOO_MANY_QUERIES:
@@ -310,7 +342,7 @@ class QueryRejectError(QueryError):
 @no_type_check
 async def _to_client_error(
     obj: aiohttp.ClientResponse | aiohttp.ClientError,
-) -> CallError | ResponseError | ServerError:
+) -> CallError | ResponseError:
     """
     Build a ``ClientError`` from either an ``aiohttp`` client error or an unrecognized response.
 
@@ -330,7 +362,7 @@ async def _to_client_error(
         case _:
             return CallError(cause=obj)  # we didn't get a response
 
-    return await __server_or_response_error(response, cause)
+    return await __response_error(response, cause)
 
 
 async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict) -> dict:
@@ -357,11 +389,11 @@ async def __raise_for_json_result(response: aiohttp.ClientResponse, query_kwargs
     try:
         json = await response.json()
         if json is None:
-            raise await __server_or_response_error(response, cause=None)
+            raise await __response_error(response, cause=None)
     except aiohttp.ClientResponseError as err:
-        raise await __server_or_response_error(response, cause=err) from err
+        raise await __response_error(response, cause=err) from err
     except JSONDecodeError as err:
-        raise await __server_or_response_error(response, cause=err) from err
+        raise await __response_error(response, cause=err) from err
 
     if remark := json.get("remark"):
         if timeout_cause := __match_reject_cause(remark):
@@ -380,7 +412,7 @@ async def __raise_for_json_result(response: aiohttp.ClientResponse, query_kwargs
     if any(f not in json for f in expected_fields) or any(
         f not in json["osm3s"] for f in expected_osm3s_fields
     ):
-        raise await __server_or_response_error(response, cause=None)
+        raise await __response_error(response, cause=None)
 
     return json
 
@@ -403,7 +435,7 @@ async def __raise_for_html_result(response: aiohttp.ClientResponse, query_kwargs
     errors = [html.unescape(err.strip()) for err in pattern.findall(text)]
 
     if not errors:  # unexpected format
-        raise await __server_or_response_error(response, cause=None)
+        raise await __response_error(response, cause=None)
 
     if any(__is_ql_error(msg) for msg in errors):
         raise QueryLanguageError(kwargs=query_kwargs, remarks=errors)
@@ -425,7 +457,7 @@ async def __raise_for_html_result(response: aiohttp.ClientResponse, query_kwargs
 async def __raise_for_plaintext_result(response: aiohttp.ClientResponse) -> None:
     if response.content_type != "text/plain":
         return
-    raise await __server_or_response_error(response, cause=None)
+    raise await __response_error(response, cause=None)
 
 
 def __match_reject_cause(error_msg: str) -> QueryRejectCause | None:
@@ -464,15 +496,10 @@ def __is_ql_error(error_msg: str) -> bool:
     )
 
 
-async def __server_or_response_error(
+async def __response_error(
     response: aiohttp.ClientResponse,
     cause: aiohttp.ClientResponseError | JSONDecodeError | None,
-) -> ServerError | ResponseError:
-    if response.status >= 500:
-        return ServerError(
-            response=response,
-            body=await response.text(),
-        )
+) -> ResponseError:
     return ResponseError(
         response=response,
         body=await response.text(),
