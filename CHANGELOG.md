@@ -4,6 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
+## Unreleased
+
+### Changed
+* Increased `aiohttp` requirement to `~3.9`
+
+<br>
+
 ## [0.11.0] – 2023-11-14
 ### Added
 * Add the `should_retry` property to all error classes,

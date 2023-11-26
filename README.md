@@ -17,6 +17,7 @@ combinations of them. To make use of it, you should familiarize yourself with
 
 #### See also
 - An overview of modules, classes and functions can be found in the [API reference](http://www.timwie.dev/aio-overpass/)
+- There are some notebooks to check out in [examples/](https://github.com/timwie/aio-overpass/tree/main/examples)
 - The version history is available in [CHANGELOG.md](https://github.com/timwie/aio-overpass/blob/main/CHANGELOG.md)
 - Developers can find some instructions in [CONTRIBUTING.md](https://github.com/timwie/aio-overpass/blob/main/CONTRIBUTING.md)
 - The Overpass API [repository](https://github.com/drolbr/Overpass-API),
