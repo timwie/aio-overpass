@@ -561,12 +561,12 @@ def is_gateway_rejection(err: ClientError | None) -> TypeGuard[QueryRejectError]
 
 
 def is_too_many_queries(err: ClientError | None) -> TypeGuard[QueryRejectError]:
-    """``True`` if this is a ``GiveupError`` with cause ``TOO_MANY_QUERIES``."""
+    """``True`` if this is a ``QueryRejectError`` with cause ``TOO_MANY_QUERIES``."""
     return isinstance(err, QueryRejectError) and err.cause is QueryRejectCause.TOO_MANY_QUERIES
 
 
 def is_too_busy(err: ClientError | None) -> TypeGuard[QueryRejectError]:
-    """``True`` if this is a ``GiveupError`` with cause ``TOO_BUSY``."""
+    """``True`` if this is a ``QueryRejectError`` with cause ``TOO_BUSY``."""
     return isinstance(err, QueryRejectError) and err.cause is QueryRejectCause.TOO_BUSY
 
 
