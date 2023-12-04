@@ -454,6 +454,9 @@ async def __raise_for_html_result(response: aiohttp.ClientResponse, query_kwargs
     if reject_causes:
         raise QueryRejectError(kwargs=query_kwargs, remarks=errors, cause=reject_causes[0])
 
+    # TODO match status code here? f.e. 429 indicates TOO_MANY_QUERIES,
+    #   regardless of whether we actually match an error text
+
     raise QueryResponseError(
         response=response,
         body=await response.text(),

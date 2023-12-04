@@ -53,7 +53,6 @@ class Status:
                     (or ``None`` if there is no rate limit).
         cooldown_secs: The number of seconds until a slot opens for this IP
                        (or 0 if there is a free slot).
-        concurrency: Maximum concurrent queries configured for this client.
         endpoint: Announced endpoint. For example, there are two distinct servers
                   that both can be reached by the main Overpass API instance.
                   Depending on server load, a query may be sent to either of them.
@@ -64,7 +63,6 @@ class Status:
     slots: int | None
     free_slots: int | None
     cooldown_secs: int
-    concurrency: int
     endpoint: str | None
     nb_running_queries: int
 
@@ -91,11 +89,9 @@ class Client:
                     that identifies your application, and includes a way to contact you (f.e. an
                     e-mail, or a link to a repository). This is important if you make too many
                     requests, or queries that require a lot of resources.
-        concurrency: Affects the maximum number of concurrent queries. Usually, the API server
-                     status includes a number of slots it provides for each IP. If that is the
-                     case, we pick the minimum of that number of slots and ``concurrency`` as
-                     concurrency limit. If the server does not provide a limit itself,
-                     ``concurrency`` will be used as concurrency limit.
+        concurrency: The maximum number of simultaneous connections. In practice the amount
+                     of concurrent queries may be limited by the number of slots it provides for
+                     each IP.
         runner: You can provide another query runner if you want to implement your own retry
                 strategy.
 
@@ -105,8 +101,6 @@ class Client:
 
     __slots__ = (
         "_concurrency",
-        "_maybe_any_status",
-        "_maybe_sem",
         "_maybe_session",
         "_runner",
         "_url",
@@ -130,38 +124,15 @@ class Client:
         self._runner = runner or DefaultQueryRunner()
 
         self._maybe_session: aiohttp.ClientSession | None = None
-        self._maybe_any_status: Status | None = None
-        self._maybe_sem: asyncio.BoundedSemaphore | None = None
 
     def _session(self) -> aiohttp.ClientSession:
         """The session used for all requests of this client."""
         if not self._maybe_session or self._maybe_session.closed:
             headers = {"User-Agent": self._user_agent}
-            connector = aiohttp.TCPConnector(limit=0)  # we limit concurrency ourselves
+            connector = aiohttp.TCPConnector(limit=self._concurrency)
             self._maybe_session = aiohttp.ClientSession(headers=headers, connector=connector)
 
         return self._maybe_session
-
-    async def _rate_limiter(
-        self,
-        timeout: ClientTimeout | object = sentinel,
-    ) -> asyncio.BoundedSemaphore:
-        """
-        A rate-limiting semaphore for queries.
-
-        This semaphore can be acquired as many times as there are query slots at the API instance.
-        If all slots are acquired, further queries need to wait until a slot is released.
-        """
-        status = self._maybe_any_status
-
-        if self._maybe_sem:
-            return self._maybe_sem
-
-        if not status:
-            status = await self._status(timeout=timeout)
-
-        self._maybe_sem = asyncio.BoundedSemaphore(status.concurrency)
-        return self._maybe_sem
 
     async def close(self) -> None:
         """Cancel all running queries and close the underlying session."""
@@ -179,62 +150,9 @@ class Client:
             async with self._session().get(
                 url=urljoin(self._url, "status"), timeout=timeout
             ) as response:
-                return await self._status_from_response(response)
+                return await _status_from_response(response)
         except aiohttp.ClientError as err:
             raise await _to_client_error(err) from err
-
-    async def _status_from_response(self, response: aiohttp.ClientResponse) -> "Status":
-        text = await response.text()
-
-        slots: int | None = 0
-        free_slots = None
-        cooldown_secs = 0
-        concurrency = self._concurrency
-        endpoint = None
-        nb_running_queries = 0
-
-        try:
-            match_slots_overall = re.findall(r"Rate limit: (\d+)", text)
-            match_slots_available = re.findall(r"(\d+) slots available now", text)
-            match_cooldowns = re.findall(r"Slot available after: .+, in (\d+) seconds", text)
-            match_endpoint = re.findall(r"Announced endpoint: (.+)", text)
-            match_running_queries = re.findall(
-                r"\d+\t\d+\t\d+\t\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", text
-            )
-
-            (slots_str,) = match_slots_overall
-            slots = int(slots_str) or None
-
-            endpoint = match_endpoint[0] if match_endpoint else None
-            endpoint = None if endpoint == "none" else endpoint
-
-            nb_running_queries = len(match_running_queries)
-
-            if slots:
-                cooldowns = [int(secs) for secs in match_cooldowns]
-
-                if match_slots_available:
-                    free_slots = int(match_slots_available[0])
-                else:
-                    free_slots = slots - len(cooldowns)
-
-                cooldown_secs = 0 if free_slots > 0 else min(cooldowns)
-
-                # pick the server's concurrent query limit if > 0 and < self._concurrency,
-                # or self._concurrency otherwise
-                concurrency = min(slots or self._concurrency, self._concurrency)
-        except ValueError as err:
-            raise await _to_client_error(response) from err
-
-        self._maybe_any_status = Status(
-            slots=slots,
-            free_slots=free_slots,
-            cooldown_secs=cooldown_secs,
-            concurrency=concurrency,
-            endpoint=endpoint,
-            nb_running_queries=nb_running_queries,
-        )
-        return self._maybe_any_status
 
     async def status(self) -> Status:
         """
@@ -271,9 +189,9 @@ class Client:
         """
         Send a query to the API, and await its completion.
 
-        "Running" the query entails acquiring a connection from the pool, waiting for a slot
-        to open up, the query requests themselves (which may be retried), status requests
-        when the server is busy, and cooldown periods.
+        "Running" the query entails acquiring a connection from the pool, the query requests
+        themselves (which may be retried), status requests when the server is busy,
+        and cooldown periods.
 
         The query runner is invoked before every try, and once after the last try.
 
@@ -380,9 +298,6 @@ class Client:
 
         finally:
             query_mut.end_try()
-            if acquired_slot:
-                assert self._maybe_sem is not None
-                self._maybe_sem.release()
 
     async def _wait_for_slot(self, query: Query) -> None:
         def next_timeout() -> aiohttp.ClientTimeout:
@@ -403,32 +318,67 @@ class Client:
             and query.error.cause == QueryRejectCause.TOO_MANY_QUERIES
         )
 
-        if check_cooldown:
-            # If this client is running too many queries, we can check the status for a
-            # cooldown period. This request failing is a bit of an edge case.
-            # 'query.error' will be overwritten, which means we will not check for a
-            # cooldown in the next iteration.
-            status = await self._status(timeout=next_timeout())
+        if not check_cooldown:
+            return
 
-            if (
-                (timeout := next_timeout())
-                and timeout.total is not None
-                and status.cooldown_secs > timeout.total
-            ):
-                assert query.run_duration_secs
-                raise GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
+        # If this client is running too many queries, we can check the status for a
+        # cooldown period. This request failing is a bit of an edge case.
+        # 'query.error' will be overwritten, which means we will not check for a
+        # cooldown in the next iteration.
+        status = await self._status(timeout=next_timeout())
 
-            logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
-            await asyncio.sleep(status.cooldown_secs)
+        if (
+            (timeout := next_timeout())
+            and timeout.total is not None
+            and status.cooldown_secs > timeout.total
+        ):
+            assert query.run_duration_secs
+            raise GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
 
-        # This requests an API status if we haven't done so already.
-        rate_limiter = await self._rate_limiter(timeout=next_timeout())
+        logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
+        await asyncio.sleep(status.cooldown_secs)
 
-        # Limit the concurrent query requests to the number of slots available.
-        if rate_limiter.locked():
-            logger.info(f"{query} has to wait for a slot")
 
-        await asyncio.wait_for(
-            fut=rate_limiter.acquire(),
-            timeout=next_timeout().total,
-        )
+async def _status_from_response(response: aiohttp.ClientResponse) -> "Status":
+    text = await response.text()
+
+    slots: int | None = 0
+    free_slots = None
+    cooldown_secs = 0
+    endpoint = None
+    nb_running_queries = 0
+
+    match_slots_overall = re.findall(r"Rate limit: (\d+)", text)
+    match_slots_available = re.findall(r"(\d+) slots available now", text)
+    match_cooldowns = re.findall(r"Slot available after: .+, in (\d+) seconds", text)
+    match_endpoint = re.findall(r"Announced endpoint: (.+)", text)
+    match_running_queries = re.findall(r"\d+\t\d+\t\d+\t\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", text)
+
+    try:
+        (slots_str,) = match_slots_overall
+        slots = int(slots_str) or None
+
+        endpoint = match_endpoint[0] if match_endpoint else None
+        endpoint = None if endpoint == "none" else endpoint
+
+        nb_running_queries = len(match_running_queries)
+
+        if slots:
+            cooldowns = [int(secs) for secs in match_cooldowns]
+
+            if match_slots_available:
+                free_slots = int(match_slots_available[0])
+            else:
+                free_slots = slots - len(cooldowns)
+
+            cooldown_secs = 0 if free_slots > 0 else min(cooldowns)
+    except ValueError as err:
+        raise await _to_client_error(response) from err
+
+    return Status(
+        slots=slots,
+        free_slots=free_slots,
+        cooldown_secs=cooldown_secs,
+        endpoint=endpoint,
+        nb_running_queries=nb_running_queries,
+    )

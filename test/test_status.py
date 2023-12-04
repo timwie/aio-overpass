@@ -36,7 +36,6 @@ Currently running queries (pid, space limit, time limit, start time):
         slots=2,
         free_slots=2,
         cooldown_secs=0,
-        concurrency=2,
         endpoint=None,
         nb_running_queries=0,
     )
@@ -73,7 +72,6 @@ Currently running queries (pid, space limit, time limit, start time):
         slots=6,
         free_slots=6,
         cooldown_secs=0,
-        concurrency=6,
         endpoint="gall.openstreetmap.de/",
         nb_running_queries=0,
     )
@@ -110,7 +108,6 @@ Currently running queries (pid, space limit, time limit, start time):
         slots=2,
         free_slots=1,
         cooldown_secs=0,
-        concurrency=2,
         endpoint=None,
         nb_running_queries=1,
     )
@@ -132,9 +129,7 @@ Currently running queries (pid, space limit, time limit, start time):
 2752374	536870912	180	2023-10-19T23:25:17Z
 2752375	536870912	180	2023-10-19T23:25:17Z
     """
-    concurrency = 8
-
-    c = Client(runner=VerifyingQueryRunner(), concurrency=concurrency)
+    c = Client(runner=VerifyingQueryRunner())
 
     with aioresponses() as m:
         m.get(
@@ -150,7 +145,6 @@ Currently running queries (pid, space limit, time limit, start time):
         slots=None,
         free_slots=None,
         cooldown_secs=0,
-        concurrency=concurrency,
         endpoint=None,
         nb_running_queries=3,
     )
@@ -187,7 +181,6 @@ Currently running queries (pid, space limit, time limit, start time):
         slots=2,
         free_slots=0,
         cooldown_secs=20,
-        concurrency=2,
         endpoint=None,
         nb_running_queries=0,
     )

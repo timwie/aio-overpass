@@ -333,7 +333,7 @@ async def test_internal_server_error():
     q = Query("")
 
     with aioresponses() as m, pytest.raises(ResponseError) as err:
-        m.get(URL_STATUS, status=500, repeat=True)
+        m.get(URL_INTERPRETER, status=500, repeat=True)
         await c.run_query(q)
 
         assert err.value.response.status == 500
@@ -354,11 +354,11 @@ async def test_timeout_error():
     q2 = Query("", my_kwarg=42)
 
     with aioresponses() as m:
-        m.get(URL_STATUS, exception=asyncio.TimeoutError())
+        m.get(URL_INTERPRETER, exception=asyncio.TimeoutError())
         with pytest.raises(CallTimeoutError) as err:
             await c.run_query(q)
 
-        m.get(URL_STATUS, exception=asyncio.TimeoutError())
+        m.get(URL_INTERPRETER, exception=asyncio.TimeoutError())
         with pytest.raises(CallTimeoutError) as err2:
             await c.run_query(q2)
 

@@ -7,7 +7,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 ### Changed
-* Increased `aiohttp` requirement to `~3.9`
+* Change `Client.run_query()` to no longer enforce a rate limit before making a request.
+  This is because we cannot easily know the total amount of slots at an API server
+  that uses load balancing, as the [default server does](https://github.com/timwie/aio-overpass/issues/6).
+  Previously this would lead to using a maximum of 6 slots instead of the actual 12 slots.
+  The new behavior is to simply adhere to the cooldown duration when the server tells us
+  we're making too many requests
+* Increase `aiohttp` requirement to `~3.9`
+
+### Removed
+* Remove the `Status.concurrency` property, since the reported number of slots
+  no longer affects the concurrency
 
 <br>
 

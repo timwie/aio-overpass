@@ -54,6 +54,8 @@ class RouteQuery(Query):
                      (for example by recursing up from ``.routes``).
     """
 
+    __slots__ = ()
+
     def __init__(self, input_code: str, **kwargs) -> None:
         input_code = f"""
             {input_code}
@@ -90,6 +92,8 @@ class SingleRouteQuery(RouteQuery):
         relation_id: the desired route's relation ID
     """
 
+    __slots__ = ("relation_id",)
+
     def __init__(self, relation_id: int, **kwargs) -> None:
         self.relation_id = relation_id
 
@@ -117,6 +121,11 @@ class RoutesWithinQuery(RouteQuery):
                   routes of any type. A non-empty list will filter routes by the ``route``
                   key.
     """
+
+    __slots__ = (
+        "polygon",
+        "vehicles",
+    )
 
     def __init__(self, polygon: Polygon, vehicles: list["Vehicle"] | None = None, **kwargs) -> None:
         if not vehicles:
