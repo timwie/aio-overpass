@@ -15,7 +15,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from aio_overpass.error import ClientError, QueryRejectCause, is_rejection, is_server_error
+from aio_overpass.error import (
+    ClientError,
+    QueryRejectCause,
+    is_exceeding_timeout,
+    is_rejection,
+    is_server_error,
+)
 
 
 __docformat__ = "google"
@@ -248,15 +254,15 @@ class Query:
     @property
     def run_timeout_secs(self) -> float | None:
         """
-        A limit to ``run_duration_secs``, that cancels the query when exceeded.
+        A limit to ``run_duration_secs``, that cancels running the query when exceeded.
 
         Defaults to no timeout.
 
-        The client will raise a ``QueryCancelledError`` if the timeout is reached.
+        The client will raise a ``GiveupError`` if the timeout is reached.
 
         Not to be confused with ``timeout_secs``, which is a setting for the Overpass API instance,
-        that limits the query execution time. Instead, this value can be used to limit the total
-        client-side time spent on this query (see ``Client.run_query``).
+        that limits a single query execution time. Instead, this value can be used to limit the
+        total client-side time spent on this query (see ``Client.run_query``).
         """
         return self._run_timeout_secs
 
@@ -498,6 +504,9 @@ class _QueryMutator:
 
     def fail_try(self, err: ClientError) -> None:
         self._query._error = err
+
+        if is_exceeding_timeout(err):
+            pass  # TODO set "max_timeout_exceeded"
 
     def end_try(self) -> None:
         self._query._nb_tries += 1

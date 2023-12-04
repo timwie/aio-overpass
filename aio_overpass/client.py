@@ -160,6 +160,9 @@ class Client:
                 return await _status_from_response(response)
         except aiohttp.ClientError as err:
             raise await _to_client_error(err) from err
+        except asyncio.TimeoutError as err:
+            assert timeout.total
+            raise CallTimeoutError(cause=err, after_secs=timeout.total) from err
 
     async def status(self) -> Status:
         """
@@ -194,6 +197,9 @@ class Client:
                 return len(set(killed_pids))
         except aiohttp.ClientError as err:
             raise await _to_client_error(err) from err
+        except asyncio.TimeoutError as err:
+            assert timeout_secs is not None
+            raise CallTimeoutError(cause=err, after_secs=timeout_secs) from err
 
     async def run_query(self, query: Query, raise_on_failure: bool = True) -> None:
         """
@@ -255,24 +261,16 @@ class Client:
 
         query_mut.begin_try()
 
-        acquired_slot = False
-
-        if query.request_timeout.total_without_query_secs is not None:
-            total = float(query.timeout_secs) + query.request_timeout.total_without_query_secs
-        else:
-            total = None
-
-        req_timeout = aiohttp.ClientTimeout(
-            total=total,
-            connect=None,
-            sock_connect=query.request_timeout.sock_connect_secs,
-            sock_read=query.request_timeout.each_sock_read_secs,
-        )
-
         try:
             await self._wait_for_slot(query)
-            acquired_slot = True
+        except ClientError as err:
+            query_mut.fail_try(err)
+            query_mut.end_try()
+            return
 
+        req_timeout = _next_query_timeout(query)
+
+        try:
             query_mut.begin_request()
 
             logger.info(f"call api for {query}")
@@ -291,17 +289,14 @@ class Client:
             query_mut.fail_try(await _to_client_error(err))
 
         except asyncio.TimeoutError as err:
-            query_err: ClientError
-
+            assert req_timeout.total
             if query.run_timeout_elapsed:
                 assert query.run_duration_secs is not None
-                query_err = GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
+                query_mut.fail_try(
+                    GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
+                )
             else:
-                assert not query.run_timeout_secs or acquired_slot
-                assert req_timeout.total
-                query_err = CallTimeoutError(cause=err, after_secs=req_timeout.total)
-
-            query_mut.fail_try(query_err)
+                query_mut.fail_try(CallTimeoutError(cause=err, after_secs=req_timeout.total))
 
         except ClientError as err:
             query_mut.fail_try(err)
@@ -310,19 +305,6 @@ class Client:
             query_mut.end_try()
 
     async def _wait_for_slot(self, query: Query) -> None:
-        def next_timeout() -> aiohttp.ClientTimeout:
-            assert query.run_duration_secs is not None
-            if query.run_timeout_secs:
-                remaining = query.run_timeout_secs - query.run_duration_secs
-                if remaining <= 0.0:
-                    raise asyncio.TimeoutError()  # no point delaying the inevitable
-                if self._status_timeout_secs:
-                    remaining = min(remaining, self._status_timeout_secs)
-            else:
-                remaining = None  # no limit
-
-            return aiohttp.ClientTimeout(total=remaining)
-
         logger = query.logger
 
         if not is_too_many_queries(query.error):
@@ -332,10 +314,13 @@ class Client:
         # cooldown period. This request failing is a bit of an edge case.
         # 'query.error' will be overwritten, which means we will not check for a
         # cooldown in the next iteration.
-        status = await self._status(timeout=next_timeout())
+        status = await self._status(timeout=self._next_status_timeout(query))
+
+        if not status.cooldown_secs:
+            return
 
         if (
-            (timeout := next_timeout())
+            (timeout := _next_query_timeout(query))
             and timeout.total is not None
             and status.cooldown_secs > timeout.total
         ):
@@ -344,6 +329,42 @@ class Client:
 
         logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
         await asyncio.sleep(status.cooldown_secs)
+
+    def _next_status_timeout(self, query: Query) -> aiohttp.ClientTimeout:
+        remaining = None
+
+        if (run_timeout := query.run_timeout_secs) and (run_duration := query.run_duration_secs):
+            remaining = run_timeout - run_duration
+
+            if remaining <= 0.0:
+                raise asyncio.TimeoutError()  # no point delaying the inevitable
+
+            if self._status_timeout_secs:
+                remaining = min(remaining, self._status_timeout_secs)  # cap timeout if configured
+
+        return aiohttp.ClientTimeout(total=remaining)
+
+
+def _next_query_timeout(query: Query) -> aiohttp.ClientTimeout:
+    run_total = None  # time left until "run_timeout_secs" exceeded
+    query_total = None  # "[timeout:*]" setting plus "total_without_query_secs"
+
+    if (run_timeout := query.run_timeout_secs) and (run_duration := query.run_duration_secs):
+        run_total = run_timeout - run_duration
+
+    if add_to_timeout_secs := query.request_timeout.total_without_query_secs:
+        query_total = float(query.timeout_secs) + add_to_timeout_secs
+
+    total = min(run_total, query_total) if run_total and query_total else run_total or query_total
+
+    # TODO raise immediately if if total <= 0.0?
+
+    return aiohttp.ClientTimeout(
+        total=total,
+        connect=None,
+        sock_connect=query.request_timeout.sock_connect_secs,
+        sock_read=query.request_timeout.each_sock_read_secs,
+    )
 
 
 async def _status_from_response(response: aiohttp.ClientResponse) -> "Status":

@@ -18,11 +18,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Previously this would lead to using a maximum of 6 slots instead of the actual 12 slots.
   The new behavior is to simply adhere to the cooldown duration when the server tells us
   we're making too many requests
+* The request in `Client.cancel_queries()` is no longer subject to the concurrency limit
 * Increase `aiohttp` requirement to `~3.9`
 
 ### Removed
 * Remove the `Status.concurrency` property, since the reported number of slots
   no longer affects the concurrency
+
+### Fixed
+* Fix `run_timeout_secs` having no effect on query request timeouts
 
 <br>
 
