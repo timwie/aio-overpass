@@ -182,11 +182,13 @@ class Client:
         Raises:
             ClientError: if the request to cancel queries failed
         """
-        # TODO use a new session here? this should be possible regardless of "concurrency"
-        session = self._session()
+        headers = {"User-Agent": self._user_agent}
         endpoint = urljoin(self._url, "kill_my_queries")
         try:
-            async with session.get(endpoint, timeout=timeout_secs) as response:
+            # use a new session here to get around our concurrency limit
+            async with aiohttp.ClientSession(headers=headers) as session, session.get(
+                endpoint, timeout=timeout_secs
+            ) as response:
                 body = await response.text()
                 killed_pids = re.findall("\\(pid (\\d+)\\)", body)
                 return len(set(killed_pids))
