@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 ### Added
 * Add convenience type guard functions to the `error` module (`is_too_busy()` etc.)
+* Add `status_timeout_secs` parameter to `Client`, which limits the duration of
+  all status requests
+* Add `timeout_secs` parameter to `Client.cancel_queries()`
 
 ### Changed
 * Change `Client.run_query()` to no longer enforce a rate limit before making a request.

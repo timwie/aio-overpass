@@ -120,6 +120,9 @@ ignore = [
     "UP015",
 ]
 
+[tool.ruff.lint.pylint]
+max-args = 4
+
 [tool.ruff.pydocstyle]
 convention = "google"
 

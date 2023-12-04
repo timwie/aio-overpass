@@ -21,7 +21,6 @@ from aio_overpass.query import DefaultQueryRunner, Query, QueryRunner
 
 import aiohttp
 from aiohttp import ClientTimeout
-from aiohttp.helpers import sentinel
 
 
 __docformat__ = "google"
@@ -91,6 +90,8 @@ class Client:
         concurrency: The maximum number of simultaneous connections. In practice the amount
                      of concurrent queries may be limited by the number of slots it provides for
                      each IP.
+        status_timeout_secs: If set, status requests to the Overpass API will time out after
+                             this duration in seconds. Defaults to no timeout.
         runner: You can provide another query runner if you want to implement your own retry
                 strategy.
 
@@ -102,24 +103,30 @@ class Client:
         "_concurrency",
         "_maybe_session",
         "_runner",
+        "_status_timeout_secs",
         "_url",
         "_user_agent",
     )
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         url: str = DEFAULT_INSTANCE,
         user_agent: str = DEFAULT_USER_AGENT,
         concurrency: int = 32,
+        status_timeout_secs: float | None = None,
         runner: QueryRunner | None = None,
     ) -> None:
         if concurrency <= 0:
             msg = "'concurrency' must be > 0"
             raise ValueError(msg)
+        if status_timeout_secs is not None and status_timeout_secs <= 0.0:
+            msg = "'status_timeout_secs' must be > 0"
+            raise ValueError(msg)
 
         self._url = url
         self._user_agent = user_agent
         self._concurrency = concurrency
+        self._status_timeout_secs = status_timeout_secs
         self._runner = runner or DefaultQueryRunner()
 
         self._maybe_session: aiohttp.ClientSession | None = None
@@ -144,7 +151,8 @@ class Client:
             with suppress(aiohttp.ServerDisconnectedError):
                 await self._maybe_session.close()
 
-    async def _status(self, timeout: ClientTimeout | object = sentinel) -> "Status":
+    async def _status(self, timeout: ClientTimeout | None = None) -> "Status":
+        timeout = timeout or aiohttp.ClientTimeout(total=self._status_timeout_secs)
         try:
             async with self._session().get(
                 url=urljoin(self._url, "status"), timeout=timeout
@@ -162,7 +170,7 @@ class Client:
         """
         return await self._status()
 
-    async def cancel_queries(self) -> int:
+    async def cancel_queries(self, timeout_secs: float | None = None) -> int:
         """
         Cancel all running queries.
 
@@ -174,10 +182,11 @@ class Client:
         Raises:
             ClientError: if the request to cancel queries failed
         """
+        # TODO use a new session here? this should be possible regardless of "concurrency"
         session = self._session()
         endpoint = urljoin(self._url, "kill_my_queries")
         try:
-            async with session.get(endpoint) as response:
+            async with session.get(endpoint, timeout=timeout_secs) as response:
                 body = await response.text()
                 killed_pids = re.findall("\\(pid (\\d+)\\)", body)
                 return len(set(killed_pids))
@@ -305,6 +314,8 @@ class Client:
                 remaining = query.run_timeout_secs - query.run_duration_secs
                 if remaining <= 0.0:
                     raise asyncio.TimeoutError()  # no point delaying the inevitable
+                if self._status_timeout_secs:
+                    remaining = min(remaining, self._status_timeout_secs)
             else:
                 remaining = None  # no limit
 
