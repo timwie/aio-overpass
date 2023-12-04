@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from aio_overpass.error import ClientError, QueryRejectCause, QueryRejectError, ResponseError
+from aio_overpass.error import ClientError, QueryRejectCause, is_rejection, is_server_error
 
 
 __docformat__ = "google"
@@ -701,7 +701,7 @@ class DefaultQueryRunner(QueryRunner):
 
         err = query.error
 
-        if isinstance(err, ResponseError) and not err.is_server_error:
+        if is_server_error(err):
             logger.error(f"unexpected response body:\n{err.body}")
 
         # Do not retry if we exhausted all tries, when a retry would not change the result,
@@ -710,7 +710,7 @@ class DefaultQueryRunner(QueryRunner):
             logger.error(f"give up on {query}", exc_info=err)
             raise err
 
-        if isinstance(err, QueryRejectError):
+        if is_rejection(err):
             # Wait if the server is too busy.
             if err.cause == QueryRejectCause.TOO_BUSY:
                 backoff = _fibo_backoff_secs(query.nb_tries)

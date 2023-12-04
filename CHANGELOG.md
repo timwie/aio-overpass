@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <br>
 
 ## Unreleased
+### Added
+* Add convenience type guard functions to the `error` module (`is_too_busy()` etc.)
 
 ### Changed
 * Change `Client.run_query()` to no longer enforce a rate limit before making a request.

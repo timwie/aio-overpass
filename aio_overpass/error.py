@@ -19,7 +19,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from json import JSONDecodeError
-from typing import no_type_check
+from typing import TypeGuard, no_type_check
 
 import aiohttp
 import aiohttp.typedefs
@@ -38,6 +38,17 @@ __all__ = (
     "QueryRejectCause",
     "QueryResponseError",
     "RunnerError",
+    "is_call_err",
+    "is_call_timeout",
+    "is_exceeding_maxsize",
+    "is_exceeding_timeout",
+    "is_gateway_rejection",
+    "is_giveup_err",
+    "is_rejection",
+    "is_runtime_rejection",
+    "is_server_error",
+    "is_too_busy",
+    "is_too_many_queries",
 )
 
 
@@ -456,6 +467,7 @@ async def __raise_for_html_result(response: aiohttp.ClientResponse, query_kwargs
 
     # TODO match status code here? f.e. 429 indicates TOO_MANY_QUERIES,
     #   regardless of whether we actually match an error text
+    #   => it's thinkable that we make too many status requests as well f.e.
 
     raise QueryResponseError(
         response=response,
@@ -517,3 +529,64 @@ async def __response_error(
         body=await response.text(),
         cause=cause,
     )
+
+
+def is_call_err(err: ClientError | None) -> TypeGuard[CallError]:
+    """``True`` if this is a ``CallError``."""
+    return isinstance(err, CallError)
+
+
+def is_call_timeout(err: ClientError | None) -> TypeGuard[CallTimeoutError]:
+    """``True`` if this is a ``CallTimeoutError``."""
+    return isinstance(err, CallTimeoutError)
+
+
+def is_giveup_err(err: ClientError | None) -> TypeGuard[GiveupError]:
+    """``True`` if this is a ``GiveupError``."""
+    return isinstance(err, GiveupError)
+
+
+def is_server_error(err: ClientError | None) -> TypeGuard[ResponseError]:
+    """``True`` if this is a ``ResponseError`` presumably cause by a server-side error."""
+    return isinstance(err, ResponseError) and err.is_server_error
+
+
+def is_rejection(err: ClientError | None) -> TypeGuard[QueryRejectError]:
+    """``True`` if this is a ``QueryRejectError``."""
+    return isinstance(err, QueryRejectError)
+
+
+def is_gateway_rejection(err: ClientError | None) -> TypeGuard[QueryRejectError]:
+    """``True`` if this is a ``QueryRejectError`` with gateway rejection."""
+    return isinstance(err, QueryRejectError) and err.cause in {
+        QueryRejectCause.TOO_MANY_QUERIES,
+        QueryRejectCause.TOO_BUSY,
+    }
+
+
+def is_too_many_queries(err: ClientError | None) -> TypeGuard[QueryRejectError]:
+    """``True`` if this is a ``GiveupError`` with cause ``TOO_MANY_QUERIES``."""
+    return isinstance(err, QueryRejectError) and err.cause is QueryRejectCause.TOO_MANY_QUERIES
+
+
+def is_too_busy(err: ClientError | None) -> TypeGuard[QueryRejectError]:
+    """``True`` if this is a ``GiveupError`` with cause ``TOO_BUSY``."""
+    return isinstance(err, QueryRejectError) and err.cause is QueryRejectCause.TOO_BUSY
+
+
+def is_runtime_rejection(err: ClientError | None) -> TypeGuard[QueryRejectError]:
+    """``True`` if this is a ``QueryRejectError`` with runtime rejection."""
+    return isinstance(err, QueryRejectError) and err.cause in {
+        QueryRejectCause.EXCEEDED_MAXSIZE,
+        QueryRejectCause.EXCEEDED_TIMEOUT,
+    }
+
+
+def is_exceeding_maxsize(err: ClientError | None) -> TypeGuard[QueryRejectError]:
+    """``True`` if this is a ``GiveupError`` with cause ``EXCEEDED_MAXSIZE``."""
+    return isinstance(err, QueryRejectError) and err.cause is QueryRejectCause.EXCEEDED_MAXSIZE
+
+
+def is_exceeding_timeout(err: ClientError | None) -> TypeGuard[QueryRejectError]:
+    """``True`` if this is a ``GiveupError`` with cause ``EXCEEDED_TIMEOUT``."""
+    return isinstance(err, QueryRejectError) and err.cause is QueryRejectCause.EXCEEDED_TIMEOUT

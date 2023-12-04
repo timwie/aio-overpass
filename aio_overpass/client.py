@@ -12,11 +12,10 @@ from aio_overpass.error import (
     CallTimeoutError,
     ClientError,
     GiveupError,
-    QueryRejectCause,
-    QueryRejectError,
     RunnerError,
     _result_or_raise,
     _to_client_error,
+    is_too_many_queries,
 )
 from aio_overpass.query import DefaultQueryRunner, Query, QueryRunner
 
@@ -313,12 +312,7 @@ class Client:
 
         logger = query.logger
 
-        check_cooldown = (
-            isinstance(query.error, QueryRejectError)
-            and query.error.cause == QueryRejectCause.TOO_MANY_QUERIES
-        )
-
-        if not check_cooldown:
+        if not is_too_many_queries(query.error):
             return
 
         # If this client is running too many queries, we can check the status for a
