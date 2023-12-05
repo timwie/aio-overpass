@@ -18,12 +18,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Previously this would lead to using a maximum of 6 slots instead of the actual 12 slots.
   The new behavior is to simply adhere to the cooldown duration when the server tells us
   we're making too many requests
+* The `[timeout:*]` setting is overwritten if `run_timeout_secs` is set, and the remaining
+  time is lower than the current setting. Previously, we would use a query timeout that is
+  higher than the request timeout.
+* In case that we lower the `[timeout:*]` this way, and previously had a try with equal
+  or higher query timeout fail with `EXCEEDED_TIMEOUT`, we give up trying immediately.
 * The request in `Client.cancel_queries()` is no longer subject to the concurrency limit
+* Shorten `Query.cache_key` to 16 characters instead of 64
 * Increase `aiohttp` requirement to `~3.9`
 
 ### Removed
 * Remove the `Status.concurrency` property, since the reported number of slots
   no longer affects the concurrency
+* Remove the `Query.code` property, which has no real use when there is `Query.input_code`
 
 ### Fixed
 * Fix `run_timeout_secs` having no effect on query request timeouts

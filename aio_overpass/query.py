@@ -17,6 +17,7 @@ from pathlib import Path
 
 from aio_overpass.error import (
     ClientError,
+    GiveupError,
     QueryRejectCause,
     is_exceeding_timeout,
     is_rejection,
@@ -30,15 +31,15 @@ __all__ = (
     "QueryRunner",
     "DefaultQueryRunner",
     "RequestTimeout",
-    "DEFAULT_MAXSIZE",
-    "DEFAULT_TIMEOUT",
+    "DEFAULT_MAXSIZE_MIB",
+    "DEFAULT_TIMEOUT_SECS",
 )
 
 
-DEFAULT_MAXSIZE = 512
+DEFAULT_MAXSIZE_MIB = 512
 """Default ``maxsize`` setting in mebibytes."""
 
-DEFAULT_TIMEOUT = 180
+DEFAULT_TIMEOUT_SECS = 180
 """Default ``timeout`` setting in seconds."""
 
 _COPYRIGHT = "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."  # noqa: E501
@@ -69,7 +70,9 @@ class Query:
         "_error",
         "_input_code",
         "_kwargs",
+        "_last_timeout_secs_used",
         "_logger",
+        "_max_timeout_secs_exceeded",
         "_nb_tries",
         "_request_timeout",
         "_response",
@@ -84,27 +87,42 @@ class Query:
 
     def __init__(self, input_code: str, logger: logging.Logger = _NULL_LOGGER, **kwargs) -> None:
         self._input_code = input_code
+        """the original given overpass ql code"""
+
         self._logger = logger
+        """logger to use for this query"""
+
         self._kwargs = kwargs
+        """used to identify this query"""
 
         self._settings = dict(_SETTING_PATTERN.findall(input_code))
+        """all overpass ql settings [k:v];"""
 
         self._settings["out"] = "json"
 
         if "maxsize" not in self._settings:
-            self._settings["maxsize"] = DEFAULT_MAXSIZE * 1024 * 1024
+            self._settings["maxsize"] = DEFAULT_MAXSIZE_MIB * 1024 * 1024
 
         if "timeout" not in self._settings:
-            self._settings["timeout"] = DEFAULT_TIMEOUT
+            self._settings["timeout"] = DEFAULT_TIMEOUT_SECS
 
         self._run_timeout_secs: float | None = None
-        self._request_timeout: RequestTimeout = RequestTimeout()
+        """total time limit for running this query"""
 
-        # set by the client that executes this query
+        self._request_timeout: RequestTimeout = RequestTimeout()
+        """config for request timeouts"""
+
         self._error: ClientError | None = None
+        """error of the last try, or None"""
+
         self._response: dict | None = None
+        """response JSON as a dict, or None"""
+
         self._response_bytes = 0.0
+        """number of bytes in a response, or zero"""
+
         self._nb_tries = 0
+        """number of tries so far, starting at zero"""
 
         self._time_start: _Instant | None = None
         """time prior to executing the first try"""
@@ -117,6 +135,12 @@ class Query:
 
         self._time_end_try: _Instant | None = None
         """time the most recent try finished"""
+
+        self._last_timeout_secs_used: int | None = None
+        """the last used 'timeout' setting"""
+
+        self._max_timeout_secs_exceeded: int | None = None
+        """the largest 'timeout' setting that was exceeded in a try of this query"""
 
     def reset(self) -> None:
         """Reset the query to its initial state, ignoring previous tries."""
@@ -291,26 +315,42 @@ class Query:
     def request_timeout(self, value: "RequestTimeout") -> None:
         self._request_timeout = value
 
-    @property
-    def code(self) -> str:
-        """
-        The Overpass QL source code of this query.
+    def _code(self) -> str:
+        # TODO doc
+        # TODO refactor? this function might do a bit too much
+        # TODO needs tests
+        settings_copy = self._settings.copy()
 
-        This is different from ``input_code`` only when it comes to settings.
-        """
-        return self._code(without_dynamic_settings=False)
+        max_timeout = settings_copy["timeout"]
 
-    def _code(self, without_dynamic_settings: bool) -> str:
-        settings_iter = iter(self._settings.items())
+        # if a run timeout is set, the remaining time is the max query timeout we will use
+        if (time_max := self.run_timeout_secs) and (time_so_far := self.run_duration_secs):
+            max_timeout = math.ceil(time_max - time_so_far)
+            if max_timeout <= 0:
+                raise GiveupError(kwargs=self.kwargs, after_secs=time_so_far)
 
-        if without_dynamic_settings:
-            settings_iter = ((k, v) for k, v in settings_iter if k not in {"maxsize", "timeout"})
+        # if we already had a query that exceeded a timeout that is >= that max timeout,
+        # we might as well give up already
+        if (min_needed := self._max_timeout_secs_exceeded) and min_needed >= max_timeout:
+            self._logger.error(f"give up on {self} since query will likely time out")
+            raise GiveupError(kwargs=self.kwargs, after_secs=self.run_duration_secs or 0.0)
 
-        settings = "".join((f"[{k}:{v}]" for k, v in settings_iter)) + ";"
+        # pick the timeout we will use for the next try
+        next_timeout_secs_used = min(settings_copy["timeout"], max_timeout)
 
-        # Remove the original settings statement
+        # log if had to override the timeout setting with "max_timeout"
+        if next_timeout_secs_used != settings_copy["timeout"]:
+            settings_copy["timeout"] = next_timeout_secs_used
+            self._logger.info(f"adjust timeout to {next_timeout_secs_used}s")
+
+        # update the used timeout in state
+        self._last_timeout_secs_used = next_timeout_secs_used
+
+        # remove the original settings statement
         code = _SETTING_PATTERN.sub("", self._input_code)
 
+        # put the adjusted settings in front
+        settings = "".join((f"[{k}:{v}]" for k, v in settings_copy.items())) + ";"
         return f"{settings}\n{code}"
 
     @property
@@ -320,9 +360,11 @@ class Query:
 
         The default query runner uses this as cache key.
         """
-        # hash QL code without [timeout:*] and [maxsize:*] settings
-        code = self._code(without_dynamic_settings=True)
-        return hashlib.sha256(code.encode("utf-8")).hexdigest()
+        # Remove the original settings statement
+        code = _SETTING_PATTERN.sub("", self._input_code)
+        hasher = hashlib.blake2b(digest_size=8)
+        hasher.update(code.encode("utf-8"))
+        return hasher.hexdigest()
 
     @property
     def done(self) -> bool:
@@ -506,7 +548,8 @@ class _QueryMutator:
         self._query._error = err
 
         if is_exceeding_timeout(err):
-            pass  # TODO set "max_timeout_exceeded"
+            assert self._query._last_timeout_secs_used
+            self._query._max_timeout_secs_exceeded = self._query._last_timeout_secs_used
 
     def end_try(self) -> None:
         self._query._nb_tries += 1

@@ -271,7 +271,7 @@ class Client:
         try:
             await self._cooldown(query)
 
-            req_timeout = _next_query_timeout(query)
+            req_timeout = _next_query_req_timeout(query)
 
             if req_timeout.total and req_timeout.total <= 0.0:
                 assert query.run_duration_secs
@@ -283,7 +283,7 @@ class Client:
 
             async with self._session().get(
                 url=urljoin(self._url, "interpreter"),
-                params={"data": query.code},
+                params={"data": query._code()},
                 timeout=req_timeout,
             ) as response:
                 query_mut.succeed_try(
@@ -327,7 +327,7 @@ class Client:
         # cooldown period. This request failing is a bit of an edge case.
         # 'query.error' will be overwritten, which means we will not check for a
         # cooldown in the next iteration.
-        status = await self._status(timeout=self._next_status_timeout(query))
+        status = await self._status(timeout=self._next_status_req_timeout(query))
 
         if not status.cooldown_secs:
             return
@@ -339,12 +339,13 @@ class Client:
             remaining = run_timeout - run_duration
 
             if status.cooldown_secs > remaining:
+                logger.error(f"give up on {query} due to {status.cooldown_secs:.1f}s cooldown")
                 raise GiveupError(kwargs=query.kwargs, after_secs=run_duration)
 
         logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
         await asyncio.sleep(status.cooldown_secs)
 
-    def _next_status_timeout(self, query: Query) -> aiohttp.ClientTimeout:
+    def _next_status_req_timeout(self, query: Query) -> aiohttp.ClientTimeout:
         """Status request timeout; possibly limited by either the run or status timeout settings."""
         remaining = None
 
@@ -363,7 +364,7 @@ class Client:
         return aiohttp.ClientTimeout(total=remaining)
 
 
-def _next_query_timeout(query: Query) -> aiohttp.ClientTimeout:
+def _next_query_req_timeout(query: Query) -> aiohttp.ClientTimeout:
     """Query request timeout; possibly limited by either the run or request timeout settings."""
     run_total = None  # time left until "run_timeout_secs" exceeded
     query_total = None  # "[timeout:*]" setting plus "total_without_query_secs"
@@ -404,7 +405,7 @@ async def _parse_status(response: aiohttp.ClientResponse) -> Status:
     match_running_queries = re.findall(r"\d+\t\d+\t\d+\t\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", text)
 
     try:
-        slots_str, = match_slots_overall
+        (slots_str,) = match_slots_overall
         slots = int(slots_str) or None
 
         endpoint = match_endpoint[0] if match_endpoint else None
