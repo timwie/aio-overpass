@@ -19,7 +19,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from json import JSONDecodeError
-from typing import TypeGuard, no_type_check
+from typing import NoReturn, TypeAlias, TypeGuard
 
 import aiohttp
 import aiohttp.typedefs
@@ -31,6 +31,7 @@ __all__ = (
     "CallError",
     "CallTimeoutError",
     "ResponseError",
+    "ResponseErrorCause",
     "GiveupError",
     "QueryError",
     "QueryLanguageError",
@@ -61,7 +62,7 @@ class ClientError(Exception):
         return False
 
 
-@dataclass
+@dataclass(frozen=True)
 class RunnerError(ClientError):
     """
     The query runner raised an exception.
@@ -76,10 +77,6 @@ class RunnerError(ClientError):
 
     cause: BaseException
 
-    def __post_init__(self) -> None:
-        # imitate "raise RunnerError(...) from cause"
-        self.__cause__ = self.cause
-
     @property
     def should_retry(self) -> bool:
         """Returns ``True`` if it's worth retrying when encountering this error."""
@@ -89,7 +86,7 @@ class RunnerError(ClientError):
         return str(self.cause)
 
 
-@dataclass
+@dataclass(frozen=True)
 class CallError(ClientError):
     """
     Failed to make an API request.
@@ -108,15 +105,11 @@ class CallError(ClientError):
         """Returns ``True`` if it's worth retrying when encountering this error."""
         return True
 
-    def __post_init__(self) -> None:
-        # imitate "raise CallError(...) from cause"
-        self.__cause__ = self.cause
-
     def __str__(self) -> str:
         return str(self.cause)
 
 
-@dataclass
+@dataclass(frozen=True)
 class CallTimeoutError(CallError):
     """
     An API request timed out.
@@ -134,15 +127,15 @@ class CallTimeoutError(CallError):
         """Returns ``True`` if it's worth retrying when encountering this error."""
         return True
 
-    def __post_init__(self) -> None:
-        # imitate "raise CallTimeoutError(...) from cause"
-        self.__cause__ = self.cause
-
     def __str__(self) -> str:
         return str(self.cause)
 
 
-@dataclass
+ResponseErrorCause: TypeAlias = aiohttp.ClientResponseError | JSONDecodeError | ValueError
+"""Causes for a ``ResponseError``."""
+
+
+@dataclass(frozen=True)
 class ResponseError(ClientError):
     """
     Unexpected API response.
@@ -167,7 +160,7 @@ class ResponseError(ClientError):
 
     response: aiohttp.ClientResponse
     body: str
-    cause: aiohttp.ClientResponseError | JSONDecodeError | None
+    cause: ResponseErrorCause | None
 
     @property
     def should_retry(self) -> bool:
@@ -180,17 +173,13 @@ class ResponseError(ClientError):
         # see class doc for details
         return self.response.status >= 500 or isinstance(self.cause, JSONDecodeError)
 
-    def __post_init__(self) -> None:
-        # imitate "raise ResponseError(...) from cause"
-        self.__cause__ = self.cause
-
     def __str__(self) -> str:
         if self.cause is None:
             return f"unexpected response ({self.response.status})"
         return f"unexpected response ({self.response.status}): {self.cause}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class GiveupError(ClientError):
     """
     The client spent too long running a query, and gave up.
@@ -216,7 +205,7 @@ class GiveupError(ClientError):
         return f"gave up on {query} after {self.after_secs:.01f} seconds"
 
 
-@dataclass
+@dataclass(frozen=True)
 class QueryError(ClientError):
     """
     Base exception for queries that failed at the Overpass API server.
@@ -241,7 +230,7 @@ class QueryError(ClientError):
         return f"{query} failed: {first}{rest}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class QueryResponseError(ResponseError, QueryError):
     """
     Unexpected query response.
@@ -266,7 +255,7 @@ class QueryResponseError(ResponseError, QueryError):
         return f"{query} failed with status {self.response.status}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class QueryLanguageError(QueryError):
     """
     Indicates the query's QL code is not valid.
@@ -331,7 +320,7 @@ class QueryRejectCause(Enum):
                 raise AssertionError
 
 
-@dataclass
+@dataclass(frozen=True)
 class QueryRejectError(QueryError):
     """
     A query was rejected or cancelled by the API server.
@@ -359,30 +348,35 @@ class QueryRejectError(QueryError):
         return f"{rejection}: {self.cause}"
 
 
-@no_type_check
-async def _to_client_error(
-    obj: aiohttp.ClientResponse | aiohttp.ClientError,
-) -> CallError | ResponseError:
+async def _raise_for_request_error(err: aiohttp.ClientError) -> NoReturn:
     """
-    Build a ``ClientError`` from either an ``aiohttp`` client error or an unrecognized response.
+    Raise an exception caused by the given request error.
 
-    Returns:
+    Raises:
         - ``CallError`` if ``obj`` is an ``aiohttp.ClientError``,
           but not an ``aiohttp.ClientResponseError``.
-        - ``ResponseError`` if the status code is < 500.
-        - ``ServerError`` if the status code is >= 500.
+        - ``ResponseError`` otherwise.
     """
-    match obj:
-        case aiohttp.ClientResponse():
-            response = obj
-            cause = None
-        case aiohttp.ClientResponseError():
-            response = obj.history[-1]
-            cause = obj
-        case _:
-            return CallError(cause=obj)  # we didn't get a response
+    if isinstance(err, aiohttp.ClientResponseError):
+        response = err.history[-1]
+        await _raise_for_response(response, err)
 
-    return await __response_error(response, cause)
+    raise CallError(cause=err) from err
+
+
+async def _raise_for_response(
+    response: aiohttp.ClientResponse,
+    cause: ResponseErrorCause | None,
+) -> NoReturn:
+    """Raise a ``ResponseError`` with an optional cause."""
+    err = ResponseError(
+        response=response,
+        body=await response.text(),
+        cause=cause,
+    )
+    if cause:
+        raise err from cause
+    raise err
 
 
 async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict) -> dict:
@@ -395,8 +389,7 @@ async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict)
                      when there's a JSON remark indicating query rejection or cancellation;
                      when there's an HTML error message indicating query rejection or cancellation.
         QueryError: When there's any other JSON remark or HTML error message.
-        ResponseError: When encountering an unexpected response with status code < 500.
-        ServerError: When encountering an unexpected response with status code >= 500.
+        ResponseError: When encountering an unexpected response.
     """
     await __raise_for_plaintext_result(response)
 
@@ -409,11 +402,11 @@ async def __raise_for_json_result(response: aiohttp.ClientResponse, query_kwargs
     try:
         json = await response.json()
         if json is None:
-            raise await __response_error(response, cause=None)
+            await _raise_for_response(response, cause=None)
     except aiohttp.ClientResponseError as err:
-        raise await __response_error(response, cause=err) from err
+        await _raise_for_response(response, cause=err)
     except JSONDecodeError as err:
-        raise await __response_error(response, cause=err) from err
+        await _raise_for_response(response, cause=err)
 
     if remark := json.get("remark"):
         if timeout_cause := __match_reject_cause(remark):
@@ -432,7 +425,7 @@ async def __raise_for_json_result(response: aiohttp.ClientResponse, query_kwargs
     if any(f not in json for f in expected_fields) or any(
         f not in json["osm3s"] for f in expected_osm3s_fields
     ):
-        raise await __response_error(response, cause=None)
+        await _raise_for_response(response, cause=None)
 
     return json
 
@@ -455,7 +448,7 @@ async def __raise_for_html_result(response: aiohttp.ClientResponse, query_kwargs
     errors = [html.unescape(err.strip()) for err in pattern.findall(text)]
 
     if not errors:  # unexpected format
-        raise await __response_error(response, cause=None)
+        await _raise_for_response(response, cause=None)
 
     if any(__is_ql_error(msg) for msg in errors):
         raise QueryLanguageError(kwargs=query_kwargs, remarks=errors)
@@ -477,7 +470,7 @@ async def __raise_for_html_result(response: aiohttp.ClientResponse, query_kwargs
 async def __raise_for_plaintext_result(response: aiohttp.ClientResponse) -> None:
     if response.content_type != "text/plain":
         return
-    raise await __response_error(response, cause=None)
+    await _raise_for_response(response, cause=None)
 
 
 def __match_reject_cause(error_msg: str) -> QueryRejectCause | None:
@@ -513,17 +506,6 @@ def __is_ql_error(error_msg: str) -> bool:
         "encoding error:" in error_msg
         or "parse error:" in error_msg
         or "static error:" in error_msg
-    )
-
-
-async def __response_error(
-    response: aiohttp.ClientResponse,
-    cause: aiohttp.ClientResponseError | JSONDecodeError | None,
-) -> ResponseError:
-    return ResponseError(
-        response=response,
-        body=await response.text(),
-        cause=cause,
     )
 
 

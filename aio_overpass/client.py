@@ -1,7 +1,9 @@
 """Interface for making API calls."""
 
 import asyncio
+import contextlib
 import re
+from collections.abc import AsyncIterator
 from contextlib import suppress
 from dataclasses import dataclass
 from urllib.parse import urljoin
@@ -13,8 +15,9 @@ from aio_overpass.error import (
     ClientError,
     GiveupError,
     RunnerError,
+    _raise_for_request_error,
+    _raise_for_response,
     _result_or_raise,
-    _to_client_error,
     is_too_many_queries,
 )
 from aio_overpass.query import DefaultQueryRunner, Query, QueryRunner
@@ -154,14 +157,10 @@ class Client:
     async def _status(self, timeout: ClientTimeout | None = None) -> "Status":
         endpoint = urljoin(self._url, "status")
         timeout = timeout or aiohttp.ClientTimeout(total=self._status_timeout_secs)
-        try:
-            async with self._session().get(url=endpoint, timeout=timeout) as response:
-                return await _parse_status(response)
-        except aiohttp.ClientError as err:
-            raise await _to_client_error(err) from err
-        except asyncio.TimeoutError as err:
-            assert timeout.total
-            raise CallTimeoutError(cause=err, after_secs=timeout.total) from err
+        async with _map_request_error(timeout), self._session().get(
+            url=endpoint, timeout=timeout
+        ) as response:
+            return await _parse_status(response)
 
     async def status(self) -> Status:
         """
@@ -186,21 +185,17 @@ class Client:
         Raises:
             ClientError: if the request to cancel queries failed
         """
+        timeout = aiohttp.ClientTimeout(total=timeout_secs) if timeout_secs else None
         headers = {"User-Agent": self._user_agent}
         endpoint = urljoin(self._url, "kill_my_queries")
-        try:
-            # use a new session here to get around our concurrency limit
-            async with aiohttp.ClientSession(headers=headers) as session, session.get(
-                endpoint, timeout=timeout_secs
-            ) as response:
-                body = await response.text()
-                killed_pids = re.findall("\\(pid (\\d+)\\)", body)
-                return len(set(killed_pids))
-        except aiohttp.ClientError as err:
-            raise await _to_client_error(err) from err
-        except asyncio.TimeoutError as err:
-            assert timeout_secs is not None
-            raise CallTimeoutError(cause=err, after_secs=timeout_secs) from err
+
+        # use a new session here to get around our concurrency limit
+        async with aiohttp.ClientSession(headers=headers) as session, _map_request_error(
+            timeout
+        ), session.get(endpoint, timeout=timeout) as response:
+            body = await response.text()
+            killed_pids = re.findall("\\(pid (\\d+)\\)", body)
+            return len(set(killed_pids))
 
     async def run_query(self, query: Query, raise_on_failure: bool = True) -> None:
         """
@@ -258,6 +253,8 @@ class Client:
                 raise ValueError(msg) from err
             if raise_on_failure:
                 raise
+        except AssertionError:
+            raise
         except BaseException as err:
             raise RunnerError(err) from err
 
@@ -281,7 +278,7 @@ class Client:
 
             query.logger.info(f"call api for {query}")
 
-            async with self._session().get(
+            async with _map_request_error(req_timeout), self._session().get(
                 url=urljoin(self._url, "interpreter"),
                 params={"data": query._code()},
                 timeout=req_timeout,
@@ -291,18 +288,12 @@ class Client:
                     response_bytes=response.content.total_bytes,
                 )
 
-        except aiohttp.ClientError as err:
-            query_mut.fail_try(await _to_client_error(err))
-
-        except asyncio.TimeoutError as err:
-            assert req_timeout.total
+        except CallTimeoutError as err:
+            fail_with: ClientError = err
             if query.run_timeout_elapsed:
                 assert query.run_duration_secs is not None
-                query_mut.fail_try(
-                    GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
-                )
-            else:
-                query_mut.fail_try(CallTimeoutError(cause=err, after_secs=req_timeout.total))
+                fail_with = GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
+            query_mut.fail_try(fail_with)
 
         except ClientError as err:
             query_mut.fail_try(err)
@@ -424,7 +415,7 @@ async def _parse_status(response: aiohttp.ClientResponse) -> Status:
 
             cooldown_secs = 0 if free_slots > 0 else min(cooldowns)
     except ValueError as err:
-        raise await _to_client_error(response) from err
+        await _raise_for_response(response, cause=err)
 
     return Status(
         slots=slots,
@@ -433,3 +424,17 @@ async def _parse_status(response: aiohttp.ClientResponse) -> Status:
         endpoint=endpoint,
         nb_running_queries=nb_running_queries,
     )
+
+
+@contextlib.asynccontextmanager
+async def _map_request_error(
+    timeout: ClientTimeout | None = None,
+) -> AsyncIterator[None]:
+    """Context to make requests in; maps errors to our exception types."""
+    try:
+        yield
+    except aiohttp.ClientError as err:
+        await _raise_for_request_error(err)
+    except asyncio.TimeoutError as err:
+        assert timeout is not None and timeout.total
+        raise CallTimeoutError(cause=err, after_secs=timeout.total) from err

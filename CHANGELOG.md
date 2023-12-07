@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Add `status_timeout_secs` parameter to `Client`, which limits the duration of
   all status requests
 * Add `timeout_secs` parameter to `Client.cancel_queries()`
+* Add `ResponseErrorCause` type alias
 
 ### Changed
 * Change `Client.run_query()` to no longer enforce a rate limit before making a request.
@@ -25,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   or higher query timeout fail with `EXCEEDED_TIMEOUT`, we give up trying immediately.
 * The request in `Client.cancel_queries()` is no longer subject to the concurrency limit
 * Shorten `Query.cache_key` to 16 characters instead of 64
+* Error dataclasses are now defined with `frozen=True`
 * Increase `aiohttp` requirement to `~3.9`
 
 ### Removed

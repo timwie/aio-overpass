@@ -130,6 +130,11 @@ def verify_query_state(query: Query) -> None:
         assert query.timestamp_osm is None
         assert query.timestamp_areas is None
 
+        # assert that we properly use "raise ... from exc"
+        exc = getattr(query.error, "cause", None)
+        if isinstance(exc, BaseException):
+            assert query.error.__cause__ is exc
+
     if query.done:
         assert query.nb_tries > 0
         assert query.error is None
