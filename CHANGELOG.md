@@ -26,7 +26,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   or higher query timeout fail with `EXCEEDED_TIMEOUT`, we give up trying immediately.
 * The request in `Client.cancel_queries()` is no longer subject to the concurrency limit
 * Shorten `Query.cache_key` to 16 characters instead of 64
-* Error dataclasses are now defined with `frozen=True`
 * Increase `aiohttp` requirement to `~3.9`
 
 ### Removed

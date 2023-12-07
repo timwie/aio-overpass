@@ -62,7 +62,7 @@ class ClientError(Exception):
         return False
 
 
-@dataclass(frozen=True)
+@dataclass
 class RunnerError(ClientError):
     """
     The query runner raised an exception.
@@ -86,7 +86,7 @@ class RunnerError(ClientError):
         return str(self.cause)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CallError(ClientError):
     """
     Failed to make an API request.
@@ -109,7 +109,7 @@ class CallError(ClientError):
         return str(self.cause)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CallTimeoutError(CallError):
     """
     An API request timed out.
@@ -135,7 +135,7 @@ ResponseErrorCause: TypeAlias = aiohttp.ClientResponseError | JSONDecodeError | 
 """Causes for a ``ResponseError``."""
 
 
-@dataclass(frozen=True)
+@dataclass
 class ResponseError(ClientError):
     """
     Unexpected API response.
@@ -179,7 +179,7 @@ class ResponseError(ClientError):
         return f"unexpected response ({self.response.status}): {self.cause}"
 
 
-@dataclass(frozen=True)
+@dataclass
 class GiveupError(ClientError):
     """
     The client spent too long running a query, and gave up.
@@ -205,7 +205,7 @@ class GiveupError(ClientError):
         return f"gave up on {query} after {self.after_secs:.01f} seconds"
 
 
-@dataclass(frozen=True)
+@dataclass
 class QueryError(ClientError):
     """
     Base exception for queries that failed at the Overpass API server.
@@ -230,7 +230,7 @@ class QueryError(ClientError):
         return f"{query} failed: {first}{rest}"
 
 
-@dataclass(frozen=True)
+@dataclass
 class QueryResponseError(ResponseError, QueryError):
     """
     Unexpected query response.
@@ -255,7 +255,7 @@ class QueryResponseError(ResponseError, QueryError):
         return f"{query} failed with status {self.response.status}"
 
 
-@dataclass(frozen=True)
+@dataclass
 class QueryLanguageError(QueryError):
     """
     Indicates the query's QL code is not valid.
@@ -320,7 +320,7 @@ class QueryRejectCause(Enum):
                 raise AssertionError
 
 
-@dataclass(frozen=True)
+@dataclass
 class QueryRejectError(QueryError):
     """
     A query was rejected or cancelled by the API server.
