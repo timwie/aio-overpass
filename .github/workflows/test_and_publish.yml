@@ -86,8 +86,8 @@ jobs:
       - name: Install dependencies & library
         run: poetry install --all-extras --no-interaction
 
-      - name: Check formatting with black
-        run: poetry run black --check aio_overpass/
+      - name: Check formatting with Ruff
+        run: poetry run ruff format aio_overpass/ --check
 
       - name: Lint with Ruff
         run: poetry run ruff check aio_overpass/

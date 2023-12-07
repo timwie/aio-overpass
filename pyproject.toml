@@ -71,7 +71,6 @@ shapely = ["numpy", "shapely"]
 
 [tool.poetry.group.dev.dependencies]
 aioresponses = "^0.7.6"
-black = "^23.11.0"
 codecov = "^2.1.13"
 geojson = "^3.1.0"
 invoke = "^2.2.0"
@@ -79,7 +78,7 @@ isort = "^5.12.0"
 loguru = "^0.7.2"
 mypy = "^1.7.1"
 pdoc = "^14.1.0"
-pyright = "^1.1.338"
+pyright = "^1.1.339"
 pytest = "^7.4.3"
 pytest-asyncio = "^0.23.1"
 pytest-cov = "^4.1.0"
@@ -97,12 +96,12 @@ jupyterlab = "^4.0.9"
 #   https://github.com/nteract/papermill/pull/760
 # papermill = "^2.5.0"
 randomcolor = "^0.4.4.6"
-selenium = "^4.15.2"
+selenium = "^4.16.0"
 tabulate = "^0.9.0"
 
 [tool.ruff]
-# https://github.com/charliermarsh/ruff#configuration
-# https://beta.ruff.rs/docs/rules/
+# https://docs.astral.sh/ruff/settings/
+# https://docs.astral.sh/ruff/rules/
 line-length = 100
 target-version = "py310"
 select = [
@@ -125,10 +124,6 @@ max-args = 4
 
 [tool.ruff.pydocstyle]
 convention = "google"
-
-[tool.black]
-# https://github.com/psf/black#configuration
-line-length = 100
 
 [tool.isort]
 # https://pycqa.github.io/isort/docs/configuration/options.html

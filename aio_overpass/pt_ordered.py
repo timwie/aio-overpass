@@ -466,7 +466,8 @@ def _find_stop_coords(
     )
 
     stop_pos = next(
-        (el for el in station_stop_positions if el.geometry.coords[0] in track_graph), None  # type: ignore[union-attr]
+        (el for el in station_stop_positions if el.geometry.coords[0] in track_graph),  # type: ignore[union-attr]
+        None,
     )
 
     if stop_pos:
