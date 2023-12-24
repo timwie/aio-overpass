@@ -90,4 +90,4 @@ def update(c: Context):
     """Update dependencies"""
     # c.run("poetry self update", echo=True, pty=True)
     c.run("poetry up --latest --only=dev,notebooks", echo=True, pty=True)
-    c.run("poetry show --outdated --why", echo=True, pty=True)
+    c.run("poetry show --outdated --why --with=dev,notebooks", echo=True, pty=True)

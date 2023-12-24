@@ -330,7 +330,7 @@ def to_ordered_routes(routes: list[Route], n_jobs: int = 1) -> list[OrderedRoute
 
         # For each stop, try to find a stop position on the route's graph (its track).
         track_nodes = MultiPoint([Point(*node) for node in track_graph.nodes])
-        track_ways = MultiLineString([LineString([u, v]) for u, v, _key in track_graph.edges])
+        track_ways = MultiLineString([LineString([u, v]) for u, v, _key in track_graph.edges])  # pyright: ignore
         for stop in route.stops:
             stop.stop_coords = _find_stop_coords(stop, track_graph, track_nodes, track_ways)
 
@@ -579,7 +579,7 @@ def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> None:
 
     if u != v:
         try:
-            path_nodes = nx.shortest_path(graph, source=u, target=v, weight=_WEIGHT_KEY)
+            path_nodes = nx.shortest_path(graph, source=u, target=v, weight=_WEIGHT_KEY)  # pyright: ignore
             _traverse_path(graph, progress, path_nodes)  # pyright: ignore
             return _traverse_graph(graph, progress)
         except nx.NetworkXNoPath:
@@ -636,7 +636,7 @@ def _traverse_path(graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_
         # The path does not specify exactly which edge was traversed, so we select
         # the parallel edge of (u, v) that has the smallest weight, and increase it.
         u, v, key, _ = min(  # pyright: ignore
-            graph.edges([u, v], keys=True, data=True),
+            graph.edges([u, v], keys=True, data=True),  # pyright: ignore
             key=lambda t: t[3][_WEIGHT_KEY],  # pyright: ignore
         )
 
