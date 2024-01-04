@@ -42,7 +42,7 @@ DEFAULT_USER_AGENT = f"aio-overpass/{__version__} (https://github.com/timwie/aio
 """User agent that points to the ``aio-overpass`` repo."""
 
 
-@dataclass(slots=True)
+@dataclass(kw_only=True, slots=True)
 class Status:
     """
     Information about the API server's rate limit.
@@ -256,7 +256,7 @@ class Client:
         except AssertionError:
             raise
         except BaseException as err:
-            raise RunnerError(err) from err
+            raise RunnerError(cause=err) from err
 
     async def _try_query_once(self, query: Query) -> None:
         """A single iteration of running a query."""

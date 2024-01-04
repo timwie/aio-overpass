@@ -555,7 +555,7 @@ class _QueryMutator:
         self._query._nb_tries += 1
 
 
-@dataclass(slots=True, frozen=True, repr=False, order=True)
+@dataclass(kw_only=True, slots=True, frozen=True, repr=False, order=True)
 class _Instant:
     """
     Measurement of a monotonic clock.
@@ -589,7 +589,7 @@ class _Instant:
         return f"{type(self).__name__}({self.when:.02f})"
 
 
-@dataclass(slots=True)
+@dataclass(kw_only=True, slots=True)
 class RequestTimeout:
     """
     Request timeout settings.

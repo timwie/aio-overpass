@@ -183,7 +183,7 @@ class Connection(Enum):
         return f"{type(self).__name__}.{self.name}"
 
 
-@dataclass(slots=True)
+@dataclass(kw_only=True, slots=True)
 class Stop(Spatial):
     """
     A stop on a public transportation route.
@@ -357,7 +357,7 @@ class RouteScheme(Enum):
         return f"{type(self).__name__}.{self.name}"
 
 
-@dataclass(slots=True)
+@dataclass(kw_only=True, slots=True)
 class Route(Spatial):
     """
     A public transportation service route, e.g. a bus line.

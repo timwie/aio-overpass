@@ -78,8 +78,8 @@ isort = "^5.13.2"
 loguru = "^0.7.2"
 mypy = "^1.8.0"
 pdoc = "^14.3.0"
-pyright = "^1.1.342"
-pytest = "^7.4.3"
+pyright = "^1.1.344"
+pytest = "^7.4.4"
 pytest-asyncio = "^0.23.1"
 pytest-cov = "^4.1.0"
 pytest-xdist = "^3.5.0"
@@ -91,7 +91,7 @@ optional = true
 
 [tool.poetry.group.notebooks.dependencies]
 folium = "^0.15.1"
-jupyterlab = "^4.0.9"
+jupyterlab = "^4.0.10"
 # TODO papermill depends on aiohttp==3.9.0b for some reason
 #   https://github.com/nteract/papermill/pull/760
 # papermill = "^2.5.0"

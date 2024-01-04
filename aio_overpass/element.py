@@ -53,7 +53,7 @@ This tuple can be understood as any of
 """
 
 
-@dataclass(slots=True)
+@dataclass(kw_only=True, slots=True)
 class SpatialDict:
     """
     Mapping of spatial objects with the ``__geo_interface__`` property.
@@ -112,7 +112,7 @@ class Spatial(ABC):
                 yield SpatialDict(__geo_interface__=geojson)
 
 
-@dataclass(slots=True)
+@dataclass(kw_only=True, slots=True)
 class Metadata:
     """
     Metadata concerning the most recent edit of an OSM element.
@@ -135,7 +135,7 @@ class Metadata:
 G = TypeVar("G", bound=BaseGeometry)
 
 
-@dataclass(slots=True)
+@dataclass(kw_only=True, slots=True)
 class GeometryDetails(Generic[G]):
     """
     Element geometry with more info on its validity.
@@ -173,7 +173,7 @@ class GeometryDetails(Generic[G]):
         return self.valid or self.accepted or self.fixed or self.invalid
 
 
-@dataclass(repr=False, eq=False)
+@dataclass(kw_only=True, repr=False, eq=False)
 class Element(Spatial):
     """
     Elements are the basic components of OpenStreetMap's data.
@@ -332,7 +332,7 @@ class Element(Spatial):
         return f"{type(self).__name__}({self.id})"
 
 
-@dataclass(slots=True, repr=False, eq=False)
+@dataclass(kw_only=True, slots=True, repr=False, eq=False)
 class Node(Element):
     """
     A point in space, at a specific coordinate.
@@ -350,7 +350,7 @@ class Node(Element):
     geometry: Point | None
 
 
-@dataclass(slots=True, repr=False, eq=False)
+@dataclass(kw_only=True, slots=True, repr=False, eq=False)
 class Way(Element):
     """
     A way is an ordered list of nodes.
@@ -377,7 +377,7 @@ class Way(Element):
     geometry_details: GeometryDetails[LineString | LinearRing | Polygon] | None
 
 
-@dataclass(slots=True, repr=False, eq=False)
+@dataclass(kw_only=True, slots=True, repr=False, eq=False)
 class Relation(Element):
     """
     A relation is a group of nodes and ways that have a logical or geographic relationship.
@@ -420,7 +420,7 @@ class Relation(Element):
             yield relship.role, relship.member
 
 
-@dataclass(slots=True, repr=False)
+@dataclass(kw_only=True, slots=True, repr=False)
 class Relationship(Spatial):
     """
     The relationship of an element that is part of a relation, with an optional role.
