@@ -263,8 +263,6 @@ class Client:
         query_mut = query._mutator()
         query_mut.begin_try()
 
-        req_timeout = aiohttp.ClientTimeout()
-
         try:
             await self._cooldown(query)
 
