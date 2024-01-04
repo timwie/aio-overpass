@@ -1,10 +1,9 @@
 """Interface for making API calls."""
 
 import asyncio
-import contextlib
 import re
 from collections.abc import AsyncIterator
-from contextlib import suppress
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass
 from urllib.parse import urljoin
 
@@ -424,7 +423,7 @@ async def _parse_status(response: aiohttp.ClientResponse) -> Status:
     )
 
 
-@contextlib.asynccontextmanager
+@asynccontextmanager
 async def _map_request_error(
     timeout: ClientTimeout | None = None,
 ) -> AsyncIterator[None]:
