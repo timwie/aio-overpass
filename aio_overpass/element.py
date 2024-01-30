@@ -594,7 +594,7 @@ def _collect_typed(collector: _ElementCollector) -> None:
             case _:
                 raise AssertionError
 
-        elem = cls(**args)  # pyright: ignore[reportGeneralTypeIssues]
+        elem = cls(**args)  # pyright: ignore[reportArgumentType]
         collector.typed_dict[elem_key] = elem
 
 

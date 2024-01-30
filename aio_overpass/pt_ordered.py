@@ -122,7 +122,7 @@ class OrderedRouteView(Spatial):
             else:
                 ordering.append(a)
 
-        ordering.append(b)  # pyright: ignore[reportUnboundVariable]
+        ordering.append(b)  # pyright: ignore[reportPossiblyUnboundVariable]
 
         yield replace(self, ordering=ordering)
 
