@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+
+<br>
+
+## [0.12.1] – 2024-01-30
+### Fixed
+* `Client.run_query()` now makes `POST` requests instead of `GET`
+  to prevent `414 URI Too Long` errors for large queries
+
 <br>
 
 ## [0.12.0] – 2023-12-07
@@ -274,5 +282,6 @@ The Python versions supported by this release are 3.10-3.12.
 [0.10.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.10.0
 [0.11.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.11.0
 [0.12.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.12.0
+[0.12.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.12.1
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
