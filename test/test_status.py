@@ -1,13 +1,10 @@
 from aio_overpass import Client
 from aio_overpass.client import Status
 from aio_overpass.error import ResponseError
-from test.util import VerifyingQueryRunner
+from test.util import URL_STATUS, VerifyingQueryRunner
 
 import pytest
 from aioresponses import aioresponses
-
-
-URL_STATUS = "https://overpass-api.de/api/status"
 
 
 @pytest.mark.asyncio

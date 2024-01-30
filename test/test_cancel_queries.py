@@ -1,11 +1,8 @@
 from aio_overpass import Client
-from test.util import VerifyingQueryRunner
+from test.util import URL_KILL, VerifyingQueryRunner
 
 import pytest
 from aioresponses import aioresponses
-
-
-URL_KILL = "https://overpass-api.de/api/kill_my_queries"
 
 
 @pytest.mark.asyncio

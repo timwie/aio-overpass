@@ -48,7 +48,7 @@ def mock_result_set(mock_response, file_name):
     data_file = test_dir / "route_data" / file_name
     result_set = data_file.read_text()
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body=result_set,
         status=200,

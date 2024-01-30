@@ -13,14 +13,10 @@ from aio_overpass.error import (
     RunnerError,
 )
 from aio_overpass.query import QueryRunner
-from test.util import VerifyingQueryRunner, verify_query_state
+from test.util import URL_INTERPRETER, URL_STATUS, VerifyingQueryRunner, verify_query_state
 
 import pytest
 from aioresponses import aioresponses
-
-
-URL_INTERPRETER = re.compile(r"^https://overpass-api\.de/api/interpreter\?data=.+$")
-URL_STATUS = "https://overpass-api.de/api/status"
 
 
 @pytest.fixture
@@ -49,7 +45,7 @@ async def mock_run_query(mock_response, body, content_type, **kwargs):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("", **kwargs)
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body=body,
         status=200,
@@ -333,7 +329,7 @@ async def test_internal_server_error():
     q = Query("")
 
     with aioresponses() as m, pytest.raises(ResponseError) as err:
-        m.get(URL_INTERPRETER, status=500, repeat=True)
+        m.post(URL_INTERPRETER, status=500, repeat=True)
         await c.run_query(q)
 
         assert err.value.response.status == 500
@@ -354,11 +350,11 @@ async def test_timeout_error():
     q2 = Query("", my_kwarg=42)
 
     with aioresponses() as m:
-        m.get(URL_INTERPRETER, exception=asyncio.TimeoutError())
+        m.post(URL_INTERPRETER, exception=asyncio.TimeoutError())
         with pytest.raises(CallTimeoutError) as err:
             await c.run_query(q)
 
-        m.get(URL_INTERPRETER, exception=asyncio.TimeoutError())
+        m.post(URL_INTERPRETER, exception=asyncio.TimeoutError())
         with pytest.raises(CallTimeoutError) as err2:
             await c.run_query(q2)
 
@@ -415,7 +411,7 @@ async def test_unexpected_message_error(mock_response):
 </html>
     """
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body=body,
         status=400,
@@ -457,7 +453,7 @@ async def test_no_message_error(mock_response):
 </html>
     """
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body=body,
         status=200,
@@ -481,7 +477,7 @@ async def test_plaintext_server_error(mock_response):
 open64: 2 No such file or directory /osm3s_osm_base Dispatcher_Client::1. Probably the server is down.
     """
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body=body,
         status=504,

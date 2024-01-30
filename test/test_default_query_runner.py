@@ -17,7 +17,7 @@ async def test_caching(mock_response):
     with open(data_file, mode="r", encoding="utf-8") as file:
         response = json.load(file)
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body=response_str,
         status=200,
@@ -36,7 +36,7 @@ async def test_caching(mock_response):
     assert q1.response == response
     assert not q1.was_cached
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body="{}",
         status=504,
@@ -60,7 +60,7 @@ async def test_cache_expiration(mock_response):
     with open(data_file, mode="r", encoding="utf-8") as file:
         response = json.load(file)
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body=response_str,
         status=200,
@@ -81,7 +81,7 @@ async def test_cache_expiration(mock_response):
 
     __cache_expire(q1)
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body=response_str,
         status=200,

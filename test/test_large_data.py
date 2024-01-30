@@ -24,7 +24,7 @@ async def test_collect_any_element_carabanchel(mock_response):
     with gzip.open(data_file, mode="r") as f:
         json_body = f.read().decode("utf-8")
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body=json_body,
         status=200,
@@ -50,7 +50,7 @@ async def test_collect_any_route_carabanchel(mock_response):
     with gzip.open(data_file, mode="r") as f:
         json_body = f.read().decode("utf-8")
 
-    mock_response.get(
+    mock_response.post(
         url=URL_INTERPRETER,
         body=json_body,
         status=200,

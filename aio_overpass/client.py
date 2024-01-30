@@ -275,9 +275,9 @@ class Client:
 
             query.logger.info(f"call api for {query}")
 
-            async with _map_request_error(req_timeout), self._session().get(
+            async with _map_request_error(req_timeout), self._session().post(
                 url=urljoin(self._url, "interpreter"),
-                params={"data": query._code()},
+                data=query._code(),
                 timeout=req_timeout,
             ) as response:
                 query_mut.succeed_try(

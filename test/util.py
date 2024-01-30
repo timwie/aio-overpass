@@ -13,7 +13,7 @@ from aioresponses import aioresponses
 from shapely import Point
 
 
-URL_INTERPRETER = re.compile(r"^https://overpass-api\.de/api/interpreter\?data=.+$")
+URL_INTERPRETER = "https://overpass-api.de/api/interpreter"
 URL_STATUS = "https://overpass-api.de/api/status"
 URL_KILL = "https://overpass-api.de/api/kill_my_queries"
 
