@@ -1,5 +1,4 @@
 import json
-import re
 
 from aio_overpass import Query
 from aio_overpass.element import Element, Node, Relation, Relationship, Spatial, Way

@@ -1,5 +1,4 @@
 import asyncio
-import re
 
 from aio_overpass import Client, Query
 from aio_overpass.error import (
