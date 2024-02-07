@@ -6,6 +6,7 @@ from aio_overpass.query import _EXPIRATION_KEY, __cache_delete, __cache_expire, 
 from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
 
 import pytest
+import os
 
 
 @pytest.mark.asyncio
@@ -35,6 +36,51 @@ async def test_caching(mock_response):
     del q1.response[_EXPIRATION_KEY]
     assert q1.response == response
     assert not q1.was_cached
+
+    mock_response.post(
+        url=URL_INTERPRETER,
+        body="{}",
+        status=504,
+        content_type="application/json",
+    )
+
+    await c.run_query(q2)
+    del q2.response[_EXPIRATION_KEY]
+    assert q2.response == response
+    assert q2.was_cached
+
+    await c.close()
+
+
+@pytest.mark.asyncio
+async def test_caching_with_custom_path(mock_response):
+    test_dir = Path(__file__).resolve().parent
+    data_file = test_dir / "route_data" / "ambiguous_stop_name1.json"
+    response_str = data_file.read_text()
+
+    with open(data_file, mode="r", encoding="utf-8") as file:
+        response = json.load(file)
+
+    mock_response.post(
+        url=URL_INTERPRETER,
+        body=response_str,
+        status=200,
+    )
+
+    c = Client(runner=VerifyingQueryRunner(cache_ttl_secs=100, cache_path="/tmp/overpass_cache"))
+
+    q1 = Query(input_code="nonsense")
+    q2 = Query(input_code="nonsense")
+    assert q1.cache_key == q2.cache_key
+
+    __cache_delete(q1, cache_path="/tmp/overpass_cache")
+
+    await c.run_query(q1)
+    del q1.response[_EXPIRATION_KEY]
+    assert q1.response == response
+    assert not q1.was_cached
+
+    assert os.path.exists(f"/tmp/overpass_cache/{q1.cache_key}.json")
 
     mock_response.post(
         url=URL_INTERPRETER,
