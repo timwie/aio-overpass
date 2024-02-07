@@ -62,7 +62,7 @@ numpy = [
     { version = "^1.26", optional = true, python = ">=3.12,<3.13" },
 ]
 python = "^3.10"
-shapely = { version = "~2.0", optional = true }
+shapely = { version = "^2", optional = true }
 
 [tool.poetry.extras]
 joblib = ["joblib"]
