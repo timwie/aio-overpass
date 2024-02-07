@@ -61,7 +61,7 @@ jobs:
         run: poetry run pytest -n auto -vv --cov=aio_overpass/ --cov-report=xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
 
   lint:
     name: Lint package (3.10)
