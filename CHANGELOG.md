@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 ### Changed
 * Relax `aiohttp` version requirement to `^3.9` (from `~3.9`)
+* Relax `joblib` version requirement to `^1.3` (from `~1.3`)
 
 ## [0.12.1] – 2024-01-30
 ### Fixed
