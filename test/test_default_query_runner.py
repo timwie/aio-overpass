@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import shutil
 
 from aio_overpass import Client, Query
 from aio_overpass.query import _EXPIRATION_KEY, __cache_delete, __cache_expire, _fibo_backoff_secs
@@ -67,7 +68,13 @@ async def test_caching_with_custom_path(mock_response):
         status=200,
     )
 
-    c = Client(runner=VerifyingQueryRunner(cache_ttl_secs=100, cache_path="/tmp/overpass_cache", cache_file_prefix="foo-"))
+    shutil.rmtree("/tmp/overpass_cache", ignore_errors=True)
+
+    c = Client(
+        runner=VerifyingQueryRunner(
+            cache_ttl_secs=100, cache_path="/tmp/overpass_cache", cache_file_prefix="foo-"
+        )
+    )
 
     q1 = Query(input_code="nonsense")
     q2 = Query(input_code="nonsense")
