@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
+## Unreleased
+### Changed
+* Relax `aiohttp` version requirement to `^3.9` (from `~3.9`)
+
 ## [0.12.1] – 2024-01-30
 ### Fixed
 * `Client.run_query()` now makes `POST` requests instead of `GET`
