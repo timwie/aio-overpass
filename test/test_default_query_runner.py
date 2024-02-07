@@ -67,20 +67,20 @@ async def test_caching_with_custom_path(mock_response):
         status=200,
     )
 
-    c = Client(runner=VerifyingQueryRunner(cache_ttl_secs=100, cache_path="/tmp/overpass_cache"))
+    c = Client(runner=VerifyingQueryRunner(cache_ttl_secs=100, cache_path="/tmp/overpass_cache", cache_file_prefix="foo-"))
 
     q1 = Query(input_code="nonsense")
     q2 = Query(input_code="nonsense")
     assert q1.cache_key == q2.cache_key
 
-    __cache_delete(q1, cache_path="/tmp/overpass_cache")
+    __cache_delete(q1, cache_path="/tmp/overpass_cache", cache_file_prefix="foo-")
 
     await c.run_query(q1)
     del q1.response[_EXPIRATION_KEY]
     assert q1.response == response
     assert not q1.was_cached
 
-    assert os.path.exists(f"/tmp/overpass_cache/{q1.cache_key}.json")
+    assert os.path.exists(f"/tmp/overpass_cache/foo-{q1.cache_key}.json")
 
     mock_response.post(
         url=URL_INTERPRETER,

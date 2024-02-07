@@ -669,10 +669,11 @@ class DefaultQueryRunner(QueryRunner):
         "_max_tries",
         "_cache_ttl_secs",
         "_cache_path",
+        "_cache_file_prefix",
     )
 
     def __init__(
-        self, max_tries: int = 5, cache_ttl_secs: int = 0, cache_path: Optional[str] = None
+        self, max_tries: int = 5, cache_ttl_secs: int = 0, cache_path: Optional[str] = None, cache_file_prefix: str = ""
     ) -> None:
         if max_tries < 1:
             msg = "max_tries must be >= 1"
@@ -684,6 +685,7 @@ class DefaultQueryRunner(QueryRunner):
 
         self._max_tries = max_tries
         self._cache_ttl_secs = cache_ttl_secs
+        self._cache_file_prefix = cache_file_prefix
         if cache_path:
             self._cache_path = Path(cache_path)
             self._cache_path.mkdir(parents=True, exist_ok=True)
@@ -702,7 +704,7 @@ class DefaultQueryRunner(QueryRunner):
 
         now = int(time.time())
 
-        file_name = f"{query.cache_key}.json"
+        file_name = f"{self._cache_file_prefix}{query.cache_key}.json"
         file_path = self._cache_path / file_name
 
         if not file_path.exists():
@@ -735,7 +737,7 @@ class DefaultQueryRunner(QueryRunner):
         assert query._response is not None
         query._response[_EXPIRATION_KEY] = now + self._cache_ttl_secs
 
-        file_name = f"{query.cache_key}.json"
+        file_name = f"{self._cache_file_prefix}{query.cache_key}.json"
         file_path = self._cache_path / file_name
 
         logger.debug(f"caching at {file_path}…")
@@ -807,16 +809,16 @@ def _fibo_backoff_secs(tries: int) -> float:
     return a
 
 
-def __cache_delete(query: Query, *, cache_path: Optional[str] = None) -> None:
+def __cache_delete(query: Query, *, cache_path: Optional[str] = None, cache_file_prefix: str = "") -> None:
     """Clear a response cached by the default runner (only to be used in tests)."""
-    file_name = f"{query.cache_key}.json"
+    file_name = f"{cache_file_prefix}{query.cache_key}.json"
     file_path = Path(cache_path or tempfile.gettempdir()) / file_name
     file_path.unlink(missing_ok=True)
 
 
-def __cache_expire(query: Query, *, cache_path: Optional[str] = None) -> None:
+def __cache_expire(query: Query, *, cache_path: Optional[str] = None, cache_file_prefix: str = "") -> None:
     """Clear a response cached by the default runner (only to be used in tests)."""
-    file_name = f"{query.cache_key}.json"
+    file_name = f"{cache_file_prefix}{query.cache_key}.json"
     file_path = Path(cache_path or tempfile.gettempdir()) / file_name
 
     with open(file_path, mode="r", encoding="utf-8") as file:
