@@ -673,7 +673,11 @@ class DefaultQueryRunner(QueryRunner):
     )
 
     def __init__(
-        self, max_tries: int = 5, cache_ttl_secs: int = 0, cache_path: Optional[str] = None, cache_file_prefix: str = ""
+        self,
+        max_tries: int = 5,
+        cache_ttl_secs: int = 0,
+        cache_path: Optional[str] = None,
+        cache_file_prefix: str = "",
     ) -> None:
         if max_tries < 1:
             msg = "max_tries must be >= 1"
@@ -809,14 +813,18 @@ def _fibo_backoff_secs(tries: int) -> float:
     return a
 
 
-def __cache_delete(query: Query, *, cache_path: Optional[str] = None, cache_file_prefix: str = "") -> None:
+def __cache_delete(
+    query: Query, *, cache_path: Optional[str] = None, cache_file_prefix: str = ""
+) -> None:
     """Clear a response cached by the default runner (only to be used in tests)."""
     file_name = f"{cache_file_prefix}{query.cache_key}.json"
     file_path = Path(cache_path or tempfile.gettempdir()) / file_name
     file_path.unlink(missing_ok=True)
 
 
-def __cache_expire(query: Query, *, cache_path: Optional[str] = None, cache_file_prefix: str = "") -> None:
+def __cache_expire(
+    query: Query, *, cache_path: Optional[str] = None, cache_file_prefix: str = ""
+) -> None:
     """Clear a response cached by the default runner (only to be used in tests)."""
     file_name = f"{cache_file_prefix}{query.cache_key}.json"
     file_path = Path(cache_path or tempfile.gettempdir()) / file_name
