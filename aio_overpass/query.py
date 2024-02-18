@@ -12,7 +12,7 @@ import tempfile
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from aio_overpass.error import (
@@ -439,7 +439,7 @@ class Query:
             return None
 
         date_str = self._response["osm3s"]["timestamp_osm_base"]
-        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
+        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").astimezone(timezone.utc)
 
     @property
     def timestamp_areas(self) -> datetime | None:
@@ -460,7 +460,7 @@ class Query:
         if not date_str:
             return None
 
-        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
+        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").astimezone(timezone.utc)
 
     @property
     def copyright(self) -> str:

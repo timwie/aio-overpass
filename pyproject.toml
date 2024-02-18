@@ -79,11 +79,11 @@ loguru = "^0.7.2"
 mypy = "^1.8.0"
 pdoc = "^14.4.0"
 pyright = "^1.1.350"
-pytest = "^8.0.0"
-pytest-asyncio = "^0.23.5a0"
+pytest = "^8.0.1"
+pytest-asyncio = "^0.23.5"
 pytest-cov = "^4.1.0"
 pytest-xdist = "^3.5.0"
-ruff = "^0.2.1"
+ruff = "^0.2.2"
 slotscheck = "^0.17.0"
 
 [tool.poetry.group.notebooks]
@@ -91,7 +91,7 @@ optional = true
 
 [tool.poetry.group.notebooks.dependencies]
 folium = "^0.15.1"
-jupyterlab = "^4.1.0"
+jupyterlab = "^4.1.1"
 # TODO papermill depends on aiohttp==3.9.0b for some reason
 #   https://github.com/nteract/papermill/pull/760
 # papermill = "^2.5.0"
@@ -107,10 +107,26 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = [
-    "F", "E", "W", "N", "D", "UP",
-    "ANN", "S", "B", "C4", "EM", "SIM", "ARG",
-    "PL", "TRY", "PERF", "RUF",
-    # TODO "FBT", "PTH", "DTZ"
+    "ANN",
+    "ARG",
+    "B",
+    "C4",
+    "D",
+    "DTZ",
+    "E",
+    "EM",
+    "F",
+    "FBT",
+    "N",
+    "PERF",
+    "PL",
+    "PTH",
+    "RUF",
+    "S",
+    "SIM",
+    "TRY",
+    "UP",
+    "W",
 ]
 ignore = [
     "S101",
