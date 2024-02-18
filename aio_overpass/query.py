@@ -42,7 +42,10 @@ DEFAULT_MAXSIZE_MIB = 512
 DEFAULT_TIMEOUT_SECS = 180
 """Default ``timeout`` setting in seconds."""
 
-_COPYRIGHT = "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."  # noqa: E501
+_COPYRIGHT = (
+    "The data included in this document is from www.openstreetmap.org."
+    " The data is made available under ODbL."
+)
 """This is the same copyright notice included in result sets"""
 
 _SETTING_PATTERN = re.compile(r"\[(\w+?):(.+?)]\s*;?")
