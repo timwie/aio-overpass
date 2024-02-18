@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Relax `aiohttp` version requirement to `^3.9` (from `~3.9`)
 * Relax `joblib` version requirement to `^1.3` (from `~1.3`)
 * Relax `shapely` version requirement to `^2` (from `~2.0`)
+* `raise_on_failure` is now a keyword-only argument in `Client.run_query()`
+
+<br>
 
 ## [0.12.1] – 2024-01-30
 ### Fixed

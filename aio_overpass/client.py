@@ -196,7 +196,7 @@ class Client:
             killed_pids = re.findall("\\(pid (\\d+)\\)", body)
             return len(set(killed_pids))
 
-    async def run_query(self, query: Query, raise_on_failure: bool = True) -> None:
+    async def run_query(self, query: Query, *, raise_on_failure: bool = True) -> None:
         """
         Send a query to the API, and await its completion.
 
@@ -235,7 +235,7 @@ class Client:
                 return
             await self._try_query_once(query)
 
-    async def _invoke_runner(self, query: Query, raise_on_failure: bool) -> None:
+    async def _invoke_runner(self, query: Query, *, raise_on_failure: bool) -> None:
         """
         Invoke the query runner.
 
