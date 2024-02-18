@@ -132,14 +132,11 @@ ignore = [
     "ANN003", "ANN101", "ANN102", "ANN401",
     "C408",
     "D105", "D107", "D203", "D212",
-    "PLR2004", "PLW2901",
+    "PLR0913", "PLR2004", "PLW2901",
     "S101",
     "TRY003",
     "UP015",
 ]
-
-[tool.ruff.lint.pylint]
-max-args = 4
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

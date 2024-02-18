@@ -110,7 +110,7 @@ class Client:
         "_user_agent",
     )
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         url: str = DEFAULT_INSTANCE,
         user_agent: str = DEFAULT_USER_AGENT,
