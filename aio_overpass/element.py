@@ -1,4 +1,5 @@
 """Typed result set members."""
+
 import math
 import re
 from abc import ABC, abstractmethod

@@ -13,6 +13,7 @@ Error types.
 QueryLanguageError         QueryRejectError          QueryResponseError   CallTimeoutError
 ```
 """
+
 import asyncio
 import html
 import re

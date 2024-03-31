@@ -23,16 +23,14 @@ def doco(c: Context):
 @task
 def fmt(c: Context):
     """Run code formatters"""
-    c.run("isort aio_overpass/", echo=True, pty=True)
-    c.run("isort test/", echo=True, pty=True)
-    c.run("ruff format aio_overpass/", echo=True, pty=True)
-    c.run("ruff format test/", echo=True, pty=True)
-    c.run("ruff format tasks.py", echo=True, pty=True)
+    c.run("isort aio_overpass test", echo=True, pty=True)
+    c.run("ruff format aio_overpass test tasks.py", echo=True, pty=True)
 
 
 @task
 def install(c: Context):
     """Install all dependencies"""
+    c.run("poetry lock --no-update", echo=True, pty=True)
     c.run("poetry install --all-extras --with notebooks", echo=True, pty=True)
 
 
@@ -88,6 +86,5 @@ def tree(c: Context):
 @task
 def update(c: Context):
     """Update dependencies"""
-    # c.run("poetry self update", echo=True, pty=True)
     c.run("poetry up --latest --only=dev,notebooks", echo=True, pty=True)
     c.run("poetry show --outdated --why --with=dev,notebooks", echo=True, pty=True)

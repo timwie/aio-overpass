@@ -156,9 +156,10 @@ class Client:
     async def _status(self, timeout: ClientTimeout | None = None) -> "Status":
         endpoint = urljoin(self._url, "status")
         timeout = timeout or aiohttp.ClientTimeout(total=self._status_timeout_secs)
-        async with _map_request_error(timeout), self._session().get(
-            url=endpoint, timeout=timeout
-        ) as response:
+        async with (
+            _map_request_error(timeout),
+            self._session().get(url=endpoint, timeout=timeout) as response,
+        ):
             return await _parse_status(response)
 
     async def status(self) -> Status:
@@ -189,9 +190,11 @@ class Client:
         endpoint = urljoin(self._url, "kill_my_queries")
 
         # use a new session here to get around our concurrency limit
-        async with aiohttp.ClientSession(headers=headers) as session, _map_request_error(
-            timeout
-        ), session.get(endpoint, timeout=timeout) as response:
+        async with (
+            aiohttp.ClientSession(headers=headers) as session,
+            _map_request_error(timeout),
+            session.get(endpoint, timeout=timeout) as response,
+        ):
             body = await response.text()
             killed_pids = re.findall("\\(pid (\\d+)\\)", body)
             return len(set(killed_pids))
@@ -275,11 +278,14 @@ class Client:
 
             query.logger.info(f"call api for {query}")
 
-            async with _map_request_error(req_timeout), self._session().post(
-                url=urljoin(self._url, "interpreter"),
-                data=query._code(),
-                timeout=req_timeout,
-            ) as response:
+            async with (
+                _map_request_error(req_timeout),
+                self._session().post(
+                    url=urljoin(self._url, "interpreter"),
+                    data=query._code(),
+                    timeout=req_timeout,
+                ) as response,
+            ):
                 query_mut.succeed_try(
                     response=await _result_or_raise(response, query.kwargs),
                     response_bytes=response.content.total_bytes,
