@@ -684,15 +684,13 @@ class DefaultQueryRunner(QueryRunner):
         self._max_tries = max_tries
         self._cache_ttl_secs = cache_ttl_secs
 
+    def _is_caching(self, query: Query) -> bool:
+        if self._cache_ttl_secs and _FORCE_DISABLE_CACHE:
+            query.logger.debug("caching is forced disabled")
+        return self._cache_ttl_secs > 0
+
     def _cache_read(self, query: Query) -> None:
         logger = query.logger
-
-        if _FORCE_DISABLE_CACHE:
-            logger.debug("caching is forced disabled")
-            return
-        if not self._cache_ttl_secs:
-            logger.debug("caching is disabled")
-            return
 
         now = int(time.time())
 
@@ -721,9 +719,6 @@ class DefaultQueryRunner(QueryRunner):
     def _cache_write(self, query: Query) -> None:
         logger = query.logger
 
-        if not self._cache_ttl_secs or _FORCE_DISABLE_CACHE:
-            return
-
         now = int(time.time())
 
         assert query._response is not None
@@ -745,12 +740,12 @@ class DefaultQueryRunner(QueryRunner):
         logger = query.logger
 
         # Check cache ahead of first try
-        if query.nb_tries == 0:
+        if query.nb_tries == 0 and self._is_caching(query):
             await asyncio.to_thread(self._cache_read, query)
 
         # Success or cached
         if query.done:
-            if not query.was_cached:
+            if not query.was_cached and self._is_caching(query):
                 await asyncio.to_thread(self._cache_write, query)
             return
 
