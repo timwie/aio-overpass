@@ -63,12 +63,17 @@ There are three basic steps to fetch the spatial data you need:
     - Collectors are often specific to queries - `collect_routes` requires a `RouteQuery`,
       for instance.
 
-### Example
-#### Results as Dictionaries
+<br>
+
+### Example: looking up a building in Hamburg
+#### a) Results as Dictionaries
+You may use the `.result_set` property to get a list of all query results
+without any extra processing:
+
 ```python
 from aio_overpass import Client, Query
 
-query = Query("way(24981342); out geom;")
+query = Query('way["addr:housename"=Elbphilharmonie]; out geom;')
 
 client = Client()
 
@@ -93,7 +98,13 @@ query.result_set
 ]
 ```
 
-#### Results as Objects
+#### b) Results as Objects
+This will give you a user-friendly Python interface
+for [nodes](https://www.timwie.dev/aio-overpass/aio_overpass/element.html#Node),
+[ways](https://www.timwie.dev/aio-overpass/aio_overpass/element.html#Way),
+and [relations](https://www.timwie.dev/aio-overpass/aio_overpass/element.html#Relation).
+Here we use the `.tags` property:
+
 ```python
 from aio_overpass.element import collect_elements
 
@@ -112,7 +123,9 @@ elems[0].tags
 
 ```
 
-#### Results as GeoJSON
+#### c) Results as GeoJSON
+The processed elements can also easily be converted to GeoJSON:
+
 ```python
 import json
 
