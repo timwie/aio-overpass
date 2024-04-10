@@ -745,6 +745,7 @@ class DefaultQueryRunner(QueryRunner):
 
         # Success or cached
         if query.done:
+            logger.info(f"{query}")
             if not query.was_cached and self._is_caching(query):
                 await asyncio.to_thread(self._cache_write, query)
             return
