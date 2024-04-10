@@ -751,6 +751,9 @@ class DefaultQueryRunner(QueryRunner):
 
         err = query.error
 
+        if err:
+            logger.info(f"try for query{query.kwargs!r} failed: {err}")
+
         if is_server_error(err):
             logger.error(f"unexpected response body:\n{err.body}")
 
