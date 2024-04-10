@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
-## Unreleased
+## [0.13.0] – 2024-04-11
 ### Changed
 * Relax `aiohttp` version requirement to `^3.9` (from `~3.9`)
 * Relax `joblib` version requirement to `^1.3` (from `~1.3`)
@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * The string representation of a query without kwargs is now `"query{}"` instead of `"query <no kwargs>"`
 * Log a message when a query is done
 * Log the error more explicitly when a try fails
+* Debug logging when matching Overpass error messages
 
 <br>
 
