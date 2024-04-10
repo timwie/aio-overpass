@@ -687,6 +687,7 @@ class DefaultQueryRunner(QueryRunner):
     def _is_caching(self, query: Query) -> bool:
         if self._cache_ttl_secs and _FORCE_DISABLE_CACHE:
             query.logger.debug("caching is forced disabled")
+            return False
         return self._cache_ttl_secs > 0
 
     def _cache_read(self, query: Query) -> None:
