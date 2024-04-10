@@ -65,6 +65,12 @@ def papermill(c: Context):
 
 
 @task
+def quick_test(c: Context):
+    """Run tests without the long-running ones"""
+    c.run("poetry run pytest -vv --ignore test/test_large_data.py", echo=True, pty=True)
+
+
+@task
 def test(c: Context):
     """Run tests"""
     c.run("pytest -n auto -vv --cov=aio_overpass/", echo=True, pty=True)

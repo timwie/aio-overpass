@@ -474,7 +474,7 @@ class Query:
         return self._response["osm3s"].get("copyright") or _COPYRIGHT
 
     def __str__(self) -> str:
-        query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
+        query = f"query{self.kwargs!r}"
 
         size = self.response_size_mib
         time_request = self.request_duration_secs
