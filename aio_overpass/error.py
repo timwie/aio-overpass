@@ -202,8 +202,7 @@ class GiveupError(ClientError):
         return False
 
     def __str__(self) -> str:
-        query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
-        return f"gave up on {query} after {self.after_secs:.01f} seconds"
+        return f"gave up on query{self.kwargs!r} after {self.after_secs:.01f} seconds"
 
 
 @dataclass(kw_only=True)
@@ -225,10 +224,9 @@ class QueryError(ClientError):
         return False
 
     def __str__(self) -> str:
-        query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
         first = f"'{self.remarks[0]}'"
         rest = f" (+{len(self.remarks) - 1} more)" if len(self.remarks) > 1 else ""
-        return f"{query} failed: {first}{rest}"
+        return f"query{self.kwargs!r} failed: {first}{rest}"
 
 
 @dataclass(kw_only=True)
@@ -246,14 +244,12 @@ class QueryResponseError(ResponseError, QueryError):
         return ResponseError.should_retry.fget(self)  # type: ignore
 
     def __str__(self) -> str:
-        query = f"query {self.kwargs}" if self.kwargs else "query <no kwargs>"
-
         if self.remarks:
             first = f"'{self.remarks[0]}'"
             rest = f" (+{len(self.remarks) - 1} more)" if len(self.remarks) > 1 else ""
-            return f"{query} failed: {first}{rest}"
+            return f"query{self.kwargs!r} failed: {first}{rest}"
 
-        return f"{query} failed with status {self.response.status}"
+        return f"query{self.kwargs!r} failed with status {self.response.status}"
 
 
 @dataclass(kw_only=True)
