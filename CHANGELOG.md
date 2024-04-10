@@ -11,7 +11,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Relax `joblib` version requirement to `^1.3` (from `~1.3`)
 * Relax `shapely` version requirement to `^2` (from `~2.0`)
 * `raise_on_failure` is now a keyword-only argument in `Client.run_query()`
-* string representation of a query without kwargs is now `"query{}"` instead of `"query <no kwargs>"`
+* The string representation of a query without kwargs is now `"query{}"` instead of `"query <no kwargs>"`
+* Log a message when a query is done
+* Log the error more explicitly when a try fails
 
 <br>
 

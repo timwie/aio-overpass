@@ -16,6 +16,7 @@ QueryLanguageError         QueryRejectError          QueryResponseError   CallTi
 
 import asyncio
 import html
+import logging
 import re
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -376,7 +377,11 @@ async def _raise_for_response(
     raise err
 
 
-async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict) -> dict:
+async def _result_or_raise(
+    response: aiohttp.ClientResponse,
+    query_kwargs: dict,
+    query_logger: logging.Logger,
+) -> dict:
     """
     Try to extract the query result set from a response.
 
@@ -390,12 +395,16 @@ async def _result_or_raise(response: aiohttp.ClientResponse, query_kwargs: dict)
     """
     await __raise_for_plaintext_result(response)
 
-    await __raise_for_html_result(response, query_kwargs)
+    await __raise_for_html_result(response, query_kwargs, query_logger)
 
-    return await __raise_for_json_result(response, query_kwargs)
+    return await __raise_for_json_result(response, query_kwargs, query_logger)
 
 
-async def __raise_for_json_result(response: aiohttp.ClientResponse, query_kwargs: dict) -> dict:
+async def __raise_for_json_result(
+    response: aiohttp.ClientResponse,
+    query_kwargs: dict,
+    query_logger: logging.Logger,
+) -> dict:
     try:
         json = await response.json()
         if json is None:
@@ -406,7 +415,7 @@ async def __raise_for_json_result(response: aiohttp.ClientResponse, query_kwargs
         await _raise_for_response(response, cause=err)
 
     if remark := json.get("remark"):
-        if timeout_cause := __match_reject_cause(remark):
+        if timeout_cause := __match_reject_cause(remark, query_logger):
             raise QueryRejectError(kwargs=query_kwargs, remarks=[remark], cause=timeout_cause)
 
         raise QueryResponseError(
@@ -427,7 +436,11 @@ async def __raise_for_json_result(response: aiohttp.ClientResponse, query_kwargs
     return json
 
 
-async def __raise_for_html_result(response: aiohttp.ClientResponse, query_kwargs: dict) -> None:
+async def __raise_for_html_result(
+    response: aiohttp.ClientResponse,
+    query_kwargs: dict,
+    query_logger: logging.Logger,
+) -> None:
     """
     Raise a fitting exception based on error remarks in an HTML response.
 
@@ -447,10 +460,10 @@ async def __raise_for_html_result(response: aiohttp.ClientResponse, query_kwargs
     if not errors:  # unexpected format
         await _raise_for_response(response, cause=None)
 
-    if any(__is_ql_error(msg) for msg in errors):
+    if any(__is_ql_error(msg, query_logger) for msg in errors):
         raise QueryLanguageError(kwargs=query_kwargs, remarks=errors)
 
-    reject_causes = [cause for err in errors if (cause := __match_reject_cause(err))]
+    reject_causes = [cause for err in errors if (cause := __match_reject_cause(err, query_logger))]
 
     if reject_causes:
         raise QueryRejectError(kwargs=query_kwargs, remarks=errors, cause=reject_causes[0])
@@ -470,7 +483,7 @@ async def __raise_for_plaintext_result(response: aiohttp.ClientResponse) -> None
     await _raise_for_response(response, cause=None)
 
 
-def __match_reject_cause(error_msg: str) -> QueryRejectCause | None:
+def __match_reject_cause(error_msg: str, query_logger: logging.Logger) -> QueryRejectCause | None:
     """
     Check if the given error message indicates that a query was rejected or cancelled.
 
@@ -483,27 +496,40 @@ def __match_reject_cause(error_msg: str) -> QueryRejectCause | None:
         - Examples in the API source: https://github.com/drolbr/Overpass-API/search?q=runtime_error
     """
     if "Please check /api/status for the quota of your IP address" in error_msg:
-        return QueryRejectCause.TOO_MANY_QUERIES
+        cause = QueryRejectCause.TOO_MANY_QUERIES
 
-    if "The server is probably too busy to handle your request" in error_msg:
-        return QueryRejectCause.TOO_BUSY
+    elif "The server is probably too busy to handle your request" in error_msg:
+        cause = QueryRejectCause.TOO_BUSY
 
-    if "Query timed out" in error_msg:
-        return QueryRejectCause.EXCEEDED_TIMEOUT
+    elif "Query timed out" in error_msg:
+        cause = QueryRejectCause.EXCEEDED_TIMEOUT
 
-    if "out of memory" in error_msg:
-        return QueryRejectCause.EXCEEDED_MAXSIZE
+    elif "out of memory" in error_msg:
+        cause = QueryRejectCause.EXCEEDED_MAXSIZE
 
-    return None
+    else:
+        cause_cls = QueryRejectCause.__class__.__name__
+        query_logger.debug(f"does not match any {cause_cls}: {error_msg!r}")
+        return None
+
+    query_logger.debug(f"matches {cause}: {error_msg!r}")
+    return cause
 
 
-def __is_ql_error(error_msg: str) -> bool:
+def __is_ql_error(error_msg: str, query_logger: logging.Logger) -> bool:
     """Check if the given error message indicates that a query has bad QL code."""
-    return (
+    is_ql_error = (
         "encoding error:" in error_msg
         or "parse error:" in error_msg
         or "static error:" in error_msg
     )
+
+    if is_ql_error:
+        query_logger.debug(f"is a QL error: {error_msg!r}")
+        return True
+
+    query_logger.debug(f"not a QL error: {error_msg!r}")
+    return False
 
 
 def is_call_err(err: ClientError | None) -> TypeGuard[CallError]:

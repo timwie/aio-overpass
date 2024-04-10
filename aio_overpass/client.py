@@ -287,7 +287,7 @@ class Client:
                 ) as response,
             ):
                 query_mut.succeed_try(
-                    response=await _result_or_raise(response, query.kwargs),
+                    response=await _result_or_raise(response, query.kwargs, query.logger),
                     response_bytes=response.content.total_bytes,
                 )
 
