@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <br>
 
+## Unreleased
+### Changed
+* Slight change to string representation of finished queries
+
+<br>
+
 ## [0.13.0] – 2024-04-11
 ### Changed
 * Relax `aiohttp` version requirement to `^3.9` (from `~3.9`)
@@ -296,5 +302,6 @@ The Python versions supported by this release are 3.10-3.12.
 [0.11.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.11.0
 [0.12.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.12.0
 [0.12.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.12.1
+[0.13.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.13.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
