@@ -484,9 +484,9 @@ class Query:
             details = "pending"
         elif self.done:
             if self.nb_tries == 1:
-                details = f"{size}mb in {time_request:.01f}s"
+                details = f"{size:.01f}mb in {time_request:.01f}s"
             else:
-                details = f"{size}mb in {time_request:.01f} ({time_total:.01f})s"
+                details = f"{size:.01f}mb in {time_request:.01f} ({time_total:.01f})s"
         else:
             t = "try" if self.nb_tries == 1 else "tries"
             details = f"failing after {self.nb_tries} {t}, {time_total:.01f}s"
