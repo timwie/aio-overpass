@@ -9,6 +9,7 @@ import pytest
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_caching(mock_response):
     test_dir = Path(__file__).resolve().parent
     data_file = test_dir / "route_data" / "ambiguous_stop_name1.json"
@@ -52,6 +53,7 @@ async def test_caching(mock_response):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_cache_expiration(mock_response):
     test_dir = Path(__file__).resolve().parent
     data_file = test_dir / "route_data" / "ambiguous_stop_name2.json"
@@ -95,6 +97,7 @@ async def test_cache_expiration(mock_response):
     await c.close()
 
 
+@pytest.mark.xdist_group(name="fast")
 def test_fibonacci_backoff():
     actual = [_fibo_backoff_secs(nb_tries) for nb_tries in range(12)]
     expected = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144]

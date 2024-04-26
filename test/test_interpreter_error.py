@@ -40,6 +40,7 @@ def mock_response():
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def mock_run_query(mock_response, body, content_type, **kwargs):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("", **kwargs)
@@ -56,6 +57,7 @@ async def mock_run_query(mock_response, body, content_type, **kwargs):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_too_many_queries(mock_response):
     body = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -91,6 +93,7 @@ async def test_too_many_queries(mock_response):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_too_busy(mock_response):
     body = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -126,6 +129,7 @@ async def test_too_busy(mock_response):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_other_query_error(mock_response):
     body = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -159,6 +163,7 @@ async def test_other_query_error(mock_response):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_syntax_error(mock_response):
     body = """
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -216,6 +221,7 @@ async def test_syntax_error(mock_response):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_other_query_error_remark(mock_response):
     # https://listes.openstreetmap.fr/wws/arc/overpass/2016-05/msg00002.html
     # https://community.openstreetmap.org/t/altere-karte-als-png/71872/6
@@ -249,6 +255,7 @@ async def test_other_query_error_remark(mock_response):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_exceeded_maxsize(mock_response):
     body = r"""
 {
@@ -279,6 +286,7 @@ async def test_exceeded_maxsize(mock_response):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_exceeded_timeout(mock_response):
     body = r"""
 {
@@ -309,6 +317,7 @@ async def test_exceeded_timeout(mock_response):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_connection_refused():
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
@@ -323,6 +332,7 @@ async def test_connection_refused():
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_internal_server_error():
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
@@ -343,6 +353,7 @@ async def test_internal_server_error():
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_timeout_error():
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
@@ -366,6 +377,7 @@ async def test_timeout_error():
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_runner_error():
     class BadQueryRunner(QueryRunner):
         async def __call__(self, query: Query) -> None:
@@ -387,6 +399,7 @@ async def test_runner_error():
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_unexpected_message_error(mock_response):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
@@ -431,6 +444,7 @@ async def test_unexpected_message_error(mock_response):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_no_message_error(mock_response):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
@@ -468,6 +482,7 @@ async def test_no_message_error(mock_response):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_plaintext_server_error(mock_response):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
     q = Query("")
@@ -493,6 +508,7 @@ open64: 2 No such file or directory /osm3s_osm_base Dispatcher_Client::1. Probab
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_cutoff_json_error(mock_response):
     body = r"""
 {

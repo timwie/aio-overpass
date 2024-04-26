@@ -63,8 +63,10 @@ Available tasks:
   install        Install all dependencies
   lint           Run linter and type checker
   papermill      Generate example notebooks with papermill
-  test           Run tests
+  test           Run all tests in parallel
+  test-cov       Run all tests in parallel, with coverage report
   test-publish   Perform a dry run of publishing the package
+  test-quick     Run tests without the long-running ones
   tree           Display the tree of dependencies
   update         Update dependencies
 ```

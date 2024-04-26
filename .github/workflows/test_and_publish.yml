@@ -45,7 +45,7 @@ jobs:
         run: poetry install --all-extras --no-interaction
 
       - name: Test with pytest
-        run: poetry run pytest -n auto -vv
+        run: poetry run invoke test
 
       - name: Generate docs with pdoc
         run: poetry run pdoc -o ./doc aio_overpass/
@@ -71,7 +71,7 @@ jobs:
         run: poetry install --all-extras --no-interaction
 
       - name: Test with pytest
-        run: poetry run pytest -n auto -vv --cov=aio_overpass/ --cov-report=xml
+        run: poetry run invoke test-cov
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

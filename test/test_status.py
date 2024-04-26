@@ -8,6 +8,7 @@ from aioresponses import aioresponses
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_idle():
     body = """
 Connected as: 1807920285
@@ -43,6 +44,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_idle_with_load_balancing():
     body = """
 Connected as: 2185740403
@@ -79,6 +81,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_one_slot_available():
     body = """
 Connected as: 1807920285
@@ -115,6 +118,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_multiple_running_queries():
     body = """
 Connected as: 49993325
@@ -152,6 +156,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_no_slot_available():
     body = """
 Connected as: 1807920285
@@ -188,6 +193,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 async def test_server_error():
     body = """
 open64: 2 No such file or directory /osm3s_osm_base Dispatcher_Client::1. Probably the server is down.

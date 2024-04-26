@@ -1,8 +1,10 @@
 from aio_overpass.ql import one_of_filter, poly_clause
 
+import pytest
 from shapely import Polygon
 
 
+@pytest.mark.xdist_group(name="fast")
 def test_poly_filter():
     # same shape, just making sure either repeating the first coord or not is fine
     shape1 = Polygon([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]])
@@ -13,6 +15,7 @@ def test_poly_filter():
     assert actual1 == actual2 == expected
 
 
+@pytest.mark.xdist_group(name="fast")
 def test_one_of_filter():
     actual = one_of_filter("key")
     expected = ""

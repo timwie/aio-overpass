@@ -1,4 +1,9 @@
+import os
+
 from invoke import task, Context
+
+
+IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
 
 
 @task
@@ -65,16 +70,42 @@ def papermill(c: Context):
 
 
 @task
-def quick_test(c: Context):
-    """Run tests without the long-running ones"""
-    c.run("poetry run pytest -vv --ignore test/test_large_data.py", echo=True, pty=True)
+def test(c: Context):
+    """Run all tests in parallel"""
+    _pytest(c, cov=not IS_CI, quick=False)
 
 
 @task
-def test(c: Context):
-    """Run tests"""
-    c.run("pytest -n auto -vv --cov=aio_overpass/", echo=True, pty=True)
-    c.run("rm .coverage*", echo=True, pty=True)
+def test_cov(c: Context):
+    """Run all tests in parallel, with coverage report"""
+    _pytest(c, cov=True, quick=False)
+
+
+@task
+def test_quick(c: Context):
+    """Run tests without the long-running ones"""
+    _pytest(c, cov=not IS_CI, quick=True)
+
+
+def _pytest(c: Context, *, cov: bool, quick: bool):
+    cmd = ["poetry", "run", "pytest", "-vv"]
+
+    if cov:
+        cmd.append("--cov=aio_overpass/")
+
+    if cov and IS_CI:
+        cmd.append("--cov-report=xml")
+
+    if quick:
+        cmd.append("--ignore=test/test_large_data.py")
+    else:
+        cmd.append("--numprocesses=auto")
+        cmd.append("--dist=loadgroup")
+
+    c.run(" ".join(cmd), echo=True, pty=True)
+
+    if cov and not IS_CI:
+        c.run("rm .coverage*", echo=True, pty=True)
 
 
 @task
