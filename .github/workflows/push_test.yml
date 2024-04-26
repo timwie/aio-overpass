@@ -12,6 +12,7 @@ on:
       - 'test/**.json.gz'
       - 'poetry.lock'
       - 'pyproject.toml'
+      - 'tasks.py'
 
 jobs:
   test:

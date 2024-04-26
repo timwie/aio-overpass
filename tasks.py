@@ -72,7 +72,7 @@ def papermill(c: Context):
 @task
 def test(c: Context):
     """Run all tests in parallel"""
-    _pytest(c, cov=not IS_CI, quick=False)
+    _pytest(c, cov=not IS_CI, quick=False)  # show cov results when running local
 
 
 @task
@@ -84,7 +84,7 @@ def test_cov(c: Context):
 @task
 def test_quick(c: Context):
     """Run tests without the long-running ones"""
-    _pytest(c, cov=not IS_CI, quick=True)
+    _pytest(c, cov=not IS_CI, quick=True)  # show cov results when running local
 
 
 def _pytest(c: Context, *, cov: bool, quick: bool):
