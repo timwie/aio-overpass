@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Changed
+* Change `numpy` version requirement ahead of new major release to `>=1.26,<3` (from `^1.26`)
 * Slight change to string representation of finished queries
 
 <br>
