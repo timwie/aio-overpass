@@ -1,4 +1,8 @@
-"""Async client for the Overpass API."""
+"""
+Async client for the Overpass API.
+
+[Release Notes](https://github.com/timwie/aio-overpass/blob/main/RELEASES.md)
+"""
 
 import importlib.metadata
 from pathlib import Path

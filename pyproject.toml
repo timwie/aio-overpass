@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/timwie/aio-overpass"
 documentation = "https://www.timwie.dev/aio-overpass/"
 packages = [{ include = "aio_overpass" }]
-include = ["CHANGELOG.md"]
+include = ["RELEASES.md"]
 keywords = [
     "geojson",
     "geospatial",
@@ -50,8 +50,8 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"Changelog" = "https://github.com/timwie/aio-overpass/blob/main/CHANGELOG.md"
-"Coverage" = "https://codecov.io/gh/timwie/aio-overpass"
+"Release Notes" = "https://github.com/timwie/aio-overpass/blob/main/RELEASES.md"
+"Test Coverage" = "https://codecov.io/gh/timwie/aio-overpass"
 
 [tool.poetry.dependencies]
 aiohttp = { version = "^3.9", extras = ["speedups"] }
