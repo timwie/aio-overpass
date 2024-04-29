@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.13.1] – 2024-04-30
 ### Changed
 * Change `numpy` version requirement ahead of new major release to `>=1.26,<3` (from `^1.26`)
 * Slight change to string representation of finished queries
@@ -266,5 +266,6 @@ The Python versions supported by this release are 3.10-3.12.
 [0.12.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.12.0
 [0.12.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.12.1
 [0.13.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.13.0
+[0.13.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.13.1
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
