@@ -1,6 +1,7 @@
 """Async client for the Overpass API."""
 
 import importlib.metadata
+from pathlib import Path
 
 
 __version__: str = importlib.metadata.version("aio-overpass")
@@ -26,3 +27,9 @@ __all__ = (
 from .client import Client
 from .error import ClientError
 from .query import Query
+
+
+# extend the module's docstring
+for filename in ("usage.md", "extras.md", "coordinates.md"):
+    __doc__ += "\n<br>\n"
+    __doc__ += (Path(__file__).parent / "doc" / filename).read_text()

@@ -11,12 +11,11 @@ combinations of them. To make use of it, you should familiarize yourself with
 - [Features](#features)
 - [Usage](#usage)
 - [Choosing Extras](#choosing-extras)
-- [Coordinates](#coordinates)
 
 #### See also
 - An overview of modules, classes and functions can be found in the [API reference](http://www.timwie.dev/aio-overpass/)
-- There are some notebooks to check out in [examples/](https://github.com/timwie/aio-overpass/tree/main/examples)
 - The version history is available in [CHANGELOG.md](https://github.com/timwie/aio-overpass/blob/main/CHANGELOG.md)
+- There are some notebooks to check out in [examples/](https://github.com/timwie/aio-overpass/tree/main/examples)
 - Developers can find some instructions in [CONTRIBUTING.md](https://github.com/timwie/aio-overpass/blob/main/CONTRIBUTING.md)
 - The Overpass API [repository](https://github.com/drolbr/Overpass-API),
   its [blog](https://dev.overpass-api.de/blog/),
@@ -39,10 +38,10 @@ combinations of them. To make use of it, you should familiarize yourself with
 ### Design Goals
 - A small and stable set of core functionality.
 - Good defaults for queries and retrying.
-- Room for extensions that simplify querying and/or processing of spatial data
-  in specific problem domains.
 - Sensible and spec-compliant GeoJSON exports for all objects that represent spatial features.
 - Detailed documentation that supplements learning about OSM and the Overpass API.
+- Room for extensions that simplify querying and/or processing of spatial data
+  in specific problem domains.
 
 <br>
 
@@ -98,6 +97,8 @@ query.result_set
 ]
 ```
 
+<br>
+
 #### b) Results as Objects
 This will give you a user-friendly Python interface
 for [nodes](https://www.timwie.dev/aio-overpass/aio_overpass/element.html#Node),
@@ -122,6 +123,8 @@ elems[0].tags
 }
 
 ```
+
+<br>
 
 #### c) Results as GeoJSON
 The processed elements can also easily be converted to GeoJSON:
@@ -176,7 +179,7 @@ This library can be installed with a number of optional extras.
 
 - Install the `shapely` extra, if you would like the convenience of typed OSM elements.
   It is also useful if you are interested in elements' geometries,
-  and either already use Shapely, or want a simple way to export [GeoJSON].
+  and either already use Shapely, or want a simple way to export [GeoJSON](https://en.wikipedia.org/wiki/GeoJSON).
 
   - This includes the `pt` module to make it easier to interact with public transportation routes.
     Something seemingly trivial like listing the stops of a route can have unexpected pitfalls,
@@ -194,43 +197,10 @@ This library can be installed with a number of optional extras.
 - Install the `joblib` extra to speed up `pt_ordered.collect_ordered_routes()`, which can benefit
   greatly from parallelization.
 
-<br>
-
-## Coordinates
-* Geographic point locations are expressed by latitude (`lat`) and longitude (`lon`) coordinates.
-  * Latitude is given as an angle that ranges from –90° at the south pole to 90° at the north pole,
-    with 0° at the Equator.
-  * Longitude is given as an angle ranging from 0° at the Prime Meridian (the line that divides the
-    globe into Eastern and Western hemispheres), to +180° eastward and −180° westward.
-  * `lat/lon` values are `floats` that are exactly those degrees, just without the ° sign.
-* This might help you remember which coordinate is which:
-  * If you think of a world map, usually it’s a rectangle.
-  * The _long_ side (the largest side) is the longitude.
-  * Longitude is the x-axis, and latitude is the y-axis.
-* Be wary of coordinate order:
-  * The Overpass API explicitly names the coordinates: `{ "lat": 50.2726005, "lon": 10.9521885 }`
-  * Shapely geometries returned by this library use `lat/lon` order, which is the order
-    stated by [ISO 6709], and seems like the most common order.
-  * [GeoJSON], on the other hand, uses `lon/lat` order.
-* OpenStreetMap uses the [WGS84] spatial reference system
-  used by the Global Positioning System (GPS).
-* OpenStreetMap node coordinates have seven decimal places, which gives them centimetric precision.
-  However, the position accuracy of GPS data is only [about 10m](https://wiki.openstreetmap.org/wiki/Reliability_of_OSM_coordinates).
-  A reasonable display accuracy could be five places, which is precise to
-  [1.1 metres](https://wiki.openstreetmap.org/wiki/Precision_of_coordinates)
-  at the equator.
-* Spatial features that cross the 180th meridian are
-  [problematic](https://en.wikipedia.org/wiki/180th_meridian#Software_representation_problems),
-  since you go from longitude `180.0` to `-180.0`.
-  Such features usually have their geometries split up, like the
-  [area of Russia](https://www.openstreetmap.org/relation/60189).
-
 [aiohttp]: https://docs.aiohttp.org/en/stable/
 [GeoJSON]: https://en.wikipedia.org/wiki/GeoJSON
-[ISO 6709]: https://en.wikipedia.org/wiki/ISO_6709
 [OpenStreetMap]: https://www.openstreetmap.org
 [Overpass API]: https://wiki.openstreetmap.org/wiki/Overpass_API
 [Overpass QL]: https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL
 [Overpass Turbo]: http://overpass-turbo.eu/
 [Shapely]: https://shapely.readthedocs.io/en/latest/manual.html
-[WGS84]: https://en.wikipedia.org/wiki/World_Geodetic_System
