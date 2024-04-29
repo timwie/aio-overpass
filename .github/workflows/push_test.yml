@@ -13,6 +13,8 @@ on:
       - 'poetry.lock'
       - 'pyproject.toml'
       - 'tasks.py'
+      - 'aio_overpass/doc/**.md'
+      - 'README.md'
 
 jobs:
   test:
