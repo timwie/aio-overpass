@@ -18,6 +18,7 @@ __docformat__ = "google"
 
 # we also use __all__ in all modules for pdoc; this lets us control the order
 __all__ = (
+    "__version__",
     "Client",
     "ClientError",
     "Query",
