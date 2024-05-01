@@ -75,6 +75,7 @@ codecov = "^2.1.13"
 geojson = "^3.1.0"
 invoke = "^2.2.0"
 isort = "^5.13.2"
+langcodes = "^3.4"  # TODO: experimenting with this
 loguru = "^0.7.2"
 mypy = "^1.10.0"
 pdoc = "^14.4.0"
