@@ -33,7 +33,6 @@ classifiers = [
     #   - no major bugs
 
     "Development Status :: 3 - Alpha",
-    "Environment :: Web Environment",
     "Framework :: aiohttp",
     "Framework :: AsyncIO",
     "Intended Audience :: Developers",
@@ -78,7 +77,7 @@ isort = "^5.13.2"
 loguru = "^0.7.2"
 mypy = "^1.10.0"
 pdoc = "^14.4.0"
-pyright = "^1.1.360"
+pyright = "^1.1.363"
 pytest = "^8.2.0"
 pytest-asyncio = "^0.23.5"
 pytest-cov = "^5.0.0"
@@ -91,7 +90,7 @@ optional = true
 
 [tool.poetry.group.notebooks.dependencies]
 folium = "^0.16.0"
-jupyterlab = "^4.1.8"
+jupyterlab = "^4.2.0"
 papermill = "^2.6.0"
 randomcolor = "^0.4.4.6"
 selenium = "^4.20.0"
