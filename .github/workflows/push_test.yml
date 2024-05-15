@@ -21,6 +21,7 @@ jobs:
   test:
     name: Test package
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
@@ -49,6 +50,7 @@ jobs:
 
   coverage:
     name: Upload test coverage to Codecov (3.10)
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -78,6 +80,7 @@ jobs:
   lint:
     name: Lint package (3.10)
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
