@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Changed
+* All tag values are strings, but were previously typed as `Any`:
+  * Change the type of `Element.tags` to `dict[str, str] | None`, from `dict[str, Any] | None`
+  * Change the return type of `Element.tag()` to `str | None`, from `Any`
+  * Change the type of `Route.tags` to `dict[str, str]`, from `dict[str, Any]`
+  * Change the return type of `Route.tag()` to `str | None`, from `Any`
+
+### Removed
+* Remove export of no longer used `OverpassDict` type alias
+
 ## [0.13.1] – 2024-04-30
 ### Changed
 * Change `numpy` version requirement ahead of new major release to `>=1.26,<3` (from `^1.26`)

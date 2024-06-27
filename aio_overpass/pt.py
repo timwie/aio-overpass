@@ -11,7 +11,6 @@ from aio_overpass.element import (
     Bbox,
     GeoJsonDict,
     Node,
-    OverpassDict,
     Relation,
     Relationship,
     Spatial,
@@ -393,7 +392,7 @@ class Route(Spatial):
         return self.relation.id
 
     @property
-    def tags(self) -> OverpassDict:
+    def tags(self) -> dict[str, str]:
         """
         Tags of the route relation.
 
@@ -410,9 +409,7 @@ class Route(Spatial):
 
         return from_master | from_relation
 
-    def tag(
-        self, key: str, default: Any = None
-    ) -> Any:  # TODO: this can only have a few types, no?
+    def tag(self, key: str, default: str | None = None) -> str | None:
         """
         Get the tag value for the given key.
 

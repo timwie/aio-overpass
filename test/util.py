@@ -186,7 +186,11 @@ def verify_element(elem: Element) -> None:
     assert str(elem), msg  # just test this doesn't raise
     assert repr(elem), msg  # just test this doesn't raise
 
-    # elem.tags
+    for k, v in (elem.tags or {}).items():
+        assert isinstance(k, str), msg
+        assert isinstance(v, str), msg
+        assert v == elem.tag(k)
+
     # elem.bounds
     # elem.center
     # elem.meta

@@ -29,7 +29,6 @@ __all__ = (
     "Metadata",
     "Bbox",
     "GeoJsonDict",
-    "OverpassDict",
     "SpatialDict",
 )
 
@@ -38,7 +37,7 @@ GeoJsonDict: TypeAlias = dict[str, Any]
 A dictionary representing a GeoJSON object.
 """
 
-OverpassDict: TypeAlias = dict[str, Any]
+_OverpassDict: TypeAlias = dict[str, Any]
 """
 A dictionary representing a JSON object returned by the Overpass API.
 """
@@ -229,14 +228,14 @@ class Element(Spatial):
     __slots__ = ()
 
     id: int
-    tags: OverpassDict | None
+    tags: dict[str, str] | None
     bounds: Bbox | None
     center: Point | None
     meta: Metadata | None
     relations: list["Relationship"]
     geometry: BaseGeometry | None
 
-    def tag(self, key: str, default: Any = None) -> Any:
+    def tag(self, key: str, default: str | None = None) -> str | None:
         """
         Get the tag value for the given key.
 
@@ -474,7 +473,7 @@ class _ElementCollector:
     def __init__(self) -> None:
         self.result_set: list[_ElementKey] = []
         self.typed_dict: dict[_ElementKey, Element] = {}
-        self.untyped_dict: dict[_ElementKey, OverpassDict] = defaultdict(dict)
+        self.untyped_dict: dict[_ElementKey, _OverpassDict] = defaultdict(dict)
         self.member_dict: dict[int, list[_MemberKey]] = defaultdict(list)
 
 
@@ -651,7 +650,7 @@ def _try_validate_geometry(geom: G) -> GeometryDetails[G]:
     return GeometryDetails(invalid=geom, invalid_reason=invalid_reason)
 
 
-def _geometry(raw_elem: OverpassDict) -> BaseGeometry | None:
+def _geometry(raw_elem: _OverpassDict) -> BaseGeometry | None:
     """
     Construct the geometry a given OSM element makes up.
 
@@ -718,7 +717,7 @@ def _geometry(raw_elem: OverpassDict) -> BaseGeometry | None:
     return None
 
 
-def _line(way: OverpassDict) -> LineString | LinearRing | None:
+def _line(way: _OverpassDict) -> LineString | LinearRing | None:
     """Returns the geometry of a way in the result set."""
     if "geometry" not in way or len(way["geometry"]) < 2:
         return None
@@ -734,7 +733,7 @@ def _flatten(obj: BaseGeometry) -> Iterable[BaseGeometry]:
     return (obj,)
 
 
-def _is_area_element(el: OverpassDict) -> bool:
+def _is_area_element(el: _OverpassDict) -> bool:
     """
     Decide if ``el`` likely represents an area, and should be viewed as a (multi-)polygon.
 
