@@ -56,7 +56,7 @@ class RouteQuery(Query):
 
     __slots__ = ()
 
-    def __init__(self, input_code: str, **kwargs) -> None:
+    def __init__(self, input_code: str, **kwargs: Any) -> None:
         input_code = f"""
             {input_code}
             .routes >> -> .route_members;
@@ -94,7 +94,7 @@ class SingleRouteQuery(RouteQuery):
 
     __slots__ = ("relation_id",)
 
-    def __init__(self, relation_id: int, **kwargs) -> None:
+    def __init__(self, relation_id: int, **kwargs: Any) -> None:
         self.relation_id = relation_id
 
         input_code = f"""
@@ -127,7 +127,12 @@ class RoutesWithinQuery(RouteQuery):
         "vehicles",
     )
 
-    def __init__(self, polygon: Polygon, vehicles: list["Vehicle"] | None = None, **kwargs) -> None:
+    def __init__(
+        self,
+        polygon: Polygon,
+        vehicles: list["Vehicle"] | None = None,
+        **kwargs: Any,
+    ) -> None:
         if not vehicles:
             vehicles = list(Vehicle)
 
@@ -405,7 +410,9 @@ class Route(Spatial):
 
         return from_master | from_relation
 
-    def tag(self, key: str, default: Any = None) -> Any:
+    def tag(
+        self, key: str, default: Any = None
+    ) -> Any:  # TODO: this can only have a few types, no?
         """
         Get the tag value for the given key.
 
@@ -688,8 +695,7 @@ def _stops(route_relation: Relation) -> Generator[Stop, None, None]:
             prev = next_
             continue
 
-        # case 3: members are part of same station
-        yield to_stop(prev, next_)
+        yield to_stop(prev, next_)  # case 3: members are part of same station
         prev = None
 
     if prev:

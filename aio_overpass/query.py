@@ -14,6 +14,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from aio_overpass.error import (
     ClientError,
@@ -88,7 +89,12 @@ class Query:
         "_time_start_try",
     )
 
-    def __init__(self, input_code: str, logger: logging.Logger = _NULL_LOGGER, **kwargs) -> None:
+    def __init__(
+        self,
+        input_code: str,
+        logger: logging.Logger = _NULL_LOGGER,
+        **kwargs: Any,
+    ) -> None:
         self._input_code = input_code
         """the original given overpass ql code"""
 
@@ -646,7 +652,6 @@ class QueryRunner(ABC):
     @abstractmethod
     async def __call__(self, query: Query) -> None:
         """Called with the current query state before the client makes an API request."""
-        pass
 
 
 class DefaultQueryRunner(QueryRunner):

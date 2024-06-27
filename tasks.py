@@ -43,6 +43,7 @@ def install(c: Context):
 def lint(c: Context):
     """Run linter and type checker"""
     c.run("ruff check aio_overpass/", echo=True, warn=True, pty=True)
+    c.run("ruff check aio_overpass/ --statistics", echo=True, warn=True, pty=True)
     c.run("mypy aio_overpass/", echo=True, warn=True, pty=True)
     c.run("slotscheck -m aio_overpass --require-subclass", echo=True, warn=True, pty=True)
     c.run("pyright aio_overpass/", echo=True, warn=True, pty=True)

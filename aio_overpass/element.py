@@ -554,12 +554,12 @@ def _collect_typed(collector: _ElementCollector) -> None:
 
         geometry = _geometry(elem_dict)
 
-        args = dict(
-            id=elem_id,
-            tags=elem_dict.get("tags"),
-            bounds=tuple(elem_dict["bounds"].values()) if "bounds" in elem_dict else None,
-            center=Point(elem_dict["center"].values()) if "center" in elem_dict else None,
-            meta=Metadata(
+        args = {
+            "id": elem_id,
+            "tags": elem_dict.get("tags"),
+            "bounds": tuple(elem_dict["bounds"].values()) if "bounds" in elem_dict else None,
+            "center": Point(elem_dict["center"].values()) if "center" in elem_dict else None,
+            "meta": Metadata(
                 timestamp=elem_dict["timestamp"],
                 version=elem_dict["version"],
                 changeset=elem_dict["changeset"],
@@ -568,9 +568,9 @@ def _collect_typed(collector: _ElementCollector) -> None:
             )
             if "timestamp" in elem_dict
             else None,
-            relations=[],  # add later
-            geometry=geometry,
-        )
+            "relations": [],  # add later
+            "geometry": geometry,
+        }
 
         cls: type[Element]
 
