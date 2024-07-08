@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+### Added
+* Add the `Element.base_geometry` property to allow properly typed access to an element's geometry
+  when the exact type is unknown
+
 ### Changed
 * Change `numpy` version requirement for Python `<3.12` to `>=1.23,<3` (from `^1.23`)
 * All tag values are strings, but were previously typed as `Any`:
@@ -13,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 * Remove export of no longer used `OverpassDict` type alias
+* Remove the `geometry` property from the `Element` base class due to typing violation
 
 ## [0.13.1] – 2024-04-30
 ### Changed

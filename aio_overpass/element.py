@@ -215,8 +215,6 @@ class Element(Spatial):
         meta: Metadata of this element, or ``None`` when not using ``out meta``
         relations: All relations that are **also in the query's result set**, and that
                    **are known** to contain this element as a member.
-        geometry: The element's geometry, if available. For the specifics, refer to the
-                  documentation of this property in each subclass.
 
     References:
         - https://wiki.openstreetmap.org/wiki/Elements
@@ -233,7 +231,19 @@ class Element(Spatial):
     center: Point | None
     meta: Metadata | None
     relations: list["Relationship"]
-    geometry: BaseGeometry | None
+
+    @property
+    def base_geometry(self) -> BaseGeometry | None:
+        """
+        The element's geometry, if available.
+
+        For the specifics, refer to the documentation of the ``geometry`` property in each subclass.
+        """
+        match self:
+            case Node() | Way() | Relation():
+                return self.geometry
+            case _:
+                raise NotImplementedError
 
     def tag(self, key: str, default: str | None = None) -> str | None:
         """
@@ -329,6 +339,7 @@ class Element(Spatial):
         return _geojson_feature(self)
 
     def __repr__(self) -> str:
+        """TODO: doc."""
         return f"{type(self).__name__}({self.id})"
 
 
@@ -416,6 +427,7 @@ class Relation(Element):
     geometry_details: GeometryDetails[Polygon | MultiPolygon] | None
 
     def __iter__(self) -> Iterator[tuple[str | None, Element]]:
+        """TODO: doc."""
         for relship in self.members:
             yield relship.role, relship.member
 
@@ -448,6 +460,7 @@ class Relationship(Spatial):
         return _geojson_feature(self)
 
     def __repr__(self) -> str:
+        """TODO: doc."""
         role = f" as '{self.role}'" if self.role else " "
         return f"{type(self).__name__}({self.member}{role} in {self.relation})"
 
@@ -860,11 +873,11 @@ def _geojson_properties(obj: Element | Relationship) -> GeoJsonDict:
 def _geojson_geometry(obj: Element | Relationship) -> GeoJsonDict | None:
     elem = obj if isinstance(obj, Element) else obj.member
 
-    if not elem.geometry:
+    if not elem.base_geometry:
         return None
 
     # Flip coordinates for GeoJSON compliance.
-    geom = shapely.ops.transform(lambda lat, lon: (lon, lat), elem.geometry)
+    geom = shapely.ops.transform(lambda lat, lon: (lon, lat), elem.base_geometry)
 
     # GeoJSON-like mapping that implements __geo_interface__.
     mapping = shapely.geometry.mapping(geom)
@@ -879,7 +892,7 @@ def _geojson_geometry(obj: Element | Relationship) -> GeoJsonDict | None:
 def _geojson_bbox(obj: Element | Relationship) -> Bbox | None:
     elem = obj if isinstance(obj, Element) else obj.member
 
-    geom = elem.geometry
+    geom = elem.base_geometry
     if not geom:
         return elem.bounds
 
@@ -892,7 +905,7 @@ def _geojson_bbox(obj: Element | Relationship) -> Bbox | None:
 
 
 def _geojson_feature(obj: Element | Relationship) -> GeoJsonDict:
-    feature = {
+    feature: GeoJsonDict = {
         "type": "Feature",
         "geometry": _geojson_geometry(obj),
         "properties": _geojson_properties(obj),
@@ -900,6 +913,6 @@ def _geojson_feature(obj: Element | Relationship) -> GeoJsonDict:
 
     bbox = _geojson_bbox(obj)
     if bbox:
-        feature["bbox"] = bbox  # type: ignore
+        feature["bbox"] = bbox
 
     return feature
