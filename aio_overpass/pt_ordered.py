@@ -108,10 +108,12 @@ class OrderedRouteView(Spatial):
         return [self.route.stops[i] for i in sorted(indexes)]
 
     def _split(
-        self, predicate: Callable[[OrderedRouteViewNode, OrderedRouteViewNode], bool]
+        self,
+        predicate: Callable[[OrderedRouteViewNode, OrderedRouteViewNode], bool],
     ) -> Generator["OrderedRouteView", None, None]:
         if len(self.ordering) < 2:
-            return
+            msg = "cannot split"  # TODO: more specific
+            raise ValueError(msg)
 
         ordering: list[OrderedRouteViewNode] = []
 
@@ -130,18 +132,33 @@ class OrderedRouteView(Spatial):
         return list(self._split(predicate=lambda a, b: key(a) != key(b)))
 
     def gap_split(self) -> list["OrderedRouteView"]:
-        """Split this view wherever there's a gap in between stops."""
+        """
+        Split this view wherever there's a gap in between stops.
+
+        Raises:
+            TODO: doc
+        """
         return list(self._split(predicate=lambda a, b: b.path_idx > a.path_idx + 1))
 
     def stop_split(self) -> list["OrderedRouteView"]:
-        """Split this view at every stop, returning views between every pair of stops."""
+        """
+        Split this view at every stop, returning views between every pair of stops.
+
+        Raises:
+            TODO: doc
+        """
         return self._group_by(key=lambda node: node.path_idx)
 
     def take(self, first_n: int) -> "OrderedRouteView":
-        """Returns the continuous view that connects a maximum number of stops at the beginning."""
+        """
+        Returns the continuous view that connects a maximum number of stops at the beginning.
+
+        Raises:
+            TODO: doc
+        """
         if first_n < 2:
             msg = "cannot take less than two stops"
-            raise ValueError(msg)
+            raise ValueError(msg)  # TODO: add a specific subclass for our ValueErrors?
 
         pre_gap, *_ = self.gap_split()
 
@@ -159,6 +176,9 @@ class OrderedRouteView(Spatial):
         Returns:
             the continuous view that is not longer than a given distance,
             starting from the first stop.
+
+        Raises:
+            TODO: doc
         """
         pre_gap, *_ = self.gap_split()
 
@@ -188,18 +208,20 @@ class OrderedRouteView(Spatial):
         Whenever there is no path between two stops, a `None` element will be inserted into the
         result list.
         """
-        max_nb_paths = len(self.stops) - 1
+        if not self.ordering:
+            return []
+
+        from_idx = self.ordering[0].path_idx
+        to_idx = self.ordering[-1].path_idx
+        lines = [None for _ in range(from_idx, to_idx + 1)]
+
+        assert len(lines) + 1 == len(self.stops)
 
         grouped = itertools.groupby(iterable=self.ordering, key=lambda node: node.path_idx)
 
-        lines: list[LineString | None] = [None for _ in range(max_nb_paths)]
-
-        for n, nodes_iter in grouped:
+        for path_idx, nodes_iter in grouped:
             nodes = [(node.lat, node.lon) for node in nodes_iter]
-            if len(nodes) < 2:
-                continue
-            line = LineString(nodes)
-            lines[n] = line
+            lines[path_idx - from_idx] = LineString(nodes) if len(nodes) >= 2 else None
 
         return lines
 
@@ -307,20 +329,19 @@ def to_ordered_routes(routes: list[Route], n_jobs: int = 1) -> list[OrderedRoute
     if not routes:
         return []
 
-    if len(routes) == 1:
-        n_jobs = 1
-
     views = []
-    views_empty = []
-    graphs = []
+
+    order_views = []
+    order_graphs = []
+    order_target_lists = []
 
     for route in routes:
-        seg = OrderedRouteView(route=route, ordering=[])
+        view = OrderedRouteView(route=route, ordering=[])
+        views.append(view)
 
         has_geometry = route.scheme.version_number == 2 and len(route.stops) >= 2
 
         if not has_geometry:
-            views_empty.append(seg)
             continue
 
         # Idea: when converting the route's track to a directed graph with parallel edges
@@ -334,33 +355,31 @@ def to_ordered_routes(routes: list[Route], n_jobs: int = 1) -> list[OrderedRoute
         for stop in route.stops:
             stop.stop_coords = _find_stop_coords(stop, track_graph, track_nodes, track_ways)
 
-        views.append(seg)
-        graphs.append(track_graph)
+        order_views.append(view)
+        order_graphs.append(track_graph)
+        order_target_lists.append([stop._stop_point for stop in route.stops])
 
     # Try to find linestrings that connect all pairs of stops.
-    if n_jobs == 1:
-        for seg, route, graph in zip(views, routes, graphs, strict=False):
-            targets = [stop._stop_point for stop in route.stops]
-            seg.ordering = _paths(graph, targets=targets)
-    else:
-        import joblib
+    if n_jobs == 1 or len(order_target_lists) <= 1:  # single process
+        for view, targets, graph in zip(order_views, order_target_lists, order_graphs, strict=True):
+            view.ordering = _paths(graph, targets)
+        return views
 
-        # Note: keep in mind that these objects have to be serialized to use in a seperate process,
-        # which could take a while for large objects.
-        parallel_args = [
-            (graph, [stop._stop_point for stop in route.stops])
-            for route, graph in zip(views, graphs, strict=True)
-        ]
+    import joblib  # multiprocessing
 
-        # TODO: think about using joblib.Parallel's "return_as"
-        #   => can produce a generator that yields the results as soon as they are available
-        with joblib.parallel_backend(backend="loky", n_jobs=n_jobs):
-            paths = joblib.Parallel()(joblib.delayed(_paths)(*args) for args in parallel_args)
+    # Note: keep in mind that these objects have to be serialized to use in a seperate process,
+    # which could take a while for large objects.
+    parallel_args = zip(order_graphs, order_target_lists, strict=True)
 
-        for seg, path in zip(views, paths, strict=True):
-            seg.ordering = path
+    # TODO: think about using joblib.Parallel's "return_as"
+    #   => can produce a generator that yields the results as soon as they are available
+    with joblib.parallel_backend(backend="loky", n_jobs=n_jobs):
+        paths = joblib.Parallel()(joblib.delayed(_paths)(*args) for args in parallel_args)
 
-    return [*views, *views_empty]
+    for view, path in zip(order_views, paths, strict=True):
+        view.ordering = path
+
+    return views
 
 
 def _route_graph(rel: Relation) -> MultiDiGraph:
@@ -539,6 +558,9 @@ def _paths(route_graph: MultiDiGraph, targets: list[Point | None]) -> list[Order
     )
 
     _traverse_graph(graph=route_graph, progress=traversal)
+
+    assert len(targets) == len(traversal.targets_visited)
+    assert traversal.path_idx + 1 == len(traversal.targets_visited)
 
     return traversal.ordering
 

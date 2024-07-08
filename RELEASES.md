@@ -19,6 +19,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Remove export of no longer used `OverpassDict` type alias
 * Remove the `geometry` property from the `Element` base class due to typing violation
 
+### Fixed
+* Fix a possible `IndexError` in `OrderedRouteView.paths`
+
 ## [0.13.1] – 2024-04-30
 ### Changed
 * Change `numpy` version requirement ahead of new major release to `>=1.26,<3` (from `^1.26`)

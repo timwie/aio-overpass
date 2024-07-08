@@ -1,5 +1,5 @@
 """
-TODO doc
+TODO: doc
 
 Adding new route test data:
 
@@ -30,7 +30,7 @@ node(r.stop_areas:"stop")[public_transport=stop_position]->.stop_area_members;
 // .masters out;
 ```
 
-[overpass-turbo]: http://overpass-turbo.eu/
+[overpass-turbo]: https://overpass-turbo.eu/
 """
 
 from pathlib import Path
@@ -41,6 +41,7 @@ from aio_overpass.pt_ordered import OrderedRouteView, collect_ordered_routes, to
 from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
 
 import pytest
+from shapely import LineString, MultiLineString
 
 
 def mock_result_set(mock_response, file_name):
@@ -75,12 +76,13 @@ def assert_simple_path(route):
     assert route.ordering, "route has no track geometry"
     assert route.is_continuous, "route has holes in track"
 
-    # assert len(route.paths) == len(route.stops) - 1
-    # assert all((path is not None for path in route.paths)), "route has holes in track"
-    # assert isinstance(route.path, LineString), "route line string was not merged correctly"
+    assert len(route.stops) == len(route.stops)
+    assert len(route.paths) == len(route.stops) - 1
+    assert isinstance(route.path, LineString), "route line string was not merged correctly"
+    assert all(path is not None for path in route.paths), "route has holes in track"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_simple_linestring(mock_response):
     """
     Subway line with a straightforward track.
@@ -94,10 +96,10 @@ async def test_simple_linestring(mock_response):
     assert view.route.id == 1687358
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO simple_linestring
+    # TODO: specific assertions for simple_linestring
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_simple_linestring_with_two_stop_pos_removed(mock_response):
     mock_result_set(mock_response, "simple_linestring.json")
 
@@ -121,10 +123,10 @@ async def test_simple_linestring_with_two_stop_pos_removed(mock_response):
         s.stop_coords = None
 
     _view = to_ordered_route(route=route)
-    # TODO assertions: starts at third stop; two fewer paths
+    # TODO: assert starts at third stop; two fewer paths
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ambiguous_stop_name1(mock_response):
     """
     `stop` "Neumühler" vs `platform` Neumühler Kirchenweg";
@@ -138,10 +140,10 @@ async def test_ambiguous_stop_name1(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO ambiguous_stop_name1
+    # TODO: specific assertions for ambiguous_stop_name1
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ambiguous_stop_name2(mock_response):
     """
     `stop` "Sachsenwaldau" vs `platform` "Ohe, Sachsenwaldau";
@@ -155,10 +157,10 @@ async def test_ambiguous_stop_name2(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO ambiguous_stop_name2
+    # TODO: specific assertions for ambiguous_stop_name2
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_bus_mapping1(mock_response):
     """
     Consistent use of `public_transport=stop_position` and `role=stop`.
@@ -171,10 +173,10 @@ async def test_bus_mapping1(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO bus_mapping1
+    # TODO: specific assertions for bus_mapping1
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_bus_mapping2(mock_response):
     """
     Consistent use of highway=bus_stop and `role=platform`.
@@ -187,10 +189,10 @@ async def test_bus_mapping2(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO bus_mapping2
+    # TODO: specific assertions for bus_mapping2
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_bus_mapping_mixed(mock_response):
     """
     Mixing up `roles`, mixing up `public_transport=stop_position` & `highway=bus_stop`.
@@ -203,10 +205,10 @@ async def test_bus_mapping_mixed(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO bus_mapping_mixed
+    # TODO: specific assertions for bus_mapping_mixed
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_gap(mock_response):
     """
     Route is disconnected, missing a chunk of street.                                                |
@@ -219,10 +221,10 @@ async def test_gap(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert len(view.path.geoms) == 2
-    # TODO gap
+    # TODO: specific assertions for gap
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_highway_bus_stop_position(mock_response):
     """
     Stops are tagged with both `highway=bus_stop` & `public_transport=stop_position`,
@@ -235,11 +237,17 @@ async def test_highway_bus_stop_position(mock_response):
     view = await run_single_route_query()
 
     assert view.route.scheme.version_number == 2
-    assert_simple_path(view)
-    # TODO highway_bus_stop_position
+
+    # TODO: specific assertions for highway_bus_stop_position
+    assert view.ordering, "route has no track geometry"
+    assert view.is_continuous, "route has holes in track"
+
+    assert len(view.stops) == len(view.stops)
+    assert len(view.paths) == len(view.stops) - 1
+    assert isinstance(view.path, MultiLineString)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_no_roles(mock_response):
     """
     Only few stops have `role=stop`.
@@ -252,10 +260,10 @@ async def test_no_roles(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO no_roles
+    # TODO: specific assertions for no_roles
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_no_stops(mock_response):
     """
     Contains no stops, only ways.
@@ -272,17 +280,21 @@ async def test_no_stops(mock_response):
 
     assert not view.paths
     assert not view.is_continuous
-    assert not view.gap_split()
-    assert not view.stop_split()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="cannot split"):
+        assert not view.gap_split()
+
+    with pytest.raises(ValueError, match="cannot split"):
+        assert not view.stop_split()
+
+    with pytest.raises(ValueError, match="cannot split"):
         view.take(2)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="cannot split"):
         view.trim(100.0)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_platform_mismatch(mock_response):
     """
     `platform 335366924` is not the correct one for `stop 706249125`; is unusually far away.
@@ -295,10 +307,10 @@ async def test_platform_mismatch(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO platform_mismatch
+    # TODO: specific assertions for platform_mismatch
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_platform_relations(mock_response):
     """
     Multiple `platforms` that are of type "relation".
@@ -311,10 +323,10 @@ async def test_platform_relations(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO platform_relations
+    # TODO: specific assertions for platform_relations
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_recycling_bad(mock_response):
     """
     Bad "recycling" of ways, f.e. stopping twice at `5751451618` would require traversing
@@ -328,10 +340,10 @@ async def test_recycling_bad(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO recycling_bad
+    # TODO: specific assertions for recycling_bad
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_recycling_good(mock_response):
     """
     Good "recycling" of ways, twice-traversed ways are correctly included twice, f.e. `way 8435218`.
@@ -344,10 +356,10 @@ async def test_recycling_good(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO recycling_good
+    # TODO: specific assertions for recycling_good
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_role_mismatch(mock_response):
     """
     `stop 345549806` is `exit_only`, its `platform 1453058506` is not.
@@ -360,10 +372,10 @@ async def test_role_mismatch(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO role_mismatch
+    # TODO: specific assertions for role_mismatch
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_same_stop_no_roles(mock_response):
     """
     Has stops with `stop_position` and platform, but neither have a `role`,
@@ -376,11 +388,17 @@ async def test_same_stop_no_roles(mock_response):
     view = await run_single_route_query()
 
     assert view.route.scheme.version_number == 2
-    assert_simple_path(view)
-    # TODO same_stop_no_roles
+
+    # TODO: specific assertions for same_stop_no_roles
+    assert view.ordering, "route has no track geometry"
+    assert view.is_continuous, "route has holes in track"
+
+    assert len(view.stops) == len(view.stops)
+    assert len(view.paths) == len(view.stops) - 1
+    assert isinstance(view.path, MultiLineString)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_segmented(mock_response):
     """
     `exit_only (2758626485)` & consecutive `entry_only (2758626488)` at same `stop_area`.                           |
@@ -393,10 +411,10 @@ async def test_segmented(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO segmented
+    # TODO: specific assertions for segmented
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_stop_on_roundabout(mock_response):
     """
     First stop `2130519348` is located on a roundabout.
@@ -409,10 +427,10 @@ async def test_stop_on_roundabout(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO stop_on_roundabout
+    # TODO: specific assertions for stop_on_roundabout
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_stops_in_same_stop_area(mock_response):
     """
     Bus stops on each side of a station (`5944915698` & `5944915696`);
@@ -426,10 +444,10 @@ async def test_stops_in_same_stop_area(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO stops_in_same_stop_area
+    # TODO: specific assertions for stops_in_same_stop_area
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_unnamed_platforms(mock_response):
     """
     Multiple `platforms` without names.
@@ -442,10 +460,10 @@ async def test_unnamed_platforms(mock_response):
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
-    # TODO unnamed_platforms
+    # TODO: specific assertions for unnamed_platforms
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_with_master(mock_response):
     """
     `route_master` with routes `2557244` & `2557243` for each direction.
@@ -467,4 +485,4 @@ async def test_with_master(mock_response):
     )
 
     assert len(routes) == 2
-    # TODO with_master
+    # TODO: specific assertions for with_master
