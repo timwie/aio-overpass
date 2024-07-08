@@ -93,7 +93,7 @@ class Query:
         self,
         input_code: str,
         logger: logging.Logger = _NULL_LOGGER,
-        **kwargs: Any,
+        **kwargs: Any,  # noqa: ANN401
     ) -> None:
         self._input_code = input_code
         """the original given overpass ql code"""
@@ -741,7 +741,7 @@ class DefaultQueryRunner(QueryRunner):
         except OSError:
             logger.exception(f"failed to cache {query}")
 
-    async def __call__(self, query: Query) -> None:
+    async def __call__(self, query: Query) -> None:  # noqa: C901
         """Called with the current query state before the client makes an API request."""
         logger = query.logger
 

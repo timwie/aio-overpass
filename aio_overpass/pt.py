@@ -55,7 +55,11 @@ class RouteQuery(Query):
 
     __slots__ = ()
 
-    def __init__(self, input_code: str, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        input_code: str,
+        **kwargs: Any,  # noqa: ANN401
+    ) -> None:
         input_code = f"""
             {input_code}
             .routes >> -> .route_members;
@@ -93,7 +97,11 @@ class SingleRouteQuery(RouteQuery):
 
     __slots__ = ("relation_id",)
 
-    def __init__(self, relation_id: int, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        relation_id: int,
+        **kwargs: Any,  # noqa: ANN401
+    ) -> None:
         self.relation_id = relation_id
 
         input_code = f"""
@@ -130,7 +138,7 @@ class RoutesWithinQuery(RouteQuery):
         self,
         polygon: Polygon,
         vehicles: list["Vehicle"] | None = None,
-        **kwargs: Any,
+        **kwargs: Any,  # noqa: ANN401
     ) -> None:
         if not vehicles:
             vehicles = list(Vehicle)
@@ -259,7 +267,7 @@ class Stop(Spatial):
     @property
     def geojson(self) -> GeoJsonDict:
         """A mapping of this object, using the GeoJSON format."""
-        # TODO Stop geojson
+        # TODO: Stop geojson
         raise NotImplementedError
 
     @property
@@ -277,8 +285,8 @@ class Stop(Spatial):
         geoms = []
 
         # geometry can be None if the platform is a relation
-        if self.platform and self.platform.member.geometry:
-            geoms.append(self.platform.member.geometry)
+        if self.platform and self.platform.member.base_geometry:
+            geoms.append(self.platform.member.base_geometry)
 
         if self.stop_position:
             member = cast(Node, self.stop_position.member)
@@ -541,7 +549,7 @@ class Route(Spatial):
     @property
     def geojson(self) -> GeoJsonDict:
         """A mapping of this object, using the GeoJSON format."""
-        # TODO Route geojson
+        # TODO: Route geojson
         raise NotImplementedError
 
     def __repr__(self) -> str:
@@ -570,7 +578,7 @@ References:
 
 
 def collect_routes(query: RouteQuery, perimeter: Polygon | None = None) -> list[Route]:
-    # TODO the way 'perimeter' works might be confusing
+    # TODO: the way 'perimeter' works might be confusing
     """
     Consumes the result set of a query and produces ``Route`` objects.
 
@@ -790,7 +798,7 @@ def _at_same_stop(a: Relationship, b: Relationship) -> bool:
         return False
 
     # same name, assume same stop
-    if a.member.tag("name", 0) == b.member.tag("name", 1):
+    if a.member.tag("name") and a.member.tag("name") == b.member.tag("name"):
         return True
 
     # same stop area, assume same stop
@@ -798,12 +806,11 @@ def _at_same_stop(a: Relationship, b: Relationship) -> bool:
         return True
 
     # assume same stop if close together
-    if not a.member.geometry or not b.member.geometry:
+    if not a.member.base_geometry or not b.member.base_geometry:
         return False
 
-    pt_a, pt_b = shapely.ops.nearest_points(
-        a.member.geometry, b.member.geometry
-    )  # euclidean nearest
+    # euclidean nearest
+    pt_a, pt_b = shapely.ops.nearest_points(a.member.base_geometry, b.member.base_geometry)
     distance = fast_distance(*pt_a.coords[0], *pt_b.coords[0])
     return distance <= _MAX_DISTANCE_TO_TRACK
 

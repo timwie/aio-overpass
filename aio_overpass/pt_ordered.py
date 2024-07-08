@@ -233,10 +233,10 @@ class OrderedRouteView(Spatial):
 
             for line in line_strings:
                 if not coords:
-                    coords.extend(line.coords)  # pyright: ignore
+                    coords.extend(line.coords)  # pyright: ignore[reportArgumentType]
                 else:
                     # ignore first coord, it's equal to the previous one
-                    coords.extend(line.coords[1:])  # pyright: ignore
+                    coords.extend(line.coords[1:])  # pyright: ignore[reportArgumentType]
 
             merged_line = LineString(coords)
             merged_lines.append(merged_line)
@@ -249,14 +249,14 @@ class OrderedRouteView(Spatial):
     @property
     def geojson(self) -> GeoJsonDict:
         """A mapping of this object, using the GeoJSON format."""
-        # TODO OrderedRouteView geojson
+        # TODO: OrderedRouteView geojson
         raise NotImplementedError
 
 
 def collect_ordered_routes(
     query: RouteQuery, perimeter: Polygon | None = None, n_jobs: int = 1
 ) -> list[OrderedRouteView]:
-    # TODO the way 'perimeter' works might be confusing
+    # TODO: the way 'perimeter' works might be confusing
     """
     Produce ``OrderedRouteViews`` objects from a result set.
 
@@ -330,7 +330,7 @@ def to_ordered_routes(routes: list[Route], n_jobs: int = 1) -> list[OrderedRoute
 
         # For each stop, try to find a stop position on the route's graph (its track).
         track_nodes = MultiPoint([Point(*node) for node in track_graph.nodes])
-        track_ways = MultiLineString([LineString([u, v]) for u, v, _key in track_graph.edges])  # pyright: ignore
+        track_ways = MultiLineString([LineString([u, v]) for u, v, _key in track_graph.edges])  # pyright: ignore[reportAssignmentType]
         for stop in route.stops:
             stop.stop_coords = _find_stop_coords(stop, track_graph, track_nodes, track_ways)
 
@@ -352,7 +352,7 @@ def to_ordered_routes(routes: list[Route], n_jobs: int = 1) -> list[OrderedRoute
             for route, graph in zip(views, graphs, strict=True)
         ]
 
-        # TODO think about using joblib.Parallel's "return_as"
+        # TODO: think about using joblib.Parallel's "return_as"
         #   => can produce a generator that yields the results as soon as they are available
         with joblib.parallel_backend(backend="loky", n_jobs=n_jobs):
             paths = joblib.Parallel()(joblib.delayed(_paths)(*args) for args in parallel_args)
@@ -475,7 +475,7 @@ def _find_stop_coords(
 
     # (c) use a node on the graph, that is closest to one of the relation members
     station_geom = GeometryCollection(
-        [relship.member.geometry for relship in (stop.stop_position, stop.platform) if relship]
+        [relship.member.base_geometry for relship in (stop.stop_position, stop.platform) if relship]
     )
 
     if not track_nodes or not station_geom:
@@ -515,7 +515,7 @@ def _paths(route_graph: MultiDiGraph, targets: list[Point | None]) -> list[Order
                  represented by ``None``
     """
     # set edge weights to metric distance
-    for u, v in route_graph.edges():  # pyright: ignore
+    for u, v in route_graph.edges():
         if _WEIGHT_KEY in route_graph[u][v][0]:
             continue
 
@@ -579,8 +579,8 @@ def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> None:
 
     if u != v:
         try:
-            path_nodes = nx.shortest_path(graph, source=u, target=v, weight=_WEIGHT_KEY)  # pyright: ignore
-            _traverse_path(graph, progress, path_nodes)  # pyright: ignore
+            path_nodes = nx.shortest_path(graph, source=u, target=v, weight=_WEIGHT_KEY)
+            _traverse_path(graph, progress, path_nodes)  # pyright: ignore[reportArgumentType]
             return _traverse_graph(graph, progress)
         except nx.NetworkXNoPath:
             pass
@@ -627,7 +627,7 @@ def _traverse_path(graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_
     if progress.ordering:
         skip_node = (progress.ordering[-1].lat, progress.ordering[-1].lon)
 
-    for u, v in edges:
+    for u_traversed, v_traversed in edges:
         # don't duplicate last visited stop position node
         if skip_node is not None:
             skip_node = None
@@ -635,9 +635,9 @@ def _traverse_path(graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_
 
         # The path does not specify exactly which edge was traversed, so we select
         # the parallel edge of (u, v) that has the smallest weight, and increase it.
-        u, v, key, _ = min(  # pyright: ignore
-            graph.edges([u, v], keys=True, data=True),  # pyright: ignore
-            key=lambda t: t[3][_WEIGHT_KEY],  # pyright: ignore
+        u, v, key, _ = min(  # pyright: ignore[reportCallIssue]
+            graph.edges([u_traversed, v_traversed], keys=True, data=True),  # pyright: ignore[reportCallIssue]
+            key=lambda t: t[3][_WEIGHT_KEY],
         )
 
         graph[u][v][key][_WEIGHT_KEY] += _WEIGHT_MULTIPLIER
