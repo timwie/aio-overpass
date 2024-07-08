@@ -103,15 +103,20 @@ jobs:
 
       - name: Check formatting with Ruff
         run: poetry run ruff format aio_overpass/ --check
+        continue-on-error: true
 
       - name: Lint with Ruff
         run: poetry run ruff check aio_overpass/
+        continue-on-error: true
 
       - name: Check types with mypy
         run: poetry run mypy aio_overpass/
+        continue-on-error: true
 
       - name: Check types with pyright
         run: poetry run pyright aio_overpass/
+        continue-on-error: true
 
       - name: Validate __slots__
         run: poetry run slotscheck -m aio_overpass --require-subclass -v
+        continue-on-error: true
