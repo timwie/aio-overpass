@@ -67,12 +67,14 @@ class Status:
     nb_running_queries: int
 
     def __repr__(self) -> str:
-        f, s, c = self.free_slots, self.slots, self.cooldown_secs
-
-        if self.slots:
-            return f"{type(self).__name__}(slots={f}/{s}, cooldown={c}s)"
-
-        return f"{type(self).__name__}(slots=∞, cooldown={c}s)"
+        rep = f"{type(self).__name__}(free_slots="
+        rep += f"{self.free_slots}/{self.slots}" if self.slots else "∞"
+        rep += f", cooldown={self.cooldown_secs}s"
+        rep += f", running={self.nb_running_queries}"
+        if self.endpoint:
+            rep += f", endpoint={self.endpoint!r}"
+        rep += ")"
+        return rep
 
 
 class Client:
@@ -110,7 +112,7 @@ class Client:
         "_user_agent",
     )
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         url: str = DEFAULT_INSTANCE,
         user_agent: str = DEFAULT_USER_AGENT,
