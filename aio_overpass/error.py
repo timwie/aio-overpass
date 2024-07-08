@@ -239,11 +239,6 @@ class QueryResponseError(ResponseError, QueryError):
     but we can't specifically say why (thus also extends ``ResponseError``).
     """
 
-    @property
-    def should_retry(self) -> bool:
-        """Returns ``True`` if it's worth retrying when encountering this error."""
-        return ResponseError.should_retry.fget(self)  # type: ignore
-
     def __str__(self) -> str:
         if self.remarks:
             first = f"'{self.remarks[0]}'"
