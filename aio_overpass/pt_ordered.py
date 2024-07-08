@@ -650,11 +650,6 @@ def _traverse_path(graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_
         skip_node = (progress.ordering[-1].lat, progress.ordering[-1].lon)
 
     for u_traversed, v_traversed in edges:
-        # don't duplicate last visited stop position node
-        if skip_node is not None:
-            skip_node = None
-            continue
-
         # The path does not specify exactly which edge was traversed, so we select
         # the parallel edge of (u, v) that has the smallest weight, and increase it.
         u, v, key, _ = min(  # pyright: ignore[reportCallIssue]
@@ -670,7 +665,13 @@ def _traverse_path(graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_
 
         way_id = graph[u][v][key][_WAY_ID_KEY]
 
-        way_distance = graph[u][v][key][_WEIGHT_KEY] % _WEIGHT_MULTIPLIER
+        last_node = v
+        last_way_id = way_id
+
+        # don't duplicate last visited stop position node
+        if skip_node == u:
+            skip_node = None
+            continue
 
         progress.ordering.append(
             OrderedRouteViewNode(
@@ -683,10 +684,8 @@ def _traverse_path(graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_
             )
         )
 
+        way_distance = graph[u][v][key][_WEIGHT_KEY] % _WEIGHT_MULTIPLIER
         progress.distance += way_distance
-
-        last_node = v
-        last_way_id = way_id
 
     assert last_node is not None
     assert last_way_id is not None

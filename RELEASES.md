@@ -21,6 +21,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 * Fix a possible `IndexError` in `OrderedRouteView.paths`
+* Fix a bug in `to_ordered_routes()` that would omit the last node of the path between two stops,
+  and raise an `AssertionError`
 
 ## [0.13.1] – 2024-04-30
 ### Changed
