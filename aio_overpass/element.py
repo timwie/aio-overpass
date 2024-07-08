@@ -339,7 +339,6 @@ class Element(Spatial):
         return _geojson_feature(self)
 
     def __repr__(self) -> str:
-        """TODO: doc."""
         return f"{type(self).__name__}({self.id})"
 
 
@@ -427,7 +426,7 @@ class Relation(Element):
     geometry_details: GeometryDetails[Polygon | MultiPolygon] | None
 
     def __iter__(self) -> Iterator[tuple[str | None, Element]]:
-        """TODO: doc."""
+        """Iterates over all members in the form of ``(role, element)``."""
         for relship in self.members:
             yield relship.role, relship.member
 
@@ -460,7 +459,6 @@ class Relationship(Spatial):
         return _geojson_feature(self)
 
     def __repr__(self) -> str:
-        """TODO: doc."""
         role = f" as '{self.role}'" if self.role else " "
         return f"{type(self).__name__}({self.member}{role} in {self.relation})"
 
