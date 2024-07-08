@@ -8,14 +8,14 @@ from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
 import pytest
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
 async def test_caching(mock_response):
     test_dir = Path(__file__).resolve().parent
     data_file = test_dir / "route_data" / "ambiguous_stop_name1.json"
     response_str = data_file.read_text()
 
-    with open(data_file, mode="r", encoding="utf-8") as file:
+    with data_file.open(encoding="utf-8") as file:
         response = json.load(file)
 
     mock_response.post(
@@ -52,14 +52,14 @@ async def test_caching(mock_response):
     await c.close()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
 async def test_cache_expiration(mock_response):
     test_dir = Path(__file__).resolve().parent
     data_file = test_dir / "route_data" / "ambiguous_stop_name2.json"
     response_str = data_file.read_text()
 
-    with open(data_file, mode="r", encoding="utf-8") as file:
+    with data_file.open(encoding="utf-8") as file:
         response = json.load(file)
 
     mock_response.post(

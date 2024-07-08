@@ -108,6 +108,9 @@ ignore = [
     "COM812", "D105", "D107", "D203", "D212", "FIX", "G004", "I", "ISC001", "PLR2004", "S101", "SLF001", "TD",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"test/*" = ["ANN", "ASYNC230", "D", "E501", "F401", "F811", "PLR0915"]
+
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 

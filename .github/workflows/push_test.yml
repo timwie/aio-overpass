@@ -108,6 +108,10 @@ jobs:
         if: always()  # keep going even if previous step failed
         run: poetry run ruff check aio_overpass/
 
+      - name: Lint tests with Ruff
+        if: always()  # keep going even if previous step failed
+        run: poetry run ruff check test/
+
       - name: Check types with mypy
         if: always()  # keep going even if previous step failed
         run: poetry run mypy aio_overpass/

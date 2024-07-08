@@ -7,7 +7,7 @@ import pytest
 from aioresponses import aioresponses
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
 async def test_idle():
     body = """
@@ -43,7 +43,7 @@ Currently running queries (pid, space limit, time limit, start time):
     await c.close()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
 async def test_idle_with_load_balancing():
     body = """
@@ -80,7 +80,7 @@ Currently running queries (pid, space limit, time limit, start time):
     await c.close()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
 async def test_one_slot_available():
     body = """
@@ -117,7 +117,7 @@ Currently running queries (pid, space limit, time limit, start time):
     await c.close()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
 async def test_multiple_running_queries():
     body = """
@@ -155,7 +155,7 @@ Currently running queries (pid, space limit, time limit, start time):
     await c.close()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
 async def test_no_slot_available():
     body = """
@@ -192,7 +192,7 @@ Currently running queries (pid, space limit, time limit, start time):
     await c.close()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
 async def test_server_error():
     body = """
@@ -201,14 +201,14 @@ open64: 2 No such file or directory /osm3s_osm_base Dispatcher_Client::1. Probab
 
     c = Client(runner=VerifyingQueryRunner())
 
-    with aioresponses() as m, pytest.raises(ResponseError):
+    with aioresponses() as m:
         m.get(
             url=URL_STATUS,
             body=body,
             status=504,
             content_type="text/plain",
         )
-
-        await c.status()
+        with pytest.raises(ResponseError):
+            await c.status()
 
     await c.close()

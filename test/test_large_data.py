@@ -16,7 +16,7 @@ from test.util import (
 import pytest
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_collect_any_element_carabanchel(mock_response):
     test_dir = Path(__file__).resolve().parent
     data_file = test_dir / "large_data" / "any_element_carabanchel.json.gz"
@@ -42,7 +42,7 @@ async def test_collect_any_element_carabanchel(mock_response):
         verify_element(elem)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_collect_any_route_carabanchel(mock_response):
     test_dir = Path(__file__).resolve().parent
     data_file = test_dir / "large_data" / "any_route_carabanchel.json.gz"

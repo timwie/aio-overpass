@@ -17,7 +17,7 @@ URL_STATUS = "https://overpass-api.de/api/status"
 URL_KILL = "https://overpass-api.de/api/kill_my_queries"
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_response():
     with aioresponses() as m:
         mock_status = """
@@ -43,14 +43,12 @@ Currently running queries (pid, space limit, time limit, start time):
         yield m
 
 
-# TODO must support concurrent queries
-# TODO test that cache_key is stable
-
-
 class VerifyingQueryRunner(QueryRunner):
     """
     Same as the default runner, but with calls to ``verify_query_state()``
     before and after yielding to it.
+
+    TODO: must support concurrent queries
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -177,11 +175,12 @@ def verify_element(elem: Element) -> None:
 
     try:
         for spatial_dict in elem.geo_interfaces:
-            # TODO "Feature" is unsupported by shapely until shapely 2.1.0 releases
+            # TODO: "Feature" is unsupported by shapely until shapely 2.1.0 releases
             if spatial_dict.__geo_interface__["type"] != "Feature":
                 _ = shapely.geometry.shape(spatial_dict)
     except BaseException as err:
-        raise AssertionError(f"{msg}: bad __geo_interface__: {err}")
+        err_msg = f"{msg}: bad __geo_interface__"
+        raise AssertionError(err_msg) from err
 
     assert str(elem), msg  # just test this doesn't raise
     assert repr(elem), msg  # just test this doesn't raise
@@ -208,7 +207,8 @@ def verify_relationship(relship: Relationship) -> None:
     verify_element(relship.member)
     verify_element(relship.relation)
     if relship.role is not None:
-        assert isinstance(relship.role, str) and relship.role, msg
+        assert isinstance(relship.role, str), msg
+        assert relship.role, msg
 
     assert str(relship), msg  # just test this doesn't raise
     assert repr(relship), msg  # just test this doesn't raise
@@ -246,7 +246,7 @@ def verify_route(route: Route) -> None:
     assert str(route), msg  # just test this doesn't raise
     assert repr(route), msg  # just test this doesn't raise
 
-    # TODO geojson
+    # TODO: geojson
 
 
 def verify_stop(stop: Stop) -> None:
@@ -271,7 +271,8 @@ def verify_stop(stop: Stop) -> None:
             assert stop.stop_coords.is_valid, msg
 
     if stop.name is not None:
-        assert isinstance(stop.name, str) and stop.name, msg
+        assert isinstance(stop.name, str), msg
+        assert stop.name, msg
 
     assert stop.connection in Connection, msg
 
@@ -283,10 +284,10 @@ def verify_stop(stop: Stop) -> None:
 
     # _stop_point
     # _geometry
-    # TODO geojson
+    # TODO: geojson
 
 
-# TODO verify OrderedRouteView
+# TODO: verify OrderedRouteView
 
 
 def _already_validated(obj: Spatial) -> bool:

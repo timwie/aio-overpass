@@ -11,7 +11,7 @@ def test_poly_filter():
     shape2 = Polygon([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
     actual1 = poly_clause(shape1)
     actual2 = poly_clause(shape2)
-    expected = f'(poly:"0.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0")'
+    expected = '(poly:"0.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0")'
     assert actual1 == actual2 == expected
 
 
