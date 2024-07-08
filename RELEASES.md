@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Changed
+* Change `numpy` version requirement for Python `<3.12` to `>=1.23,<3` (from `^1.23`)
 * All tag values are strings, but were previously typed as `Any`:
   * Change the type of `Element.tags` to `dict[str, str] | None`, from `dict[str, Any] | None`
   * Change the return type of `Element.tag()` to `str | None`, from `Any`
