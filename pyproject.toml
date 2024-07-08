@@ -105,11 +105,14 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "COM812", "D107", "D203", "D212", "FIX", "G004", "I", "PLR2004", "S101", "SLF001", "TD",
+    "COM812", "D107", "D203", "D212", "FIX", "G004", "I", "ISC001", "PLR2004", "S101", "SLF001", "TD",
 ]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["__doc__"]
 
 [tool.isort]
 # https://pycqa.github.io/isort/docs/configuration/options.html
