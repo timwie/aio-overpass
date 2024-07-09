@@ -208,10 +208,6 @@ class Element(Spatial):
             OSM IDs may change at any time, e.g. if an object is deleted and re-added.
         tags: A list of key-value pairs that describe the element, or ``None`` if the element's
               tags not included in the query's result set.
-        bounds: The bounding box of this element, or ``None`` when not using ``out bb``.
-                The ``bounds`` property of Shapely geometries can be used as a replacement.
-        center: The center of ``bounds``. If you need a coordinate that is inside the element's
-                geometry, consider Shapely's ``representative_point()`` and ``centroid``.
         meta: Metadata of this element, or ``None`` when not using ``out meta``
         relations: All relations that are **also in the query's result set**, and that
                    **are known** to contain this element as a member.
@@ -227,8 +223,6 @@ class Element(Spatial):
 
     id: int
     tags: dict[str, str] | None
-    bounds: Bbox | None
-    center: Point | None
     meta: Metadata | None
     relations: list["Relationship"]
 
@@ -242,6 +236,17 @@ class Element(Spatial):
         match self:
             case Node() | Way() | Relation():
                 return self.geometry
+            case _:
+                raise NotImplementedError
+
+    @property
+    def base_geometry_details(self) -> GeometryDetails[BaseGeometry] | None:
+        """More info on the validity of ``base_geometry``."""
+        match self:
+            case Way() | Relation():
+                return self.geometry_details
+            case Node():
+                return GeometryDetails(valid=self.geometry)
             case _:
                 raise NotImplementedError
 
@@ -373,6 +378,11 @@ class Way(Element):
     Attributes:
         node_ids: The IDs of the nodes that make up this way, or ``None`` if they are not included
                   in the query's result set.
+        bounds: The enclosing bounding box of all nodes, or ``None`` when not using ``out bb``.
+                The ``bounds`` property of Shapely geometries can be used as an alternative.
+        center: The center of ``bounds``, or ``None`` when not using ``out center``.
+                If you need a coordinate that is inside the element's geometry, consider Shapely's
+                ``representative_point()`` and ``centroid``.
         geometry: A Linestring if the way is open, a LinearRing if the way is closed,
                   a Polygon if the way is closed and its tags indicate that it represents an area,
                   or ``None`` if the geometry is not included in the query's result set.
@@ -383,6 +393,8 @@ class Way(Element):
     """
 
     node_ids: list[int] | None
+    bounds: Bbox | None
+    center: Point | None
     geometry: LineString | LinearRing | Polygon | None
     geometry_details: GeometryDetails[LineString | LinearRing | Polygon] | None
 
@@ -406,6 +418,12 @@ class Relation(Element):
        boundaries.
 
     Attributes:
+        bounds: The bounding box of this element, or ``None`` when not using ``out bb``.
+                It encloses all node and way members; relations as members have no effect.
+                The ``bounds`` property of Shapely geometries can be used as an alternative.
+        center: The center of ``bounds``, or ``None`` when not using ``out center``.
+                If you need a coordinate that is inside the element's geometry, consider Shapely's
+                ``representative_point()`` and ``centroid``.
         members: Ordered member elements of this relation, with an optional role
         geometry: If this relation is deemed to represent an area, these are the complex polygons
                   whose boundaries and holes are made up of the ways inside the relation. Members
@@ -421,6 +439,8 @@ class Relation(Element):
         - https://wiki.openstreetmap.org/wiki/Relation:boundary
     """
 
+    bounds: Bbox | None
+    center: Point | None
     members: list["Relationship"]
     geometry: Polygon | MultiPolygon | None
     geometry_details: GeometryDetails[Polygon | MultiPolygon] | None
@@ -567,8 +587,6 @@ def _collect_typed(collector: _ElementCollector) -> None:
         args = {
             "id": elem_id,
             "tags": elem_dict.get("tags"),
-            "bounds": tuple(elem_dict["bounds"].values()) if "bounds" in elem_dict else None,
-            "center": Point(elem_dict["center"].values()) if "center" in elem_dict else None,
             "meta": Metadata(
                 timestamp=elem_dict["timestamp"],
                 version=elem_dict["version"],
@@ -591,19 +609,19 @@ def _collect_typed(collector: _ElementCollector) -> None:
             case "way":
                 cls = Way
                 args["node_ids"] = elem_dict.get("nodes")
-                args["geometry_details"] = None
-                if geometry and (geometry_details := _try_validate_geometry(geometry)) is not None:
-                    args["geometry_details"] = geometry_details
-                    args["geometry"] = geometry_details.best
             case "relation":
                 cls = Relation
                 args["members"] = []  # add later
-                args["geometry_details"] = None
-                if geometry and (geometry_details := _try_validate_geometry(geometry)) is not None:
-                    args["geometry_details"] = geometry_details
-                    args["geometry"] = geometry_details.best
             case _:
                 raise AssertionError
+
+        if cls in {Way, Relation}:
+            args["geometry_details"] = None
+            if geometry and (geometry_details := _try_validate_geometry(geometry)) is not None:
+                args["geometry_details"] = geometry_details
+                args["geometry"] = geometry_details.best
+            args["bounds"] = tuple(elem_dict["bounds"].values()) if "bounds" in elem_dict else None
+            args["center"] = Point(elem_dict["center"].values()) if "center" in elem_dict else None
 
         elem = cls(**args)  # pyright: ignore[reportArgumentType]
         collector.typed_dict[elem_key] = elem
@@ -849,8 +867,6 @@ def _geojson_properties(obj: Element | Relationship) -> GeoJsonDict:
         "id": elem.id,
         "type": elem.type,
         "tags": elem.tags,
-        "bounds": elem.bounds,
-        "center": elem.center.coords[0] if elem.center else None,
         "timestamp": elem.meta.timestamp if elem.meta else None,
         "version": elem.meta.version if elem.meta else None,
         "changeset": elem.meta.changeset if elem.meta else None,
@@ -858,6 +874,11 @@ def _geojson_properties(obj: Element | Relationship) -> GeoJsonDict:
         "uid": elem.meta.user_id if elem.meta else None,
         "nodes": getattr(elem, "nodes", None),
     }
+
+    if isinstance(elem, Way | Relation):
+        # TODO: these are lat/lon order, as opposed to the geometry in GeoJSON - problem?
+        properties["bounds"] = elem.bounds
+        properties["center"] = elem.center.coords[0] if elem.center else None
 
     properties = {k: v for k, v in properties.items() if v is not None}
 
@@ -892,7 +913,7 @@ def _geojson_bbox(obj: Element | Relationship) -> Bbox | None:
 
     geom = elem.base_geometry
     if not geom:
-        return elem.bounds
+        return elem.bounds if isinstance(elem, Way | Relation) else None
 
     bounds = geom.bounds  # can be (nan, nan, nan, nan)
     if not any(math.isnan(c) for c in bounds):

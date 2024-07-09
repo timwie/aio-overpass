@@ -190,6 +190,12 @@ def verify_element(elem: Element) -> None:
         assert isinstance(v, str), msg
         assert v == elem.tag(k)
 
+    assert elem.geometry is elem.base_geometry
+    if isinstance(elem, Way | Relation):
+        assert elem.geometry_details is elem.base_geometry_details
+    if isinstance(elem, Node) and elem.geometry:
+        assert elem.geometry is elem.base_geometry_details.valid
+
     # elem.bounds
     # elem.center
     # elem.meta

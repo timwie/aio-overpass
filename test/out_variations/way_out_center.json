@@ -1,0 +1,72 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.1 084b4234",
+  "osm3s": {
+    "timestamp_osm_base": "2024-07-09T15:29:29Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 24981342,
+  "center": {
+    "lat": 53.5412491,
+    "lon": 9.9841054
+  },
+  "nodes": [
+    1708914062,
+    271454733,
+    4484215633,
+    11201726530,
+    4484215632,
+    2989375542,
+    271454734,
+    271454735,
+    5111257095,
+    1708914062
+  ],
+  "tags": {
+    "addr:city": "Hamburg",
+    "addr:country": "DE",
+    "addr:housename": "Elbphilharmonie",
+    "addr:housenumber": "1",
+    "addr:postcode": "20457",
+    "addr:street": "Platz der Deutschen Einheit",
+    "amenity": "theatre",
+    "architect": "Werner Kallmorgen;Herzog & de Meuron",
+    "building": "public",
+    "building:levels": "26",
+    "construction_year": "2003-2016",
+    "contact:email": "info@elbphilharmonie.de",
+    "contact:phone": "+49 40 3576660",
+    "contact:website": "https://www.elbphilharmonie.de/de/",
+    "height": "110",
+    "image": "https://photos.app.goo.gl/rWdeHuVtpviFyEgh6",
+    "loc_name": "Elphi",
+    "name": "Elbphilharmonie",
+    "name:de": "Elbphilharmonie",
+    "name:en": "Elbe Philharmonic Hall",
+    "name:nl": "Elbphilharmonie",
+    "name:pt": "Filarmônica do Elba",
+    "old_name": "Kaispeicher A",
+    "operator": "Stadt Hamburg",
+    "roof:colour": "white",
+    "roof:direction": "100",
+    "roof:height": "20",
+    "roof:levels": "0",
+    "roof:shape": "skillion",
+    "start_date": "2016-10-31",
+    "theatre:genre": "philharmonic",
+    "theatre:type": "concert_hall",
+    "toilets:wheelchair": "yes",
+    "tourism": "attraction",
+    "wheelchair": "limited",
+    "wikidata": "Q673223",
+    "wikimedia_commons": "Category:Elbphilharmonie",
+    "wikipedia": "de:Elbphilharmonie"
+  }
+}
+
+  ]
+}

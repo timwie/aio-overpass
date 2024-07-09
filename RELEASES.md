@@ -4,8 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Added
-* Add the `Element.base_geometry` property to allow properly typed access to an element's geometry
-  when the exact type is unknown
+* Add the `Element.base_geometry(_details)` properties to allow properly typed access
+  to an element's geometry when the exact type is unknown
+* Add the `center` property to `Way` and `Relation`
+* Add the `bounds` property to `Way` and `Relation`
 
 ### Changed
 * Change `numpy` version requirement for Python `<3.12` to `>=1.23,<3` (from `^1.23`)
@@ -16,8 +18,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Change the return type of `Route.tag()` to `str | None`, from `Any`
 
 ### Removed
-* Remove export of no longer used `OverpassDict` type alias
-* Remove the `geometry` property from the `Element` base class due to typing violation
+* **Breaking**: Remove export of no longer used `OverpassDict` type alias
+* **Breaking**: Remove the `geometry` property from the `Element` base class due to typing violation
+* **Breaking**: Remove the `bounds` property from the `Element` base class
+* **Breaking**: Remove the `center` property from the `Element` base class
 
 ### Fixed
 * Fix a possible `IndexError` in `OrderedRouteView.paths`
