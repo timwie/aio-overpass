@@ -580,50 +580,68 @@ def _collect_untyped(query: Query, collector: _ElementCollector) -> None:
 
 def _collect_typed(collector: _ElementCollector) -> None:
     for elem_key, elem_dict in collector.untyped_dict.items():
-        (elem_type, elem_id) = elem_key
+        elem_type, elem_id = elem_key
 
         geometry = _geometry(elem_dict)
 
-        args = {
-            "id": elem_id,
-            "tags": elem_dict.get("tags"),
-            "meta": Metadata(
+        center = Point(elem_dict["center"].values()) if "center" in elem_dict else None
+        bounds = tuple(elem_dict["bounds"].values()) if "bounds" in elem_dict else None
+        assert bounds is None or len(bounds) == 4
+
+        meta: Metadata | None = None
+        if "timestamp" in elem_dict:
+            meta = Metadata(
                 timestamp=elem_dict["timestamp"],
                 version=elem_dict["version"],
                 changeset=elem_dict["changeset"],
                 user_name=elem_dict["user"],
                 user_id=elem_dict["uid"],
             )
-            if "timestamp" in elem_dict
-            else None,
-            "relations": [],  # add later
-            "geometry": geometry,
-        }
 
-        cls: type[Element]
+        elem: Element
 
         match elem_type:
             case "node":
-                cls = Node
+                assert isinstance(geometry, Point | None)
                 assert geometry is None or geometry.is_valid
+                elem = Node(
+                    id=elem_id,
+                    tags=elem_dict.get("tags"),
+                    geometry=geometry,
+                    meta=meta,
+                    relations=[],  # add later
+                )
             case "way":
-                cls = Way
-                args["node_ids"] = elem_dict.get("nodes")
+                assert isinstance(geometry, LineString | LinearRing | Polygon | None)
+                geometry_details = _try_validate_geometry(geometry) if geometry else None
+                elem = Way(
+                    id=elem_id,
+                    tags=elem_dict.get("tags"),
+                    geometry=geometry if geometry_details is None else geometry_details.best,
+                    geometry_details=geometry_details,
+                    meta=meta,
+                    node_ids=elem_dict.get("nodes"),
+                    bounds=bounds,
+                    center=center,
+                    relations=[],  # add later
+                )
             case "relation":
-                cls = Relation
-                args["members"] = []  # add later
+                assert isinstance(geometry, Polygon | MultiPolygon | None)
+                geometry_details = _try_validate_geometry(geometry) if geometry else None
+                elem = Relation(
+                    id=elem_id,
+                    tags=elem_dict.get("tags"),
+                    geometry=geometry if geometry_details is None else geometry_details.best,
+                    geometry_details=geometry_details,
+                    meta=meta,
+                    bounds=bounds,
+                    center=center,
+                    relations=[],  # add later
+                    members=[],  # add later
+                )
             case _:
                 raise AssertionError
 
-        if cls in {Way, Relation}:
-            args["geometry_details"] = None
-            if geometry and (geometry_details := _try_validate_geometry(geometry)) is not None:
-                args["geometry_details"] = geometry_details
-                args["geometry"] = geometry_details.best
-            args["bounds"] = tuple(elem_dict["bounds"].values()) if "bounds" in elem_dict else None
-            args["center"] = Point(elem_dict["center"].values()) if "center" in elem_dict else None
-
-        elem = cls(**args)  # pyright: ignore[reportArgumentType]
         collector.typed_dict[elem_key] = elem
 
 

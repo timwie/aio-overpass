@@ -37,6 +37,7 @@ async def test_collect_any_element_carabanchel(mock_response):
     await client.close()
 
     elements = collect_elements(query)
+    assert len(elements) == len(query.result_set)
 
     for elem in elements:
         verify_element(elem)
