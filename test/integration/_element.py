@@ -3,12 +3,13 @@ import asyncio
 from aio_overpass import Client, Query
 from aio_overpass.element import collect_elements
 from aio_overpass.query import DefaultQueryRunner
+from test.integration import get_logger
 from test.util import verify_element
-
-from loguru import logger
 
 
 def validate_elements_in_result_set(code: str) -> None:
+    logger = get_logger("any element integration test")
+
     query = Query(code, logger=logger)
 
     client = Client(

@@ -4,12 +4,13 @@ from aio_overpass import Client
 from aio_overpass.pt import RouteQuery, collect_routes
 from aio_overpass.pt_ordered import collect_ordered_routes
 from aio_overpass.query import DefaultQueryRunner
+from test.integration import get_logger
 from test.util import verify_route
-
-from loguru import logger
 
 
 def validate_routes_in_result_set(code: str) -> None:
+    logger = get_logger("route integration test")
+
     query = RouteQuery(code, logger=logger)
 
     client = Client(

@@ -1,18 +1,8 @@
-import gzip
-import json
 from pathlib import Path
 
 from aio_overpass import Client, Query
 from aio_overpass.element import Way, collect_elements
-from aio_overpass.pt import RouteQuery, collect_routes
-from aio_overpass.pt_ordered import collect_ordered_routes
-from test.util import (
-    URL_INTERPRETER,
-    VerifyingQueryRunner,
-    mock_response,
-    verify_element,
-    verify_route,
-)
+from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response, verify_element
 
 import pytest
 
