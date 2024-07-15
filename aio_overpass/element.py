@@ -240,7 +240,7 @@ class Element(Spatial):
                 raise NotImplementedError
 
     @property
-    def base_geometry_details(self) -> GeometryDetails[BaseGeometry] | None:
+    def base_geometry_details(self) -> GeometryDetails | None:
         """More info on the validity of ``base_geometry``."""
         match self:
             case Way() | Relation():

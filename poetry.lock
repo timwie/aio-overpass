@@ -1953,17 +1953,6 @@ extra = ["lxml (>=4.6)", "pydot (>=2.0)", "pygraphviz (>=1.12)", "sympy (>=1.10)
 test = ["pytest (>=7.2)", "pytest-cov (>=4.0)"]
 
 [[package]]
-name = "nodeenv"
-version = "1.9.1"
-description = "Node.js virtual environment builder"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
-files = [
-    {file = "nodeenv-1.9.1-py2.py3-none-any.whl", hash = "sha256:ba11c9782d29c27c70ffbdda2d7415098754709be8a7056d79a737cd901155c9"},
-    {file = "nodeenv-1.9.1.tar.gz", hash = "sha256:6ec12890a2dab7946721edbfbcd91f3319c6ccc9aec47be7c7e6b7011ee6645f"},
-]
-
-[[package]]
 name = "notebook-shim"
 version = "0.2.4"
 description = "A shim layer for notebook traits and config"
@@ -2367,24 +2356,6 @@ files = [
 
 [package.extras]
 windows-terminal = ["colorama (>=0.4.6)"]
-
-[[package]]
-name = "pyright"
-version = "1.1.371"
-description = "Command line wrapper for pyright"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "pyright-1.1.371-py3-none-any.whl", hash = "sha256:cce52e42ff73943243e7e5e24f2a59dee81b97d99f4e3cf97370b27e8a1858cd"},
-    {file = "pyright-1.1.371.tar.gz", hash = "sha256:777b508b92dda2db476214c400ce043aad8d8f3dd0e10d284c96e79f298308b5"},
-]
-
-[package.dependencies]
-nodeenv = ">=1.6.0"
-
-[package.extras]
-all = ["twine (>=3.4.1)"]
-dev = ["twine (>=3.4.1)"]
 
 [[package]]
 name = "pysocks"
@@ -3514,4 +3485,4 @@ shapely = ["numpy", "numpy", "shapely"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "809496fe4a241fa5412d39b59e18c60b68ac790d337536730d227ab624752fe7"
+content-hash = "58612799aacf1afa3d04d9f47887d709a4d03e7e8292f40bf245e594cace1471"

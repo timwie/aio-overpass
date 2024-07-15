@@ -23,11 +23,11 @@ __all__ = (
     "ClientError",
     "Query",
     "client",
-    "element",  # pyright: ignore[reportUnsupportedDunderAll]
+    "element",
     "error",
-    "pt",  # pyright: ignore[reportUnsupportedDunderAll]
-    "pt_ordered",  # pyright: ignore[reportUnsupportedDunderAll]
-    "ql",  # pyright: ignore[reportUnsupportedDunderAll]
+    "pt",
+    "pt_ordered",
+    "ql",
     "query",
 )
 

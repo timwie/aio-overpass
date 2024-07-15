@@ -124,7 +124,7 @@ class OrderedRouteView(Spatial):
             else:
                 ordering.append(a)
 
-        ordering.append(b)  # pyright: ignore[reportPossiblyUnboundVariable]
+        ordering.append(b)
 
         yield replace(self, ordering=ordering)
 
@@ -255,10 +255,10 @@ class OrderedRouteView(Spatial):
 
             for line in line_strings:
                 if not coords:
-                    coords.extend(line.coords)  # pyright: ignore[reportArgumentType]
+                    coords.extend(line.coords)
                 else:
                     # ignore first coord, it's equal to the previous one
-                    coords.extend(line.coords[1:])  # pyright: ignore[reportArgumentType]
+                    coords.extend(line.coords[1:])
 
             merged_line = LineString(coords)
             merged_lines.append(merged_line)
@@ -351,7 +351,7 @@ def to_ordered_routes(routes: list[Route], n_jobs: int = 1) -> list[OrderedRoute
 
         # For each stop, try to find a stop position on the route's graph (its track).
         track_nodes = MultiPoint([Point(*node) for node in track_graph.nodes])
-        track_ways = MultiLineString([LineString([u, v]) for u, v, _key in track_graph.edges])  # pyright: ignore[reportAssignmentType]
+        track_ways = MultiLineString([LineString([u, v]) for u, v, _key in track_graph.edges])
         for stop in route.stops:
             stop.stop_coords = _find_stop_coords(stop, track_graph, track_nodes, track_ways)
 
@@ -602,7 +602,7 @@ def _traverse_graph(graph: MultiDiGraph, progress: _Traversal) -> None:
     if u != v:
         try:
             path_nodes = nx.shortest_path(graph, source=u, target=v, weight=_WEIGHT_KEY)
-            _traverse_path(graph, progress, path_nodes)  # pyright: ignore[reportArgumentType]
+            _traverse_path(graph, progress, path_nodes)
             return _traverse_graph(graph, progress)
         except nx.NetworkXNoPath:
             pass
@@ -652,8 +652,8 @@ def _traverse_path(graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_
     for u_traversed, v_traversed in edges:
         # The path does not specify exactly which edge was traversed, so we select
         # the parallel edge of (u, v) that has the smallest weight, and increase it.
-        u, v, key, _ = min(  # pyright: ignore[reportCallIssue]
-            graph.edges([u_traversed, v_traversed], keys=True, data=True),  # pyright: ignore[reportCallIssue]
+        u, v, key, _ = min(
+            graph.edges([u_traversed, v_traversed], keys=True, data=True),
             key=lambda t: t[3][_WEIGHT_KEY],
         )
 

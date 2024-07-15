@@ -544,7 +544,7 @@ class Route(Spatial):
     def bounds(self) -> Bbox | None:
         """The bounding box around all stops of this route."""
         geom = GeometryCollection([stop._geometry for stop in self.stops if stop._geometry])
-        return geom.bounds or None  # pyright: ignore[reportGeneralTypeIssues]
+        return geom.bounds or None
 
     @property
     def geojson(self) -> GeoJsonDict:

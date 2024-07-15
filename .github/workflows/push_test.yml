@@ -116,10 +116,6 @@ jobs:
         if: always()  # keep going even if previous step failed
         run: poetry run mypy aio_overpass/
 
-      - name: Check types with pyright
-        if: always()  # keep going even if previous step failed
-        run: poetry run pyright aio_overpass/
-
       - name: Validate __slots__
         if: always()  # keep going even if previous step failed
         run: poetry run slotscheck -m aio_overpass --require-subclass -v
