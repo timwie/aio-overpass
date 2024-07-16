@@ -17,6 +17,7 @@ QueryLanguageError         QueryRejectError          QueryResponseError   CallTi
 import asyncio
 import html
 import logging
+import math
 import re
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -325,9 +326,15 @@ class QueryRejectError(QueryError):
 
     Attributes:
         cause: why the query was rejected or cancelled
+        timed_out_after_secs: if ``cause`` is ``EXCEEDED_TIMEOUT``, this is the amount
+                              of seconds after which the query timed out
+        oom_using_mib: if ```cause`` is ``EXCEEDED_MAXSIZE``, this is the amount of RAM
+                       the query used before it ran out
     """
 
     cause: QueryRejectCause
+    timed_out_after_secs: int | None
+    oom_using_mib: int | None
 
     @property
     def should_retry(self) -> bool:
@@ -338,8 +345,10 @@ class QueryRejectError(QueryError):
         match self.cause:
             case QueryRejectCause.TOO_BUSY | QueryRejectCause.TOO_MANY_QUERIES:
                 rejection = "query rejected"
-            case QueryRejectCause.EXCEEDED_TIMEOUT | QueryRejectCause.EXCEEDED_MAXSIZE:
-                rejection = "query cancelled"
+            case QueryRejectCause.EXCEEDED_TIMEOUT:
+                rejection = f"query cancelled after {self.timed_out_after_secs}s"
+            case QueryRejectCause.EXCEEDED_MAXSIZE:
+                rejection = f"query cancelled using {self.oom_using_mib}"
             case _:
                 raise AssertionError(self.cause)
 
@@ -416,7 +425,13 @@ async def __raise_for_json_result(
 
     if remark := json.get("remark"):
         if timeout_cause := __match_reject_cause(remark, query_logger):
-            raise QueryRejectError(kwargs=query_kwargs, remarks=[remark], cause=timeout_cause)
+            raise QueryRejectError(
+                kwargs=query_kwargs,
+                remarks=[remark],
+                cause=timeout_cause,
+                oom_using_mib=__match_oom_after(remark),
+                timed_out_after_secs=__match_timeout_after(remark),
+            )
 
         raise QueryResponseError(
             response=response,
@@ -464,9 +479,19 @@ async def __raise_for_html_result(
         raise QueryLanguageError(kwargs=query_kwargs, remarks=errors)
 
     reject_causes = [cause for err in errors if (cause := __match_reject_cause(err, query_logger))]
+    oom_using_mib = next((mib for err in errors if (mib := __match_oom_after(err))), None)
+    timed_out_after_secs = next(
+        (secs for err in errors if (secs := __match_timeout_after(err))), None
+    )
 
     if reject_causes:
-        raise QueryRejectError(kwargs=query_kwargs, remarks=errors, cause=reject_causes[0])
+        raise QueryRejectError(
+            kwargs=query_kwargs,
+            remarks=errors,
+            cause=reject_causes[0],
+            oom_using_mib=oom_using_mib,
+            timed_out_after_secs=timed_out_after_secs,
+        )
 
     raise QueryResponseError(
         response=response,
@@ -514,6 +539,26 @@ def __match_reject_cause(error_msg: str, query_logger: logging.Logger) -> QueryR
 
     query_logger.debug(f"matches {cause}: {error_msg!r}")
     return cause
+
+
+def __match_oom_after(error_msg: str) -> int | None:
+    pattern = re.compile(
+        r"^runtime error: Query run out of memory in \".+\""
+        r" at line \d+ using about (\d+) MB of RAM\.$"
+    )
+    if m := pattern.match(error_msg):
+        mb = int(m.group(1))
+        return math.ceil((mb * 1000**2) / 1024**2)
+    return None
+
+
+def __match_timeout_after(error_msg: str) -> int | None:
+    pattern = re.compile(
+        r"^runtime error: Query timed out in \".+\" at line \d+ after (\d+) seconds\.$"
+    )
+    if m := pattern.match(error_msg):
+        return int(m.group(1))
+    return None
 
 
 def __is_ql_error(error_msg: str, query_logger: logging.Logger) -> bool:

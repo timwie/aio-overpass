@@ -87,6 +87,8 @@ async def test_too_many_queries(mock_response):
         "runtime error: open64: 0 Success /osm3s_v0.7.54_osm_base Dispatcher_Client::request_read_and_idx::rate_limited. Please check /api/status for the quota of your IP address."
     ]
     assert err.value.remarks == expected
+    assert err.value.oom_using_mib is None
+    assert err.value.timed_out_after_secs is None
 
     _ = str(err.value)
     _ = repr(err.value)
@@ -118,6 +120,8 @@ async def test_too_busy(mock_response):
         await mock_run_query(mock_response, body, content_type="text/html")
 
     assert err.value.cause == QueryRejectCause.TOO_BUSY
+    assert err.value.oom_using_mib is None
+    assert err.value.timed_out_after_secs is None
 
     expected = [
         "runtime error: open64: 0 Success /osm3s_v0.7.54_osm_base     Dispatcher_Client::request_read_and_idx::timeout. The server is probably too busy to handle your request."
@@ -280,6 +284,8 @@ async def test_exceeded_maxsize(mock_response):
         """runtime error: Query run out of memory in "recurse" at line 1 using about 541 MB of RAM.""",
     ]
     assert err.value.remarks == expected
+    assert err.value.oom_using_mib == 516
+    assert err.value.timed_out_after_secs is None
 
     _ = str(err.value)
     _ = repr(err.value)
@@ -311,6 +317,8 @@ async def test_exceeded_timeout(mock_response):
         """runtime error: Query timed out in "query" at line 3 after 2 seconds.""",
     ]
     assert err.value.remarks == expected
+    assert err.value.oom_using_mib is None
+    assert err.value.timed_out_after_secs == 2
 
     _ = str(err.value)
     _ = repr(err.value)

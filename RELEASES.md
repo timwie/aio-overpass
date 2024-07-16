@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   to an element's geometry when the exact type is unknown
 * Add the `center` property to `Way` and `Relation`
 * Add the `bounds` property to `Way` and `Relation`
+* Add the `QueryRejectError.timed_out_after_secs` property
+* Add the `QueryRejectError.oom_using_mib` property
 
 ### Changed
 * Change `numpy` version requirement for Python `<3.12` to `>=1.23,<3` (from `^1.23`)
