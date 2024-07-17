@@ -29,6 +29,7 @@ __all__ = (
     "pt_ordered",
     "ql",
     "query",
+    "spatial",
 )
 
 from .client import Client

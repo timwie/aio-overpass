@@ -1,9 +1,10 @@
 import json
 
 from aio_overpass import Query
-from aio_overpass.element import Element, Node, Relation, Relationship, Spatial, Way
+from aio_overpass.element import Element, Node, Relation, Relationship, Way
 from aio_overpass.pt import Connection, Route, RouteScheme, Stop
 from aio_overpass.query import DefaultQueryRunner, QueryRunner
+from aio_overpass.spatial import Spatial
 
 import geojson
 import pytest

@@ -6,7 +6,7 @@ from dataclasses import dataclass, replace
 from typing import Any, TypeAlias, cast
 
 from aio_overpass._dist import fast_distance
-from aio_overpass.element import GeoJsonDict, Node, Relation, Relationship, Spatial, Way
+from aio_overpass.element import Node, Relation, Relationship, Way
 
 import networkx as nx
 import shapely.ops
@@ -22,6 +22,7 @@ from shapely.geometry import (
 )
 
 from .pt import _MAX_DISTANCE_TO_TRACK, Route, RouteQuery, Stop, collect_routes
+from .spatial import GeoJsonDict, Spatial
 
 
 __docformat__ = "google"

@@ -12,6 +12,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Add the `QueryRejectError.oom_using_mib` property
 
 ### Changed
+* **Breaking**: Move `GeoJsonDict` type from `element` to new `spatial` module
+* **Breaking**: Move `SpatialDict` class from `element` to new `spatial` module
+* **Breaking**: Move `Spatial` class from `element` to new `spatial` module
 * Change `numpy` version requirement for Python `<3.12` to `>=1.23,<3` (from `^1.23`)
 * All tag values are strings, but were previously typed as `Any`:
   * Change the type of `Element.tags` to `dict[str, str] | None`, from `dict[str, Any] | None`

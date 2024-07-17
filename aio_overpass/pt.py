@@ -7,18 +7,10 @@ from enum import Enum, auto
 from typing import Any, cast
 
 from aio_overpass._dist import fast_distance
-from aio_overpass.element import (
-    Bbox,
-    GeoJsonDict,
-    Node,
-    Relation,
-    Relationship,
-    Spatial,
-    Way,
-    collect_elements,
-)
+from aio_overpass.element import Bbox, Node, Relation, Relationship, Way, collect_elements
 from aio_overpass.ql import one_of_filter, poly_clause
 from aio_overpass.query import Query
+from aio_overpass.spatial import GeoJsonDict, Spatial
 
 import shapely.ops
 from shapely.geometry import GeometryCollection, Point, Polygon
