@@ -7,6 +7,12 @@ IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
 
 
 @task
+def compile(c: Context):
+    """Syntax-check/generate byte-code for all source files."""
+    c.run('find . -name "*.py" -exec python -m py_compile {} \\;', echo=True, pty=True)
+
+
+@task
 def doc(c: Context):
     """Generate documentation"""
     c.run("pdoc -o ./doc aio_overpass/", echo=True, pty=True)

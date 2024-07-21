@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.14.0]
 ### Added
 * Add the `Element.base_geometry(_details)` properties to allow properly typed access
   to an element's geometry when the exact type is unknown
@@ -302,5 +302,6 @@ The Python versions supported by this release are 3.10-3.12.
 [0.12.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.12.1
 [0.13.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.13.0
 [0.13.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.13.1
+[0.14.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.14.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
