@@ -32,6 +32,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * **Breaking**: Remove the `center` property from the `Element` base class
 
 ### Fixed
+* Fix `Query.reset()` removing the selected logger
 * Fix a possible `IndexError` in `OrderedRouteView.paths`
 * Fix a bug in `to_ordered_routes()` that would omit the last node of the path between two stops,
   and raise an `AssertionError`

@@ -146,9 +146,14 @@ class Query:
         self._max_timed_out_after_secs: int | None = None
         """maximum of seconds after which the query was cancelled"""
 
-    def reset(self) -> None:  # FIXME: resetting removes the logger
+    def reset(self) -> None:
         """Reset the query to its initial state, ignoring previous tries."""
-        Query.__init__(self, input_code=self._input_code, **self._kwargs)
+        Query.__init__(
+            self,
+            input_code=self._input_code,
+            logger=self._logger,
+            **self._kwargs,
+        )
 
     @property
     def input_code(self) -> str:
