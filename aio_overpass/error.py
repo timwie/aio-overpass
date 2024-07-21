@@ -223,9 +223,10 @@ class GiveupError(ClientError):
     Attributes:
         kwargs: the query's ``kwargs``
         after_secs: the total time spent on the query
+        cause: why the query was given up on
     """
 
-    kwargs: dict  # TODO: shouldn't this be in all error classes?
+    kwargs: dict
     after_secs: float
     cause: GiveupCause
 
@@ -248,7 +249,7 @@ class QueryError(ClientError):
         remarks: the error remarks provided by the API
     """
 
-    kwargs: dict  # TODO: shouldn't this be in all error classes?
+    kwargs: dict
     remarks: list[str]
 
     @property

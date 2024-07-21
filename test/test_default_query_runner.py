@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from aio_overpass import Client, Query
-from aio_overpass.query import _EXPIRATION_KEY, __cache_delete, __cache_expire, _fibo_backoff_secs
+from aio_overpass.query import _EXPIRATION_KEY, DefaultQueryRunner, _fibo_backoff_secs
 from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
 
 import pytest
@@ -30,7 +30,7 @@ async def test_caching(mock_response):
     q2 = Query(input_code="nonsense")
     assert q1.cache_key == q2.cache_key
 
-    __cache_delete(q1)
+    DefaultQueryRunner.cache_delete(q1)
 
     await c.run_query(q1)
     del q1.response[_EXPIRATION_KEY]
@@ -74,14 +74,14 @@ async def test_cache_expiration(mock_response):
     q2 = Query(input_code="nonsense")
     assert q1.cache_key == q2.cache_key
 
-    __cache_delete(q1)
+    DefaultQueryRunner.cache_delete(q1)
 
     await c.run_query(q1)
     del q1.response[_EXPIRATION_KEY]
     assert q1.response == response
     assert not q1.was_cached
 
-    __cache_expire(q1)
+    DefaultQueryRunner._cache_expire(q1)
 
     mock_response.post(
         url=URL_INTERPRETER,

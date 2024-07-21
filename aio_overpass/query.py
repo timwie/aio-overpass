@@ -712,6 +712,31 @@ class DefaultQueryRunner(QueryRunner):
         except OSError:
             logger.exception(f"failed to cache {query}")
 
+    @staticmethod
+    def cache_delete(query: Query) -> None:
+        """Clear a cached response for the given query by removing the file on disk."""
+        file_name = f"{query.cache_key}.json"
+        file_path = Path(tempfile.gettempdir()) / file_name
+        file_path.unlink(missing_ok=True)
+
+    @staticmethod
+    def _cache_expire(query: Query) -> None:
+        """
+        Clear a cached response for the given query by marking it expired in the file on disk.
+
+        This should only be used for testing.
+        """
+        file_name = f"{query.cache_key}.json"
+        file_path = Path(tempfile.gettempdir()) / file_name
+
+        with Path(file_path).open(encoding="utf-8") as file:
+            response = json.load(file)
+
+        response[_EXPIRATION_KEY] = 0
+
+        with Path(file_path).open(mode="w", encoding="utf-8") as file:
+            json.dump(response, file)
+
     async def __call__(self, query: Query) -> None:  # noqa: C901
         """Called with the current query state before the client makes an API request."""
         logger = query.logger
@@ -775,27 +800,6 @@ def _fibo_backoff_secs(tries: int) -> float:
         a, b = b, a + b
 
     return a
-
-
-def __cache_delete(query: Query) -> None:  # TODO: add as function to DefaultQueryRunner
-    """Clear a response cached by the default runner (only to be used in tests)."""
-    file_name = f"{query.cache_key}.json"
-    file_path = Path(tempfile.gettempdir()) / file_name
-    file_path.unlink(missing_ok=True)
-
-
-def __cache_expire(query: Query) -> None:  # TODO: add as function to DefaultQueryRunner
-    """Clear a response cached by the default runner (only to be used in tests)."""
-    file_name = f"{query.cache_key}.json"
-    file_path = Path(tempfile.gettempdir()) / file_name
-
-    with Path(file_path).open(encoding="utf-8") as file:
-        response = json.load(file)
-
-    response[_EXPIRATION_KEY] = 0
-
-    with Path(file_path).open(mode="w", encoding="utf-8") as file:
-        json.dump(response, file)
 
 
 _EXPIRATION_KEY = "__expiration__"

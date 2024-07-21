@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Add the `QueryRejectError.oom_using_mib` property
 * Add the `GiveupCause` class that gives more context to `GiveupErrors`
 * Add the `GiveupError.cause` property
+* Add the `DefaultQueryRunner.cache_delete()` function, which was internal before
 
 ### Changed
 * **Breaking**: Move `GeoJsonDict` type from `element` to new `spatial` module
