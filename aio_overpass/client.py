@@ -1,6 +1,7 @@
 """Interface for making API calls."""
 
 import asyncio
+import math
 import re
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager, suppress
@@ -12,6 +13,7 @@ from aio_overpass.error import (
     CallError,
     CallTimeoutError,
     ClientError,
+    GiveupCause,
     GiveupError,
     RunnerError,
     _raise_for_request_error,
@@ -112,7 +114,7 @@ class Client:
         "_user_agent",
     )
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         url: str = DEFAULT_INSTANCE,
         user_agent: str = DEFAULT_USER_AGENT,
@@ -264,19 +266,24 @@ class Client:
 
     async def _try_query_once(self, query: Query) -> None:
         """A single iteration of running a query."""
-        query_mut = query._mutator()
-        query_mut.begin_try()
+        query._begin_try()
 
         try:
             await self._cooldown(query)
 
             req_timeout = _next_query_req_timeout(query)
 
-            if req_timeout.total and req_timeout.total <= 0.0:
-                assert query.run_duration_secs
-                raise GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
+            # pick the timeout we will use for the next try
+            # TODO: not sure if this should also update the timeout setting in the Query state;
+            #   for now, pass it as parameter to the _code() function
+            next_timeout_secs = _next_timeout_secs(query)
 
-            query_mut.begin_request()
+            if next_timeout_secs != query.timeout_secs:
+                query._logger.info(f"adjust timeout to {next_timeout_secs}s")  # TODO: log more
+
+            data = query._code(next_timeout_secs)
+
+            query._begin_request()
 
             query.logger.info(f"call api for {query}")
 
@@ -284,11 +291,11 @@ class Client:
                 _map_request_error(req_timeout),
                 self._session().post(
                     url=urljoin(self._url, "interpreter"),
-                    data=query._code(),
+                    data=data,
                     timeout=req_timeout,
                 ) as response,
             ):
-                query_mut.succeed_try(
+                query._succeed_try(
                     response=await _result_or_raise(response, query.kwargs, query.logger),
                     response_bytes=response.content.total_bytes,
                 )
@@ -297,14 +304,18 @@ class Client:
             fail_with: ClientError = err
             if query.run_timeout_elapsed:
                 assert query.run_duration_secs is not None
-                fail_with = GiveupError(kwargs=query.kwargs, after_secs=query.run_duration_secs)
-            query_mut.fail_try(fail_with)
+                fail_with = GiveupError(
+                    cause=GiveupCause.RUN_TIMEOUT_DURING_QUERY_CALL,
+                    kwargs=query.kwargs,
+                    after_secs=query.run_duration_secs,
+                )
+            query._fail_try(fail_with)
 
         except ClientError as err:
-            query_mut.fail_try(err)
+            query._fail_try(err)
 
         finally:
-            query_mut.end_try()
+            query._end_try()
 
     async def _cooldown(self, query: Query) -> None:
         """
@@ -336,7 +347,11 @@ class Client:
 
             if status.cooldown_secs > remaining:
                 logger.error(f"give up on {query} due to {status.cooldown_secs:.1f}s cooldown")
-                raise GiveupError(kwargs=query.kwargs, after_secs=run_duration)
+                raise GiveupError(
+                    cause=GiveupCause.RUN_TIMEOUT_BY_COOLDOWN,
+                    kwargs=query.kwargs,
+                    after_secs=run_duration,
+                )
 
         logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
         await asyncio.sleep(status.cooldown_secs)
@@ -352,7 +367,11 @@ class Client:
             remaining = run_timeout - run_duration
 
             if remaining <= 0.0:
-                raise GiveupError(kwargs=query.kwargs, after_secs=run_duration)
+                raise GiveupError(
+                    cause=GiveupCause.RUN_TIMEOUT_BEFORE_STATUS_CALL,
+                    kwargs=query.kwargs,
+                    after_secs=run_duration,
+                )
 
             if self._status_timeout_secs:
                 remaining = min(remaining, self._status_timeout_secs)  # cap timeout if configured
@@ -370,9 +389,16 @@ def _next_query_req_timeout(query: Query) -> aiohttp.ClientTimeout:
 
     if run_timeout := query.run_timeout_secs:
         run_total = run_timeout - run_duration
+        if run_total <= 0.0:
+            raise GiveupError(
+                cause=GiveupCause.RUN_TIMEOUT_BEFORE_QUERY_CALL,
+                kwargs=query.kwargs,
+                after_secs=run_duration,
+            )
 
     if add_to_timeout_secs := query.request_timeout.total_without_query_secs:
         query_total = float(query.timeout_secs) + add_to_timeout_secs
+        assert query_total > 0.0
 
     total = min(run_total, query_total) if run_total and query_total else run_total or query_total
 
@@ -444,3 +470,34 @@ async def _map_request_error(
         assert timeout is not None
         assert timeout.total
         raise CallTimeoutError(cause=err, after_secs=timeout.total) from err
+
+
+def _next_timeout_secs(query: Query) -> int:
+    """
+    TODO: doc.
+
+    Raises:
+        GiveupError: when the run timeout elapsed, or when a previous try timed out with
+                     a lower timeout setting
+    """
+    timeout_secs = query.timeout_secs
+
+    if (at_most := query._run_duration_left_secs) and at_most < timeout_secs:
+        query._logger.info(f"{query} has {at_most}s left to run")
+        at_most = math.floor(at_most)
+        query._logger.info(f"adjust {query} [timeout:{timeout_secs}] to [timeout:{at_most}]")
+        timeout_secs = at_most
+    else:
+        query._logger.info(f"{query} will use [timeout:{timeout_secs}]")
+
+    not_enough = query._max_timed_out_after_secs or 0
+
+    if timeout_secs <= not_enough:
+        query._logger.error(f"{query} previously timed out with [timeout:{not_enough}] - give up")
+        raise GiveupError(
+            cause=GiveupCause.EXPECTING_QUERY_TIMEOUT,
+            kwargs=query.kwargs,
+            after_secs=query.run_duration_secs or 0.0,
+        )
+
+    return timeout_secs

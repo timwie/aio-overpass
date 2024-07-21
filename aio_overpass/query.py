@@ -18,7 +18,6 @@ from typing import Any
 
 from aio_overpass.error import (
     ClientError,
-    GiveupError,
     QueryRejectCause,
     is_exceeding_timeout,
     is_rejection,
@@ -74,9 +73,7 @@ class Query:
         "_error",
         "_input_code",
         "_kwargs",
-        "_last_timeout_secs_used",
         "_logger",
-        "_max_timeout_secs_exceeded",
         "_nb_tries",
         "_request_timeout",
         "_response",
@@ -87,6 +84,7 @@ class Query:
         "_time_start",
         "_time_start_req",
         "_time_start_try",
+        "_max_timed_out_after_secs",
     )
 
     def __init__(
@@ -145,13 +143,10 @@ class Query:
         self._time_end_try: _Instant | None = None
         """time the most recent try finished"""
 
-        self._last_timeout_secs_used: int | None = None
-        """the last used 'timeout' setting"""
+        self._max_timed_out_after_secs: int | None = None
+        """maximum of seconds after which the query was cancelled"""
 
-        self._max_timeout_secs_exceeded: int | None = None
-        """the largest 'timeout' setting that was exceeded in a try of this query"""
-
-    def reset(self) -> None:
+    def reset(self) -> None:  # FIXME: resetting removes the logger
         """Reset the query to its initial state, ignoring previous tries."""
         Query.__init__(self, input_code=self._input_code, **self._kwargs)
 
@@ -324,42 +319,17 @@ class Query:
     def request_timeout(self, value: "RequestTimeout") -> None:
         self._request_timeout = value
 
-    def _code(self) -> str:
-        # TODO doc
-        # TODO refactor? this function might do a bit too much
-        # TODO needs tests
+    def _code(self, next_timeout_secs_used: int) -> str:
+        """The query's QL code, substituting the [timeout:*] setting with the given duration."""
         settings_copy = self._settings.copy()
-
-        max_timeout = settings_copy["timeout"]
-
-        # if a run timeout is set, the remaining time is the max query timeout we will use
-        if (time_max := self.run_timeout_secs) and (time_so_far := self.run_duration_secs):
-            max_timeout = math.ceil(time_max - time_so_far)
-            if max_timeout <= 0:
-                raise GiveupError(kwargs=self.kwargs, after_secs=time_so_far)
-
-        # if we already had a query that exceeded a timeout that is >= that max timeout,
-        # we might as well give up already
-        if (min_needed := self._max_timeout_secs_exceeded) and min_needed >= max_timeout:
-            self._logger.error(f"give up on {self} since query will likely time out")
-            raise GiveupError(kwargs=self.kwargs, after_secs=self.run_duration_secs or 0.0)
-
-        # pick the timeout we will use for the next try
-        next_timeout_secs_used = min(settings_copy["timeout"], max_timeout)
-
-        # log if had to override the timeout setting with "max_timeout"
-        if next_timeout_secs_used != settings_copy["timeout"]:
-            settings_copy["timeout"] = next_timeout_secs_used
-            self._logger.info(f"adjust timeout to {next_timeout_secs_used}s")
-
-        # update the used timeout in state
-        self._last_timeout_secs_used = next_timeout_secs_used
+        settings_copy["timeout"] = next_timeout_secs_used
 
         # remove the original settings statement
         code = _SETTING_PATTERN.sub("", self._input_code)
 
         # put the adjusted settings in front
         settings = "".join((f"[{k}:{v}]" for k, v in settings_copy.items())) + ";"
+
         return f"{settings}\n{code}"
 
     @property
@@ -415,6 +385,13 @@ class Query:
             return self._time_end_try - self._time_start
 
         return self._time_start.elapsed_secs_since
+
+    @property
+    def _run_duration_left_secs(self) -> float | None:
+        """If a limit was set, returns the seconds until the time to run the query has elapsed."""
+        if (time_max := self.run_timeout_secs) and (time_so_far := self.run_duration_secs):
+            return max(0, math.ceil(time_max - time_so_far))
+        return None
 
     @property
     def api_version(self) -> str | None:
@@ -526,42 +503,36 @@ class Query:
 
         return f"{cls_name}({details_str})"
 
-    def _mutator(self) -> "_QueryMutator":
-        return _QueryMutator(self)
+    def _begin_try(self) -> None:
+        """First thing to call when starting the next try, after invoking the query runner."""
+        if self._time_start is None:
+            self._time_start = _Instant.now()
 
+        self._time_start_try = _Instant.now()
+        self._time_start_req = None
+        self._time_end_try = None
 
-class _QueryMutator:
-    __slots__ = ("_query",)
+    def _begin_request(self) -> None:
+        """Call before making the API call of a try, after waiting for cooldown."""
+        self._time_start_req = _Instant.now()
 
-    def __init__(self, query: Query) -> None:
-        self._query = query
+    def _succeed_try(self, response: dict, response_bytes: int) -> None:
+        """Call when the API call of a try was successful."""
+        self._time_end_try = _Instant.now()
+        self._response = response
+        self._response_bytes = response_bytes
+        self._error = None
 
-    def begin_try(self) -> None:
-        if self._query._time_start is None:
-            self._query._time_start = _Instant.now()
-
-        self._query._time_start_try = _Instant.now()
-        self._query._time_start_req = None
-        self._query._time_end_try = None
-
-    def begin_request(self) -> None:
-        self._query._time_start_req = _Instant.now()
-
-    def succeed_try(self, response: dict, response_bytes: int) -> None:
-        self._query._time_end_try = _Instant.now()
-        self._query._response = response
-        self._query._response_bytes = response_bytes
-        self._query._error = None
-
-    def fail_try(self, err: ClientError) -> None:
-        self._query._error = err
+    def _fail_try(self, err: ClientError) -> None:
+        """Call when the API call of a try failed."""
+        self._error = err
 
         if is_exceeding_timeout(err):
-            assert self._query._last_timeout_secs_used
-            self._query._max_timeout_secs_exceeded = self._query._last_timeout_secs_used
+            self._max_timed_out_after_secs = err.timed_out_after_secs
 
-    def end_try(self) -> None:
-        self._query._nb_tries += 1
+    def _end_try(self) -> None:
+        """Final call in a try."""
+        self._nb_tries += 1
 
 
 @dataclass(kw_only=True, slots=True, frozen=True, repr=False, order=True)
@@ -709,7 +680,7 @@ class DefaultQueryRunner(QueryRunner):
             return
 
         try:
-            with Path(file_path).open(mode="r", encoding="utf-8") as file:
+            with Path(file_path).open(encoding="utf-8") as file:
                 response = json.load(file)
         except (OSError, json.JSONDecodeError):
             logger.exception(f"failed to read cached {query}")
@@ -806,19 +777,19 @@ def _fibo_backoff_secs(tries: int) -> float:
     return a
 
 
-def __cache_delete(query: Query) -> None:
+def __cache_delete(query: Query) -> None:  # TODO: add as function to DefaultQueryRunner
     """Clear a response cached by the default runner (only to be used in tests)."""
     file_name = f"{query.cache_key}.json"
     file_path = Path(tempfile.gettempdir()) / file_name
     file_path.unlink(missing_ok=True)
 
 
-def __cache_expire(query: Query) -> None:
+def __cache_expire(query: Query) -> None:  # TODO: add as function to DefaultQueryRunner
     """Clear a response cached by the default runner (only to be used in tests)."""
     file_name = f"{query.cache_key}.json"
     file_path = Path(tempfile.gettempdir()) / file_name
 
-    with Path(file_path).open(mode="r", encoding="utf-8") as file:
+    with Path(file_path).open(encoding="utf-8") as file:
         response = json.load(file)
 
     response[_EXPIRATION_KEY] = 0

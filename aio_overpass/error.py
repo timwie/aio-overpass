@@ -36,6 +36,7 @@ __all__ = (
     "ResponseError",
     "ResponseErrorCause",
     "GiveupError",
+    "GiveupCause",
     "QueryError",
     "QueryLanguageError",
     "QueryRejectError",
@@ -182,10 +183,39 @@ class ResponseError(ClientError):
         return f"unexpected response ({self.response.status}): {self.cause}"
 
 
+class GiveupCause(Enum):
+    """Details on why a query was given up on."""
+
+    RUN_TIMEOUT_BEFORE_STATUS_CALL = auto()
+    """Query's ``run_timeout_secs`` elapsed before a status call before the actual query call."""
+
+    RUN_TIMEOUT_BY_COOLDOWN = auto()
+    """Query received a timeout that would exceed its remaining ``run_timeout_secs``."""
+
+    RUN_TIMEOUT_BEFORE_QUERY_CALL = auto()
+    """Query's ``run_timeout_secs`` elapsed before the query call."""
+
+    EXPECTING_QUERY_TIMEOUT = auto()
+    """
+    The query's limited [timeout:*] setting is likely too low.
+
+    A query's [timeout:*] setting might be lowered by the client to the remainder of
+    ``run_timeout_secs``. If that happens, and that duration is also lower than a duration
+    after which it was cancelled at the server previously, then this is the cause to give
+    up on the query.
+
+    See Also:
+        ``QueryRejectError.timed_out_after_secs``
+    """
+
+    RUN_TIMEOUT_DURING_QUERY_CALL = auto()
+    """Query's ``run_timeout_secs`` elapsed while making the query call, before any response."""
+
+
 @dataclass(kw_only=True)
 class GiveupError(ClientError):
     """
-    The client spent too long running a query, and gave up.
+    The client spent or would spend too long running a query, and gave up.
 
     This error is raised when the run timeout duration set by a query runner
     is or would be exceeded.
@@ -195,8 +225,9 @@ class GiveupError(ClientError):
         after_secs: the total time spent on the query
     """
 
-    kwargs: dict
+    kwargs: dict  # TODO: shouldn't this be in all error classes?
     after_secs: float
+    cause: GiveupCause
 
     @property
     def should_retry(self) -> bool:
@@ -217,7 +248,7 @@ class QueryError(ClientError):
         remarks: the error remarks provided by the API
     """
 
-    kwargs: dict
+    kwargs: dict  # TODO: shouldn't this be in all error classes?
     remarks: list[str]
 
     @property

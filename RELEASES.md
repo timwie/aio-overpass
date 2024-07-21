@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Add the `bounds` property to `Way` and `Relation`
 * Add the `QueryRejectError.timed_out_after_secs` property
 * Add the `QueryRejectError.oom_using_mib` property
+* Add the `GiveupCause` class that gives more context to `GiveupErrors`
+* Add the `GiveupError.cause` property
 
 ### Changed
 * **Breaking**: Move `GeoJsonDict` type from `element` to new `spatial` module
