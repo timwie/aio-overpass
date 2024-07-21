@@ -42,6 +42,9 @@ Currently running queries (pid, space limit, time limit, start time):
 
     await c.close()
 
+    _ = str(actual)
+    _ = repr(actual)
+
 
 @pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
@@ -79,6 +82,9 @@ Currently running queries (pid, space limit, time limit, start time):
 
     await c.close()
 
+    _ = str(actual)
+    _ = repr(actual)
+
 
 @pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
@@ -115,6 +121,9 @@ Currently running queries (pid, space limit, time limit, start time):
     assert actual == expected
 
     await c.close()
+
+    _ = str(actual)
+    _ = repr(actual)
 
 
 @pytest.mark.asyncio()
@@ -154,6 +163,9 @@ Currently running queries (pid, space limit, time limit, start time):
 
     await c.close()
 
+    _ = str(actual)
+    _ = repr(actual)
+
 
 @pytest.mark.asyncio()
 @pytest.mark.xdist_group(name="fast")
@@ -190,6 +202,9 @@ Currently running queries (pid, space limit, time limit, start time):
     assert actual == expected
 
     await c.close()
+
+    _ = str(actual)
+    _ = repr(actual)
 
 
 @pytest.mark.asyncio()
