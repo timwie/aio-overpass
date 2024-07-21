@@ -671,13 +671,21 @@ class DefaultQueryRunner(QueryRunner):
             return False
         return self._cache_ttl_secs > 0
 
-    def _cache_read(self, query: Query) -> None:
+    @staticmethod
+    def _cache_file_name(query: Query) -> str:
+        return f"{query.cache_key}.json"
+
+    @staticmethod
+    def _cache_file_path(query: Query) -> Path:
+        return Path(tempfile.gettempdir()) / DefaultQueryRunner._cache_file_name(query)
+
+    @staticmethod
+    def _cache_read(query: Query) -> None:
         logger = query.logger
 
         now = int(time.time())
 
-        file_name = f"{query.cache_key}.json"
-        file_path = Path(tempfile.gettempdir()) / file_name
+        file_path = DefaultQueryRunner._cache_file_path(query)
 
         if not file_path.exists():
             logger.info("result was not cached")
@@ -706,8 +714,7 @@ class DefaultQueryRunner(QueryRunner):
         assert query._response is not None
         query._response[_EXPIRATION_KEY] = now + self._cache_ttl_secs
 
-        file_name = f"{query.cache_key}.json"
-        file_path = Path(tempfile.gettempdir()) / file_name
+        file_path = DefaultQueryRunner._cache_file_path(query)
 
         logger.debug(f"caching at {file_path}…")
 
@@ -720,8 +727,7 @@ class DefaultQueryRunner(QueryRunner):
     @staticmethod
     def cache_delete(query: Query) -> None:
         """Clear a cached response for the given query by removing the file on disk."""
-        file_name = f"{query.cache_key}.json"
-        file_path = Path(tempfile.gettempdir()) / file_name
+        file_path = DefaultQueryRunner._cache_file_path(query)
         file_path.unlink(missing_ok=True)
 
     @staticmethod
@@ -731,8 +737,7 @@ class DefaultQueryRunner(QueryRunner):
 
         This should only be used for testing.
         """
-        file_name = f"{query.cache_key}.json"
-        file_path = Path(tempfile.gettempdir()) / file_name
+        file_path = DefaultQueryRunner._cache_file_path(query)
 
         with Path(file_path).open(encoding="utf-8") as file:
             response = json.load(file)
@@ -748,7 +753,7 @@ class DefaultQueryRunner(QueryRunner):
 
         # Check cache ahead of first try
         if query.nb_tries == 0 and self._is_caching(query):
-            await asyncio.to_thread(self._cache_read, query)
+            await asyncio.to_thread(DefaultQueryRunner._cache_read, query)
 
         # Success or cached
         if query.done:
