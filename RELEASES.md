@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.14.0]
+## [0.14.0] - 2024-07-21
 ### Added
 * Add the `Element.base_geometry(_details)` properties to allow properly typed access
   to an element's geometry when the exact type is unknown
