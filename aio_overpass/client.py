@@ -340,7 +340,7 @@ class Client:
             return
 
         run_duration = query.run_duration_secs
-        assert run_duration
+        assert run_duration is not None
 
         if run_timeout := query.run_timeout_secs:
             remaining = run_timeout - run_duration
@@ -361,7 +361,7 @@ class Client:
         remaining = None
 
         run_duration = query.run_duration_secs
-        assert run_duration
+        assert run_duration is not None
 
         if run_timeout := query.run_timeout_secs:
             remaining = run_timeout - run_duration
@@ -385,7 +385,7 @@ def _next_query_req_timeout(query: Query) -> aiohttp.ClientTimeout:
     query_total = None  # "[timeout:*]" setting plus "total_without_query_secs"
 
     run_duration = query.run_duration_secs
-    assert run_duration
+    assert run_duration is not None
 
     if run_timeout := query.run_timeout_secs:
         run_total = run_timeout - run_duration

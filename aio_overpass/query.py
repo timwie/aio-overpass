@@ -552,6 +552,12 @@ class _Instant:
 
     when: float
 
+    # TODO: allow replacing monotonic time() in tests?
+    #   => all tests should also pass if you replace "asyncio.get_event_loop().time()"
+    #      with a constant value like "0.0" for instance, emulating no passing of
+    #      measured time
+    #   => related: https://github.com/timwie/aio-overpass/issues/17
+
     @classmethod
     def now(cls) -> "_Instant":
         return cls(when=asyncio.get_event_loop().time())

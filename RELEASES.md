@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Fixed
+* Fix an `AssertionError` in `Client.run_query()` that could happen
+  when `asyncio`'s monotonic clock returned the same time twice
+
 ## [0.14.0] - 2024-07-21
 ### Added
 * Add the `Element.base_geometry(_details)` properties to allow properly typed access

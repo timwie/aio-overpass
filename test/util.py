@@ -123,7 +123,7 @@ def verify_query_state(query: Query) -> None:
         assert query.result_set is None
         assert query.response_size_mib is None
         assert query.request_duration_secs is None
-        assert query.run_duration_secs > 0.0
+        assert query.run_duration_secs >= 0.0
         assert query.api_version is None
         assert query.timestamp_osm is None
         assert query.timestamp_areas is None
@@ -139,8 +139,8 @@ def verify_query_state(query: Query) -> None:
         assert query.response is not None
         assert query.result_set is not None
         assert query.response_size_mib >= 0.0
-        assert query.request_duration_secs > 0.0
-        assert query.run_duration_secs > 0.0
+        assert query.request_duration_secs >= 0.0
+        assert query.run_duration_secs >= 0.0
         assert query.api_version is not None
         assert query.timestamp_osm is not None
         # query.timestamp_areas can be set or not
