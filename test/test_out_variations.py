@@ -7,7 +7,7 @@ from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response, veri
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "file_name",
     [

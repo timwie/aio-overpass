@@ -7,7 +7,7 @@ import pytest
 from aioresponses import aioresponses
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_idle():
     body = """
@@ -46,7 +46,7 @@ Currently running queries (pid, space limit, time limit, start time):
     _ = repr(actual)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_idle_with_load_balancing():
     body = """
@@ -86,7 +86,7 @@ Currently running queries (pid, space limit, time limit, start time):
     _ = repr(actual)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_one_slot_available():
     body = """
@@ -126,7 +126,7 @@ Currently running queries (pid, space limit, time limit, start time):
     _ = repr(actual)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_multiple_running_queries():
     body = """
@@ -167,7 +167,7 @@ Currently running queries (pid, space limit, time limit, start time):
     _ = repr(actual)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_no_slot_available():
     body = """
@@ -207,7 +207,7 @@ Currently running queries (pid, space limit, time limit, start time):
     _ = repr(actual)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_server_error():
     body = """

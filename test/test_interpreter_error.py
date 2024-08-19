@@ -18,7 +18,7 @@ import pytest
 from aioresponses import aioresponses
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_response():
     with aioresponses() as m:
         mock_status = """
@@ -39,7 +39,7 @@ def mock_response():
         yield m
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def mock_run_query(mock_response, body, content_type, **kwargs):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
@@ -56,7 +56,7 @@ async def mock_run_query(mock_response, body, content_type, **kwargs):
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_too_many_queries(mock_response):
     body = """
@@ -94,7 +94,7 @@ async def test_too_many_queries(mock_response):
     _ = repr(err.value)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_too_busy(mock_response):
     body = """
@@ -132,7 +132,7 @@ async def test_too_busy(mock_response):
     _ = repr(err.value)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_other_query_error(mock_response):
     body = """
@@ -166,7 +166,7 @@ async def test_other_query_error(mock_response):
     _ = repr(err.value)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_syntax_error(mock_response):
     body = """
@@ -224,7 +224,7 @@ async def test_syntax_error(mock_response):
     _ = repr(err.value)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_other_query_error_remark(mock_response):
     # https://listes.openstreetmap.fr/wws/arc/overpass/2016-05/msg00002.html
@@ -258,7 +258,7 @@ async def test_other_query_error_remark(mock_response):
     _ = repr(err.value)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_exceeded_maxsize(mock_response):
     body = r"""
@@ -291,7 +291,7 @@ async def test_exceeded_maxsize(mock_response):
     _ = repr(err.value)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_exceeded_timeout(mock_response):
     body = r"""
@@ -324,7 +324,7 @@ async def test_exceeded_timeout(mock_response):
     _ = repr(err.value)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_connection_refused():
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
@@ -339,7 +339,7 @@ async def test_connection_refused():
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_internal_server_error():
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
@@ -361,7 +361,7 @@ async def test_internal_server_error():
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_timeout_error():
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
@@ -385,7 +385,7 @@ async def test_timeout_error():
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_runner_error():
     class BadQueryRunner(QueryRunner):
@@ -407,7 +407,7 @@ async def test_runner_error():
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_unexpected_message_error(mock_response):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
@@ -452,7 +452,7 @@ async def test_unexpected_message_error(mock_response):
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_no_message_error(mock_response):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
@@ -490,7 +490,7 @@ async def test_no_message_error(mock_response):
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_plaintext_server_error(mock_response):
     c = Client(runner=VerifyingQueryRunner(max_tries=1))
@@ -516,7 +516,7 @@ open64: 2 No such file or directory /osm3s_osm_base Dispatcher_Client::1. Probab
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_cutoff_json_error(mock_response):
     body = r"""

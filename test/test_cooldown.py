@@ -6,7 +6,7 @@ import pytest
 from aioresponses import aioresponses
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_giveup_by_cooldown():
     status_body_20sec_cooldown = """
@@ -64,7 +64,7 @@ Currently running queries (pid, space limit, time limit, start time):
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_success_after_cooldown():
     status_body_1sec_cooldown = """

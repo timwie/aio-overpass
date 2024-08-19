@@ -5,7 +5,7 @@ import pytest
 from aioresponses import aioresponses
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_cancel_no_queries():
     body = ""
@@ -26,7 +26,7 @@ async def test_cancel_no_queries():
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_cancel_one_query():
     body = """
@@ -50,7 +50,7 @@ Done!
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_cancel_one_duplicate_query():
     body = """
@@ -76,7 +76,7 @@ Done!
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_cancel_two_queries():
     body = """

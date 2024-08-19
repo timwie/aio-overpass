@@ -8,7 +8,7 @@ from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_caching(mock_response):
     test_dir = Path(__file__).resolve().parent
@@ -52,7 +52,7 @@ async def test_caching(mock_response):
     await c.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
 async def test_cache_expiration(mock_response):
     test_dir = Path(__file__).resolve().parent
