@@ -123,7 +123,7 @@ class CallTimeoutError(CallError):
         after_secs: the configured timeout for the request
     """
 
-    cause: asyncio.TimeoutError  # type: ignore[assignment]
+    cause: asyncio.TimeoutError  # TODO: typing violation
     after_secs: float
 
     @property

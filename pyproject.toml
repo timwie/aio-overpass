@@ -75,8 +75,8 @@ geojson = "^3.1.0"
 invoke = "^2.2.0"
 isort = "^5.13.2"
 mypy = "^1.11.2"
-pdoc = "^14.6.1"
-pytest = "^8.3.2"
+pdoc = "^14.7.0"
+pytest = "^8.3.3"
 pytest-asyncio = "^0.24.0"
 pytest-cov = "^5.0.0"
 pytest-xdist = "^3.6.1"
@@ -91,7 +91,7 @@ folium = "^0.17.0"
 jupyterlab = "^4.2.5"
 papermill = "^2.6.0"
 randomcolor = "^0.4.4.6"
-selenium = "^4.24.0"
+selenium = "^4.25.0"
 tabulate = "^0.9.0"
 
 [tool.ruff]
@@ -136,6 +136,9 @@ branch = true
 exclude_also = [
     "raise NotImplementedError",
 ]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"  # function, class, module, package, session
 
 [build-system]
 requires = ["poetry-core>=1.8.0"]
