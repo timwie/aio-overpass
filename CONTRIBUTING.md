@@ -24,8 +24,8 @@ You can follow [these steps](https://github.com/pyenv/pyenv#installation)
 to set it up. Afterwards you can create a dedicated venv like this:
 
 ```console
-$ pyenv install 3.10.13
-$ pyenv virtualenv 3.10.13 aio-overpass310
+$ pyenv install 3.11
+$ pyenv virtualenv 3.11 aio-overpass311
 
 # you might be missing some build dependencies for this,
 # f.e. on a fresh install of Fedora, you can install them like this:
@@ -34,8 +34,8 @@ $ sudo dnf install \
     sqlite-devel ncurses-devel readline-devel
 ```
 
-From now on, make sure that the venv is activated: `$ pyenv activate aio-overpass310`.
-If you're using Pycharm, set the interpreter to `~/.pyenv/versions/aio-overpass310/bin/python`,
+From now on, make sure that the venv is activated: `$ pyenv activate aio-overpass311`.
+If you're using Pycharm, set the interpreter to `~/.pyenv/versions/aio-overpass311/bin/python`,
 and it will always be activated in any terminal inside the IDE.
 
 Next up, clone the repository, and install the project and all dependencies:
@@ -75,7 +75,7 @@ Finally, you want to prepare [JupyterLab] by setting up a kernel
 specific to this venv:
 
 ```console
-$ ipython kernel install --user --name=aio-overpass310
+$ ipython kernel install --user --name=aio-overpass311
 ```
 
 From now on you can use `$ jupyter-lab` and play around with
