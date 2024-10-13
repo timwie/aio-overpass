@@ -466,7 +466,7 @@ async def _map_request_error(
         yield
     except aiohttp.ClientError as err:
         await _raise_for_request_error(err)
-    except asyncio.TimeoutError as err:
+    except TimeoutError as err:
         assert timeout is not None
         assert timeout.total
         raise CallTimeoutError(cause=err, after_secs=timeout.total) from err

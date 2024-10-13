@@ -369,11 +369,11 @@ async def test_timeout_error():
     q2 = Query("", my_kwarg=42)
 
     with aioresponses() as m:
-        m.post(URL_INTERPRETER, exception=asyncio.TimeoutError())
+        m.post(URL_INTERPRETER, exception=TimeoutError())
         with pytest.raises(CallTimeoutError) as err:
             await c.run_query(q)
 
-        m.post(URL_INTERPRETER, exception=asyncio.TimeoutError())
+        m.post(URL_INTERPRETER, exception=TimeoutError())
         with pytest.raises(CallTimeoutError) as err2:
             await c.run_query(q2)
 

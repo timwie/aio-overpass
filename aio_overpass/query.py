@@ -12,7 +12,7 @@ import tempfile
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -430,7 +430,7 @@ class Query:
             return None
 
         date_str = self._response["osm3s"]["timestamp_osm_base"]
-        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").astimezone(timezone.utc)
+        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").astimezone(UTC)
 
     @property
     def timestamp_areas(self) -> datetime | None:
@@ -451,7 +451,7 @@ class Query:
         if not date_str:
             return None
 
-        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").astimezone(timezone.utc)
+        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").astimezone(UTC)
 
     @property
     def copyright(self) -> str:
