@@ -1,0 +1,6 @@
+name: "CodeQL config"
+queries:
+  - name: Run standard queries
+    uses: security-and-quality
+paths-ignore:
+  - test
