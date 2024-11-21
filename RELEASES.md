@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
-* Add Python 3.13 support.
+* Add explicit Python 3.13 support.
 * **Breaking**: Drop Python 3.8 support. The Python versions supported by this release are 3.11-3.13.
 
 ## [0.14.1] - 2024-08-10

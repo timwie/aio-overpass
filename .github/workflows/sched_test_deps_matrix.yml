@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ["3.11", "3.12", "3.13"]
-        aiohttp: ["3.10"]
+        aiohttp: ["3.11"]
         joblib: ["1.4"]
         networkx: ["3.2", "3.3", "3.4"]
         numpy: ["1.24", "1.25", "1.26", "2.0", "2.1"]
