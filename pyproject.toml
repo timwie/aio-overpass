@@ -77,11 +77,11 @@ invoke = "^2.2.0"
 isort = "^5.13.2"
 mypy = "^1.13.0"
 pdoc = "^15.0.0"
-pytest = "^8.3.3"
+pytest = "^8.3.4"
 pytest-asyncio = "^0.24.0"
 pytest-cov = "^6.0.0"
 pytest-xdist = "^3.6.1"
-ruff = "^0.7.0"
+ruff = "^0.8.0"
 slotscheck = "^0.19.0"
 
 [tool.poetry.group.notebooks]
@@ -89,10 +89,10 @@ optional = true
 
 [tool.poetry.group.notebooks.dependencies]
 folium = "^0.17.0"
-jupyterlab = "^4.3.1"
+jupyterlab = "^4.3.3"
 papermill = "^2.6.0"
 randomcolor = "^0.4.4.6"
-selenium = "^4.26.1"
+selenium = "^4.27.1"
 tabulate = "^0.9.0"
 
 [tool.ruff]
@@ -104,7 +104,8 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "ASYNC109", "COM812", "D105", "D107", "D203", "D212", "FIX", "G004", "I", "ISC001", "PLR2004", "S101", "SLF001", "TD",
+    "ASYNC109", "COM812", "D105", "D107", "D203", "D212", "FIX", "G004", "I", "ISC001", "PLR2004", "RUF022",
+    "S101", "SLF001", "TD",
 ]
 
 [tool.ruff.lint.per-file-ignores]
