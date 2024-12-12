@@ -447,8 +447,10 @@ References:
 
 
 def _is_track(relship: Relationship) -> bool:
-    return relship.member.type == "way" and (
-        not relship.role or not relship.role.startswith("platform")
+    return (
+        relship.member.type == "way"
+        and (not relship.role or not relship.role.startswith("platform"))
+        and relship.member.base_geometry is not None
     )
 
 
