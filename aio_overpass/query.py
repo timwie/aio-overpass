@@ -74,6 +74,7 @@ class Query:
         "_input_code",
         "_kwargs",
         "_logger",
+        "_max_timed_out_after_secs",
         "_nb_tries",
         "_request_timeout",
         "_response",
@@ -84,7 +85,6 @@ class Query:
         "_time_start",
         "_time_start_req",
         "_time_start_try",
-        "_max_timed_out_after_secs",
     )
 
     def __init__(
@@ -655,8 +655,8 @@ class DefaultQueryRunner(QueryRunner):
     """
 
     __slots__ = (
-        "_max_tries",
         "_cache_ttl_secs",
+        "_max_tries",
     )
 
     def __init__(self, max_tries: int = 5, cache_ttl_secs: int = 0) -> None:
