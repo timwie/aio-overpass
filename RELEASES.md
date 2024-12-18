@@ -3,11 +3,16 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
-* Add explicit Python 3.13 support.
-* **Breaking**: Drop Python 3.8 support. The Python versions supported by this release are 3.11-3.13.
+The Python versions supported by this release are 3.11-3.13.
+
+### Added
+* Add explicit Python 3.13 support
 
 ### Fixed
 * Fix `pt_ordered.to_ordered_routes()` that could previously try to add ways without geometry to the track graph
+
+### Removed
+* **Breaking**: Drop Python 3.10 support.
 
 ## [0.14.1] - 2024-08-10
 ### Fixed
