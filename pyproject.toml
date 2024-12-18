@@ -8,7 +8,6 @@ readme = "README.md"
 repository = "https://github.com/timwie/aio-overpass"
 documentation = "https://www.timwie.dev/aio-overpass/"
 packages = [{ include = "aio_overpass" }]
-include = ["RELEASES.md"]
 keywords = [
     "geojson",
     "geospatial",
