@@ -102,7 +102,7 @@ class CallError(ClientError):
         cause: the exception that caused this error
     """
 
-    cause: aiohttp.ClientError
+    cause: aiohttp.ClientError | asyncio.TimeoutError
 
     @property
     def should_retry(self) -> bool:
@@ -123,7 +123,7 @@ class CallTimeoutError(CallError):
         after_secs: the configured timeout for the request
     """
 
-    cause: asyncio.TimeoutError  # TODO: typing violation
+    cause: asyncio.TimeoutError
     after_secs: float
 
     @property

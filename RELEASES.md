@@ -10,6 +10,7 @@ The Python versions supported by this release are 3.11-3.13.
 
 ### Fixed
 * Fix `pt_ordered.to_ordered_routes()` that could previously try to add ways without geometry to the track graph
+* Fix inconsistent type of `CallError.cause`
 
 ### Removed
 * **Breaking**: Drop Python 3.10 support.
