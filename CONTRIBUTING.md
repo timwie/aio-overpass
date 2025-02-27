@@ -81,6 +81,13 @@ $ ipython kernel install --user --name=aio-overpass311
 From now on you can use `$ jupyter-lab` and play around with
 `aio_overpass` in notebooks.
 
+To remove old kernels:
+
+```console
+$ jupyter kernelspec list
+$ jupyter kernelspec uninstall aio-overpass311
+```
+
 [Poetry]: https://python-poetry.org/
 [pyenv]: https://github.com/pyenv/pyenv
 [Invoke]: https://github.com/pyinvoke/invoke
