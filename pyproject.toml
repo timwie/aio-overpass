@@ -1,12 +1,11 @@
-[tool.poetry]
+[project]
 name = "aio-overpass"
 version = "0.14.1"
 description = "Async client for the Overpass API"
-authors = ["Tim Wiechers <mail@timwie.dev>"]
+authors = [{ name = "Tim Wiechers", email = "mail@timwie.dev" }]
 license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
-repository = "https://github.com/timwie/aio-overpass"
-documentation = "https://www.timwie.dev/aio-overpass/"
 packages = [{ include = "aio_overpass" }]
 keywords = [
     "geojson",
@@ -47,8 +46,10 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 
-[tool.poetry.urls]
-"Release Notes" = "https://github.com/timwie/aio-overpass/blob/main/RELEASES.md"
+[project.urls]
+repository = "https://github.com/timwie/aio-overpass"
+documentation = "https://www.timwie.dev/aio-overpass/"
+releasenotes = "https://github.com/timwie/aio-overpass/blob/main/RELEASES.md"
 "Test Coverage" = "https://codecov.io/gh/timwie/aio-overpass"
 
 [tool.poetry.dependencies]
