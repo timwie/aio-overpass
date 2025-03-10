@@ -30,6 +30,7 @@ import aiohttp.typedefs
 
 __docformat__ = "google"
 __all__ = (
+    "AlreadyRunningError",
     "ClientError",
     "CallError",
     "CallTimeoutError",
@@ -55,6 +56,21 @@ __all__ = (
     "is_too_busy",
     "is_too_many_queries",
 )
+
+
+@dataclass(kw_only=True)
+class AlreadyRunningError(ValueError):
+    """
+    Raised when trying to run a query while it's already being run.
+
+    Attributes:
+        kwargs: the query's ``kwargs``
+    """
+
+    kwargs: dict
+
+    def __str__(self) -> str:
+        return f"query{self.kwargs!r} is already being run"
 
 
 class ClientError(Exception):

@@ -11,6 +11,7 @@ from urllib.parse import urljoin
 
 from aio_overpass import __version__
 from aio_overpass.error import (
+    AlreadyRunningError,
     CallError,
     CallTimeoutError,
     ClientError,
@@ -231,19 +232,27 @@ class Client:
             RunnerError: when a call to the query runner raises. This exception is raised
                          even if ``raise_on_failure` is ``False``, since it is likely an error
                          that is not just specific to this query.
+            AlreadyRunningError: when another ``run_query()`` call on this query has not finished
+                                 yet. This is not affected by ``raise_on_failure``.
         """
         if query.done:
             return  # nothing to do
 
-        if query.nb_tries > 0:
-            query.reset()  # reset failed queries
+        if not query._run_lock.acquire(blocking=False):
+            raise AlreadyRunningError(kwargs=query.kwargs)
 
-        # query runner is invoked before every try, and once after the last try
-        while True:
-            await self._invoke_runner(query, raise_on_failure=raise_on_failure)
-            if query.done:
-                return
-            await self._try_query_once(query)
+        try:
+            if query.nb_tries > 0:
+                query.reset()  # reset failed queries
+
+            # query runner is invoked before every try, and once after the last try
+            while True:
+                await self._invoke_runner(query, raise_on_failure=raise_on_failure)
+                if query.done:
+                    return
+                await self._try_query_once(query)
+        finally:
+            query._run_lock.release()
 
     async def _invoke_runner(self, query: Query, *, raise_on_failure: bool) -> None:
         """

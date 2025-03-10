@@ -7,6 +7,11 @@ The Python versions supported by this release are 3.11-3.13.
 
 ### Added
 * Add explicit Python 3.13 support
+* Add ``AlreadyRunningError`` class, which does _not_ extend ``ClientError``
+
+### Changed
+* ``Client.run_query()`` will raise an ``AlreadyRunningError`` if it or another
+  client is already running the given query
 
 ### Fixed
 * Fix `pt_ordered.to_ordered_routes()` that could previously try to add ways without geometry to the track graph

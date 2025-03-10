@@ -9,6 +9,7 @@ import os
 import re
 import sys
 import tempfile
+import threading
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -79,6 +80,7 @@ class Query:
         "_request_timeout",
         "_response",
         "_response_bytes",
+        "_run_lock",
         "_run_timeout_secs",
         "_settings",
         "_time_end_try",
@@ -93,6 +95,9 @@ class Query:
         logger: logging.Logger = _NULL_LOGGER,
         **kwargs: Any,  # noqa: ANN401
     ) -> None:
+        self._run_lock: Final[threading.Lock] = threading.Lock()
+        """a lock used to ensure a query cannot be run more than once at the same time"""
+
         self._input_code: Final[str] = input_code
         """the original given overpass ql code"""
 
