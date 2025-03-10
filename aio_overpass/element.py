@@ -5,7 +5,7 @@ import re
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, Generic, TypeAlias, TypeVar, cast
+from typing import Any, Final, Generic, TypeAlias, TypeVar, cast
 
 from aio_overpass import Query
 from aio_overpass.spatial import GeoJsonDict, Spatial
@@ -412,7 +412,7 @@ class Relationship(Spatial):
         return f"{type(self).__name__}({self.member}{role} in {self.relation})"
 
 
-_KNOWN_ELEMENTS = {"node", "way", "relation"}
+_KNOWN_ELEMENTS: Final[set[str]] = {"node", "way", "relation"}
 
 
 _ElementKey: TypeAlias = tuple[str, int]
@@ -765,7 +765,7 @@ def _is_area_element(el: _OverpassDict) -> bool:
     )
 
 
-_AREA_TAG_NAMES = {
+_AREA_TAG_NAMES: Final[set[str]] = {
     "area",
     "area:highway",
     "amenity",
@@ -791,7 +791,7 @@ _AREA_TAG_NAMES = {
     "addr:postcode",
 }
 
-_AREA_TAG_VALUES_ONE_OF = {
+_AREA_TAG_VALUES_ONE_OF: Final[dict[str, set[str]]] = {
     "barrier": {"city_wall", "ditch", "hedge", "retaining_wall", "wall", "spikes"},
     "highway": {"services", "rest_area", "escape", "elevator"},
     "power": {"plant", "substation", "generator", "transformer"},
@@ -801,13 +801,13 @@ _AREA_TAG_VALUES_ONE_OF = {
     "type": {"multipolygon"},
 }
 
-_AREA_TAG_VALUES_NONE_OF = {
+_AREA_TAG_VALUES_NONE_OF: Final[dict[str, set[str]]] = {
     "aeroway": {"no", "taxiway"},
     "man_made": {"no", "cutline", "embankment", "pipeline"},
     "natural": {"no", "coastline", "cliff", "ridge", "arete", "tree_row"},
 }
 
-_WIKIDATA_Q_ID = re.compile(r"^Q\d+$")
+_WIKIDATA_Q_ID: Final[re.Pattern[str]] = re.compile(r"^Q\d+$")
 
 
 def _geojson_properties(obj: Element | Relationship) -> GeoJsonDict:

@@ -3,7 +3,7 @@
 import itertools
 from collections.abc import Callable, Generator, Iterator
 from dataclasses import dataclass, replace
-from typing import Any, TypeAlias, cast
+from typing import Any, Final, TypeAlias, cast
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import Node, Relation, Relationship, Way
@@ -277,7 +277,9 @@ class OrderedRouteView(Spatial):
 
 
 def collect_ordered_routes(
-    query: RouteQuery, perimeter: Polygon | None = None, n_jobs: int = 1
+    query: RouteQuery,
+    perimeter: Polygon | None = None,
+    n_jobs: int = 1,
 ) -> list[OrderedRouteView]:
     # TODO: the way 'perimeter' works might be confusing
     """
@@ -431,7 +433,7 @@ def _route_graph(rel: Relation) -> MultiDiGraph:
     return graph
 
 
-_PT_ONEWAY_TAGS = {
+_PT_ONEWAY_TAGS: Final[dict[str, set[str]]] = {
     "oneway": {"yes"},
     "highway": {"motorway", "motorway_link", "trunk_link", "primary_link"},
     "junction": {"circular", "roundabout"},
@@ -708,6 +710,6 @@ def _traverse_path(graph: MultiDiGraph, progress: _Traversal, path_nodes: list[_
     progress.path_idx += 1
 
 
-_WEIGHT_MULTIPLIER: float = 1e10
-_WEIGHT_KEY = "weight"
-_WAY_ID_KEY = "way"
+_WEIGHT_MULTIPLIER: Final[float] = 1e10
+_WEIGHT_KEY: Final[str] = "weight"
+_WAY_ID_KEY: Final[str] = "way"

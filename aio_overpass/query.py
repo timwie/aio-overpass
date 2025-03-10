@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 from aio_overpass.error import (
     ClientError,
@@ -36,22 +36,22 @@ __all__ = (
 )
 
 
-DEFAULT_MAXSIZE_MIB = 512
+DEFAULT_MAXSIZE_MIB: Final[int] = 512
 """Default ``maxsize`` setting in mebibytes."""
 
-DEFAULT_TIMEOUT_SECS = 180
+DEFAULT_TIMEOUT_SECS: Final[int] = 180
 """Default ``timeout`` setting in seconds."""
 
-_COPYRIGHT = (
+_COPYRIGHT: Final[str] = (
     "The data included in this document is from www.openstreetmap.org."
     " The data is made available under ODbL."
 )
 """This is the same copyright notice included in result sets"""
 
-_SETTING_PATTERN = re.compile(r"\[(\w+?):(.+?)]\s*;?")
+_SETTING_PATTERN: Final[re.Pattern[str]] = re.compile(r"\[(\w+?):(.+?)]\s*;?")
 """A pattern to match setting declarations (not the entire settings statement)."""
 
-_NULL_LOGGER = logging.getLogger()
+_NULL_LOGGER: Final[logging.Logger] = logging.getLogger()
 _NULL_LOGGER.addHandler(logging.NullHandler())
 
 
@@ -93,13 +93,13 @@ class Query:
         logger: logging.Logger = _NULL_LOGGER,
         **kwargs: Any,  # noqa: ANN401
     ) -> None:
-        self._input_code = input_code
+        self._input_code: Final[str] = input_code
         """the original given overpass ql code"""
 
-        self._logger = logger
+        self._logger: Final[logging.Logger] = logger
         """logger to use for this query"""
 
-        self._kwargs = kwargs
+        self._kwargs: Final[dict] = kwargs
         """used to identify this query"""
 
         self._settings = dict(_SETTING_PATTERN.findall(input_code))
@@ -818,7 +818,7 @@ def _fibo_backoff_secs(tries: int) -> float:
     return a
 
 
-_EXPIRATION_KEY = "__expiration__"
-_IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
-_IS_UNIT_TEST = "pytest" in sys.modules
-_FORCE_DISABLE_CACHE = _IS_CI and not _IS_UNIT_TEST
+_EXPIRATION_KEY: Final[str] = "__expiration__"
+_IS_CI: Final[bool] = os.getenv("GITHUB_ACTIONS") == "true"
+_IS_UNIT_TEST: Final[bool] = "pytest" in sys.modules
+_FORCE_DISABLE_CACHE: Final[bool] = _IS_CI and not _IS_UNIT_TEST

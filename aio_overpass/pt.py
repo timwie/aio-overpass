@@ -4,7 +4,7 @@ from collections import Counter
 from collections.abc import Generator
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, cast
+from typing import Any, Final, cast
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import Bbox, Node, Relation, Relationship, Way, collect_elements
@@ -548,7 +548,7 @@ class Route(Spatial):
         return f"{type(self).__name__}(id={self.relation.id}, name='{self.name}')"
 
 
-_TAGS_FROM_ROUTE_MASTER = {
+_TAGS_FROM_ROUTE_MASTER: Final[set[str]] = {
     "colour",
     "interval",
     "name",
@@ -807,7 +807,7 @@ def _at_same_stop(a: Relationship, b: Relationship) -> bool:
     return distance <= _MAX_DISTANCE_TO_TRACK
 
 
-_MAX_DISTANCE_TO_TRACK = 30.0  # meters
+_MAX_DISTANCE_TO_TRACK: Final[float] = 30.0  # meters
 """
 An expectation of the maximum distance between a stop position and its platform.
 

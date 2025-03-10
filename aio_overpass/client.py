@@ -6,6 +6,7 @@ import re
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass
+from typing import Final
 from urllib.parse import urljoin
 
 from aio_overpass import __version__
@@ -36,10 +37,12 @@ __all__ = (
 )
 
 
-DEFAULT_INSTANCE = "https://overpass-api.de/api/"
+DEFAULT_INSTANCE: Final[str] = "https://overpass-api.de/api/"
 """Main Overpass API instance."""
 
-DEFAULT_USER_AGENT = f"aio-overpass/{__version__} (https://github.com/timwie/aio-overpass)"
+DEFAULT_USER_AGENT: Final[str] = (
+    f"aio-overpass/{__version__} (https://github.com/timwie/aio-overpass)"
+)
 """User agent that points to the ``aio-overpass`` repo."""
 
 
@@ -129,11 +132,11 @@ class Client:
             msg = "'status_timeout_secs' must be > 0"
             raise ValueError(msg)
 
-        self._url = url
-        self._user_agent = user_agent
-        self._concurrency = concurrency
-        self._status_timeout_secs = status_timeout_secs
-        self._runner = runner or DefaultQueryRunner()
+        self._url: Final[str] = url
+        self._user_agent: Final[str] = user_agent
+        self._concurrency: Final[int] = concurrency
+        self._status_timeout_secs: Final[float | None] = status_timeout_secs
+        self._runner: Final[QueryRunner] = runner or DefaultQueryRunner()
 
         self._maybe_session: aiohttp.ClientSession | None = None
 
