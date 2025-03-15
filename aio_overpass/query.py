@@ -5,9 +5,7 @@ import hashlib
 import json
 import logging
 import math
-import os
 import re
-import sys
 import tempfile
 import threading
 import time
@@ -17,6 +15,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Final
 
+from aio_overpass._clock import Instant, sleep
+from aio_overpass._env import FORCE_DISABLE_CACHE
 from aio_overpass.error import (
     ClientError,
     QueryRejectCause,
@@ -136,16 +136,16 @@ class Query:
         self._nb_tries = 0
         """number of tries so far, starting at zero"""
 
-        self._time_start: _Instant | None = None
+        self._time_start: Instant | None = None
         """time prior to executing the first try"""
 
-        self._time_start_try: _Instant | None = None
+        self._time_start_try: Instant | None = None
         """time prior to executing the most recent try"""
 
-        self._time_start_req: _Instant | None = None
+        self._time_start_req: Instant | None = None
         """time prior to executing the most recent try's query request"""
 
-        self._time_end_try: _Instant | None = None
+        self._time_end_try: Instant | None = None
         """time the most recent try finished"""
 
         self._max_timed_out_after_secs: int | None = None
@@ -516,19 +516,19 @@ class Query:
     def _begin_try(self) -> None:
         """First thing to call when starting the next try, after invoking the query runner."""
         if self._time_start is None:
-            self._time_start = _Instant.now()
+            self._time_start = Instant.now()
 
-        self._time_start_try = _Instant.now()
+        self._time_start_try = Instant.now()
         self._time_start_req = None
         self._time_end_try = None
 
     def _begin_request(self) -> None:
         """Call before making the API call of a try, after waiting for cooldown."""
-        self._time_start_req = _Instant.now()
+        self._time_start_req = Instant.now()
 
     def _succeed_try(self, response: dict, response_bytes: int) -> None:
         """Call when the API call of a try was successful."""
-        self._time_end_try = _Instant.now()
+        self._time_end_try = Instant.now()
         self._response = response
         self._response_bytes = response_bytes
         self._error = None
@@ -543,46 +543,6 @@ class Query:
     def _end_try(self) -> None:
         """Final call in a try."""
         self._nb_tries += 1
-
-
-@dataclass(kw_only=True, slots=True, frozen=True, repr=False, order=True)
-class _Instant:
-    """
-    Measurement of a monotonic clock.
-
-    Attributes:
-        when: the current time, according to the event loop's internal monotonic clock
-              (details are unspecified and may differ per event loop).
-    """
-
-    when: float
-
-    # TODO: allow replacing monotonic time() in tests?
-    #   => all tests should also pass if you replace "asyncio.get_event_loop().time()"
-    #      with a constant value like "0.0" for instance, emulating no passing of
-    #      measured time
-    #   => related: https://github.com/timwie/aio-overpass/issues/17
-
-    @classmethod
-    def now(cls) -> "_Instant":
-        return cls(when=asyncio.get_event_loop().time())
-
-    @property
-    def ceil(self) -> int:
-        return math.ceil(self.when)
-
-    @property
-    def elapsed_secs_since(self) -> float:
-        return asyncio.get_event_loop().time() - self.when
-
-    def __sub__(self, earlier: "_Instant") -> float:
-        if self.when < earlier.when:
-            msg = f"{self} is earlier than {earlier}"
-            raise ValueError(msg)
-        return self.when - earlier.when
-
-    def __repr__(self) -> str:
-        return f"{type(self).__name__}({self.when:.02f})"
 
 
 @dataclass(kw_only=True, slots=True)
@@ -677,7 +637,7 @@ class DefaultQueryRunner(QueryRunner):
         self._cache_ttl_secs = cache_ttl_secs
 
     def _is_caching(self, query: Query) -> bool:
-        if self._cache_ttl_secs and _FORCE_DISABLE_CACHE:
+        if self._cache_ttl_secs and FORCE_DISABLE_CACHE:
             query.logger.debug("caching is forced disabled")
             return False
         return self._cache_ttl_secs > 0
@@ -792,7 +752,7 @@ class DefaultQueryRunner(QueryRunner):
             if err.cause == QueryRejectCause.TOO_BUSY:
                 backoff = _fibo_backoff_secs(query.nb_tries)
                 logger.info(f"retry {query} in {backoff:.1f}s")
-                await asyncio.sleep(backoff)
+                await sleep(backoff)
 
             # Wait until a slot opens if the rate limit was exceeded.
             elif err.cause == QueryRejectCause.TOO_MANY_QUERIES:
@@ -824,6 +784,3 @@ def _fibo_backoff_secs(tries: int) -> float:
 
 
 _EXPIRATION_KEY: Final[str] = "__expiration__"
-_IS_CI: Final[bool] = os.getenv("GITHUB_ACTIONS") == "true"
-_IS_UNIT_TEST: Final[bool] = "pytest" in sys.modules
-_FORCE_DISABLE_CACHE: Final[bool] = _IS_CI and not _IS_UNIT_TEST

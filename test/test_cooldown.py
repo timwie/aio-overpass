@@ -117,17 +117,17 @@ Currently running queries (pid, space limit, time limit, start time):
     query.run_timeout_secs = 19.0
 
     with aioresponses() as m:
-        m.get(
-            url=URL_STATUS,
-            body=status_body_1sec_cooldown,
-            status=200,
-            content_type="text/plain",
-        )
         m.post(
             url=URL_INTERPRETER,
             status=429,
             body=query_body_too_many_queries,
             content_type="text/html",
+        )
+        m.get(
+            url=URL_STATUS,
+            body=status_body_1sec_cooldown,
+            status=200,
+            content_type="text/plain",
         )
         m.post(
             url=URL_INTERPRETER,

@@ -1,6 +1,5 @@
 """Interface for making API calls."""
 
-import asyncio
 import math
 import re
 from collections.abc import AsyncIterator
@@ -10,6 +9,7 @@ from typing import Final
 from urllib.parse import urljoin
 
 from aio_overpass import __version__
+from aio_overpass._clock import sleep
 from aio_overpass.error import (
     AlreadyRunningError,
     CallError,
@@ -366,7 +366,7 @@ class Client:
                 )
 
         logger.info(f"{query} has cooldown for {status.cooldown_secs:.1f}s")
-        await asyncio.sleep(status.cooldown_secs)
+        await sleep(status.cooldown_secs)
 
     def _next_status_req_timeout(self, query: Query) -> aiohttp.ClientTimeout:
         """Status request timeout; possibly limited by either the run or status timeout settings."""
