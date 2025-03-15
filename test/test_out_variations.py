@@ -8,6 +8,7 @@ import pytest
 
 
 @pytest.mark.asyncio
+@pytest.mark.xdist_group(name="fast")
 @pytest.mark.parametrize(
     "file_name",
     [

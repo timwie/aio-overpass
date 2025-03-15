@@ -181,6 +181,8 @@ class OrderedRouteView(Spatial):
         Raises:
             TODO: doc
         """
+        # TODO: distance ValueErrors
+
         pre_gap, *_ = self.gap_split()
 
         distance_start = pre_gap.ordering[0].distance

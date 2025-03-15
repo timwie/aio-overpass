@@ -110,13 +110,23 @@ class Query:
         self._settings = dict(_SETTING_PATTERN.findall(input_code))
         """all overpass ql settings [k:v];"""
 
+        if "out" in self._settings and self._settings["out"] != "json":
+            msg = "the '[out:*]' setting is implicitly set to 'json' and should be omitted"
+            raise ValueError(msg)
+
         self._settings["out"] = "json"
 
         if "maxsize" not in self._settings:
             self._settings["maxsize"] = DEFAULT_MAXSIZE_MIB * 1024 * 1024
+        elif not self._settings["maxsize"].isdigit() or int(self._settings["maxsize"]) <= 0:
+            msg = "the '[maxsize:*]' setting must be an integer > 0"
+            raise ValueError(msg)
 
         if "timeout" not in self._settings:
             self._settings["timeout"] = DEFAULT_TIMEOUT_SECS
+        elif not self._settings["timeout"].isdigit() or int(self._settings["timeout"]) <= 0:
+            msg = "the '[timeout:*]' setting must be an integer > 0"
+            raise ValueError(msg)
 
         self._run_timeout_secs: float | None = None
         """total time limit for running this query"""
@@ -266,8 +276,8 @@ class Query:
 
     @maxsize_mib.setter
     def maxsize_mib(self, value: float) -> None:
-        if value <= 0.0:
-            msg = "maxsize_mib must be > 0.0"
+        if not math.isfinite(value) or value <= 0.0:
+            msg = "'maxsize_mib' must be finite > 0"
             raise ValueError(msg)
         self._settings["maxsize"] = int(value * 1024.0 * 1024.0)
 
@@ -306,8 +316,8 @@ class Query:
 
     @run_timeout_secs.setter
     def run_timeout_secs(self, value: float | None) -> None:
-        if value is not None and value <= 0.0:
-            msg = "run_timeout_secs must be > 0"
+        if value is not None and (not math.isfinite(value) or value <= 0.0):
+            msg = "'run_timeout_secs' must be finite > 0"
             raise ValueError(msg)
         self._run_timeout_secs = value
 
@@ -567,16 +577,22 @@ class RequestTimeout:
     each_sock_read_secs: float | None = None
 
     def __post_init__(self) -> None:
-        if self.total_without_query_secs is not None and self.total_without_query_secs <= 0.0:
-            msg = "'total_without_query_secs' has to be > 0"
+        if self.total_without_query_secs is not None and (
+            not math.isfinite(self.total_without_query_secs) or self.total_without_query_secs <= 0.0
+        ):
+            msg = "'total_without_query_secs' must be finite > 0"
             raise ValueError(msg)
 
-        if self.sock_connect_secs is not None and self.sock_connect_secs <= 0.0:
-            msg = "'sock_connect_secs' has to be > 0"
+        if self.sock_connect_secs is not None and (
+            not math.isfinite(self.sock_connect_secs) or self.sock_connect_secs <= 0.0
+        ):
+            msg = "'sock_connect_secs' must be finite > 0"
             raise ValueError(msg)
 
-        if self.each_sock_read_secs is not None and self.each_sock_read_secs <= 0.0:
-            msg = "'each_sock_read_secs' has to be > 0"
+        if self.each_sock_read_secs is not None and (
+            not math.isfinite(self.each_sock_read_secs) or self.each_sock_read_secs <= 0.0
+        ):
+            msg = "'each_sock_read_secs' must be finite > 0"
             raise ValueError(msg)
 
 

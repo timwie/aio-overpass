@@ -129,8 +129,10 @@ class Client:
         if concurrency <= 0:
             msg = "'concurrency' must be > 0"
             raise ValueError(msg)
-        if status_timeout_secs is not None and status_timeout_secs <= 0.0:
-            msg = "'status_timeout_secs' must be > 0"
+        if status_timeout_secs is not None and (
+            not math.isfinite(status_timeout_secs) or status_timeout_secs <= 0.0
+        ):
+            msg = "'status_timeout_secs' must be finite > 0"
             raise ValueError(msg)
 
         self._url: Final[str] = url
@@ -193,6 +195,10 @@ class Client:
         Raises:
             ClientError: if the request to cancel queries failed
         """
+        if timeout_secs is not None and (not math.isfinite(timeout_secs) or timeout_secs <= 0.0):
+            msg = "'timeout_secs' must be finite > 0"
+            raise ValueError(msg)
+
         timeout = aiohttp.ClientTimeout(total=timeout_secs) if timeout_secs else None
         headers = {"User-Agent": self._user_agent}
         endpoint = urljoin(self._url, "kill_my_queries")
