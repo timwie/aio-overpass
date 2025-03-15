@@ -5,7 +5,7 @@ import re
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, Final, Generic, TypeAlias, TypeVar, cast
+from typing import Any, Final, Generic, TypeAlias, TypeVar
 
 from aio_overpass import Query
 from aio_overpass.spatial import GeoJsonDict, Spatial
@@ -579,7 +579,8 @@ def _collect_typed(collector: _ElementCollector) -> None:
 
 def _collect_relationships(collector: _ElementCollector) -> None:
     for rel_id, mem_roles in collector.member_dict.items():
-        rel = cast(Relation, collector.typed_dict[("relation", rel_id)])
+        rel = collector.typed_dict[("relation", rel_id)]
+        assert isinstance(rel, Relation)
 
         for mem_key, mem_role in mem_roles:
             mem = collector.typed_dict[mem_key]

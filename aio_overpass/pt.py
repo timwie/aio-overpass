@@ -4,10 +4,10 @@ from collections import Counter
 from collections.abc import Generator
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Final, cast
+from typing import Any, Final, TypeGuard
 
 from aio_overpass._dist import fast_distance
-from aio_overpass.element import Bbox, Node, Relation, Relationship, Way, collect_elements
+from aio_overpass.element import Bbox, Element, Node, Relation, Relationship, Way, collect_elements
 from aio_overpass.ql import one_of_filter, poly_clause
 from aio_overpass.query import Query
 from aio_overpass.spatial import GeoJsonDict, Spatial
@@ -281,8 +281,8 @@ class Stop(Spatial):
             geoms.append(self.platform.member.base_geometry)
 
         if self.stop_position:
-            member = cast(Node, self.stop_position.member)
-            geoms.append(member.geometry)
+            assert isinstance(self.stop_position.member, Node)
+            geoms.append(self.stop_position.member.geometry)
 
         if isinstance(self.stop_coords, Point) and self.stop_coords not in geoms:
             geoms.append(self.stop_coords)
@@ -592,11 +592,7 @@ def collect_routes(query: RouteQuery, perimeter: Polygon | None = None) -> list[
         all routes in the result set of the input query
     """
     elements = collect_elements(query)
-    route_rels = [
-        cast(Relation, elem)
-        for elem in elements
-        if isinstance(elem, Relation) and elem.tag("type") == "route"
-    ]
+    route_rels = [elem for elem in elements if _is_tagged_route_relation(elem)]
 
     routes = []
 
@@ -619,6 +615,10 @@ def collect_routes(query: RouteQuery, perimeter: Polygon | None = None) -> list[
         routes.append(route)
 
     return routes
+
+
+def _is_tagged_route_relation(elem: Element) -> TypeGuard[Relation]:
+    return isinstance(elem, Relation) and elem.tag("type") == "route"
 
 
 def _scheme(route: Relation) -> RouteScheme:

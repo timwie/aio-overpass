@@ -3,10 +3,10 @@
 import itertools
 from collections.abc import Callable, Generator, Iterator
 from dataclasses import dataclass, replace
-from typing import Any, Final, TypeAlias, cast
+from typing import Any, Final, TypeAlias, TypeGuard
 
 from aio_overpass._dist import fast_distance
-from aio_overpass.element import Node, Relation, Relationship, Way
+from aio_overpass.element import Element, Node, Relation, Relationship, Way
 
 import networkx as nx
 import shapely.ops
@@ -401,7 +401,8 @@ def _route_graph(rel: Relation) -> MultiDiGraph:
     track = [relship for relship in rel.members if _is_track(relship)]
 
     for relship in track:
-        way = cast(Way, relship.member)
+        way = relship.member
+        assert isinstance(way, Way)
         assert way.geometry is not None
 
         data = {_WAY_ID_KEY: way.id}
@@ -476,17 +477,18 @@ def _find_stop_coords(
     """
     # (a) check if the route relation has a stop_position for this stop
     if stop.stop_position:
-        stop_node = cast(Node, stop.stop_position.member)
+        stop_node = stop.stop_position.member
+        assert isinstance(stop_node, Node)
         assert stop_node.geometry is not None
         if stop_node.geometry.coords[0] in track_graph:
             return stop_node
 
     # (b) check if a related stop_area has a stop_position for this stop
     station_stop_positions = (
-        cast(Node, member)
+        member
         for stop_area in stop.stop_areas
         for _, member in stop_area
-        if member.tag("public_transport") == "stop_position"
+        if _is_tagged_stop_position(member)
     )
 
     stop_pos = next(
@@ -522,6 +524,10 @@ def _find_stop_coords(
     # on the route's track, and that we choose a node that could be far from the
     # actual stop position.
     return a
+
+
+def _is_tagged_stop_position(elem: Element) -> TypeGuard[Node]:
+    return elem.tag("public_transport") == "stop_position"
 
 
 def _paths(route_graph: MultiDiGraph, targets: list[Point | None]) -> list[OrderedRouteViewNode]:
