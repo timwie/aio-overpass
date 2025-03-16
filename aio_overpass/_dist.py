@@ -3,6 +3,10 @@
 from math import cos, hypot
 
 
+__docformat__ = "google"
+__all__ = ("fast_distance",)
+
+
 def fast_distance(a_lat: float, a_lon: float, b_lat: float, b_lon: float) -> float:
     """
     Distance between two coordinates using equirectangular approximation.

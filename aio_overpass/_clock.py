@@ -5,6 +5,14 @@ from dataclasses import dataclass
 from aio_overpass._env import IS_UNIT_TEST
 
 
+__docformat__ = "google"
+__all__ = (
+    "sleep",
+    "time",
+    "Instant",
+)
+
+
 class _ClockMock:
     """Mock alternative to event loop time."""
 

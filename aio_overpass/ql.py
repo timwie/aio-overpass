@@ -5,6 +5,13 @@ import itertools
 from shapely.geometry import Polygon
 
 
+__docformat__ = "google"
+__all__ = (
+    "poly_clause",
+    "one_of_filter",
+)
+
+
 def poly_clause(shp: Polygon) -> str:
     """
     Poly region clause.
