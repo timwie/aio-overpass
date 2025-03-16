@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.15.0] - 2025-03-16
 The Python versions supported by this release are 3.11-3.13.
 
 ### Added

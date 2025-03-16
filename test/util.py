@@ -14,7 +14,7 @@ from aioresponses import aioresponses
 from shapely import Point
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def query_logger(request, caplog):
     """Gives you a logger whose output is captured by pytest."""
     test_name = request.node.name
