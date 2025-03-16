@@ -7,7 +7,7 @@ The Python versions supported by this release are 3.11-3.13.
 
 ### Added
 * Add explicit Python 3.13 support
-* Add ``AlreadyRunningError`` class, which does _not_ extend ``ClientError``
+* Add ``AlreadyRunningError`` class (note it does _not_ extend ``ClientError``)
 
 ### Changed
 * ``Client.run_query()`` will raise an ``AlreadyRunningError`` if it or another

@@ -1,4 +1,5 @@
 import json
+import logging
 
 from aio_overpass import Query
 from aio_overpass.element import Element, Node, Relation, Relationship, Way
@@ -11,6 +12,15 @@ import pytest
 import shapely.geometry
 from aioresponses import aioresponses
 from shapely import Point
+
+
+@pytest.fixture(scope="function")
+def query_logger(request, caplog):
+    """Gives you a logger whose output is captured by pytest."""
+    test_name = request.node.name
+    logger = logging.getLogger(test_name)
+    caplog.set_level(logging.DEBUG, logger=test_name)
+    return logger
 
 
 URL_INTERPRETER = "https://overpass-api.de/api/interpreter"

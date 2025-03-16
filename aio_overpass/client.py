@@ -296,9 +296,6 @@ class Client:
             #   for now, pass it as parameter to the _code() function
             next_timeout_secs = _next_timeout_secs(query)
 
-            if next_timeout_secs != query.timeout_secs:
-                query._logger.info(f"adjust timeout to {next_timeout_secs}s")  # TODO: log more
-
             data = query._code(next_timeout_secs)
 
             query._begin_request()
@@ -492,7 +489,12 @@ async def _map_request_error(
 
 def _next_timeout_secs(query: Query) -> int:
     """
-    TODO: doc.
+    Decide the ``[timeout:*]`` setting for the given query's next try.
+
+     - pick ``Query.timeout_secs``
+     - cap it by ``Query.run_timeout_secs``, and the time that has elapsed so far
+     - if a previous try was cancelled with less or equal than the chosen time,
+       raise without trying again
 
     Raises:
         GiveupError: when the run timeout elapsed, or when a previous try timed out with

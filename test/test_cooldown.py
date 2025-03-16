@@ -1,6 +1,8 @@
+import logging
+
 from aio_overpass import Client, Query
 from aio_overpass.error import GiveupCause, GiveupError
-from test.util import URL_INTERPRETER, URL_STATUS, VerifyingQueryRunner
+from test.util import URL_INTERPRETER, URL_STATUS, VerifyingQueryRunner, query_logger
 
 import pytest
 from aioresponses import aioresponses
@@ -8,7 +10,7 @@ from aioresponses import aioresponses
 
 @pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
-async def test_giveup_by_cooldown():
+async def test_giveup_by_cooldown(query_logger: logging.Logger):
     status_body_20sec_cooldown = """
 Connected as: 1807920285
 Current time: 2020-11-21T12:45:45Z
@@ -39,7 +41,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
     c = Client(runner=VerifyingQueryRunner())
 
-    query = Query(input_code="something")
+    query = Query(input_code="something", logger=query_logger)
     query.run_timeout_secs = 19.0
 
     with aioresponses() as m:
@@ -66,7 +68,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
 @pytest.mark.asyncio
 @pytest.mark.xdist_group(name="fast")
-async def test_success_after_cooldown():
+async def test_success_after_cooldown(query_logger: logging.Logger):
     status_body_1sec_cooldown = """
 Connected as: 1807920285
 Current time: 2020-11-21T12:45:45Z
@@ -113,7 +115,7 @@ Currently running queries (pid, space limit, time limit, start time):
 
     c = Client(runner=VerifyingQueryRunner())
 
-    query = Query(input_code="something")
+    query = Query(input_code="something", logger=query_logger)
     query.run_timeout_secs = 19.0
 
     with aioresponses() as m:
