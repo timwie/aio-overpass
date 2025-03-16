@@ -327,5 +327,6 @@ The Python versions supported by this release are 3.10-3.12.
 [0.13.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.13.1
 [0.14.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.14.0
 [0.14.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.14.1
+[0.15.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.15.0
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
