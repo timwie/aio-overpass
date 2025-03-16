@@ -392,11 +392,11 @@ class QueryRejectError(QueryError):
     def __str__(self) -> str:
         match self.cause:
             case QueryRejectCause.TOO_BUSY | QueryRejectCause.TOO_MANY_QUERIES:
-                rejection = "query rejected"
+                rejection = "rejected"
             case QueryRejectCause.EXCEEDED_TIMEOUT:
-                rejection = f"query cancelled after {self.timed_out_after_secs}s"
+                rejection = f"cancelled after {self.timed_out_after_secs}s"
             case QueryRejectCause.EXCEEDED_MAXSIZE:
-                rejection = f"query cancelled using {self.oom_using_mib}"
+                rejection = f"cancelled using {self.oom_using_mib}"
             case _:
                 raise AssertionError(self.cause)
 
