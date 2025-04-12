@@ -9,7 +9,7 @@ IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
 @task
 def compile(c: Context):
     """Syntax-check/generate byte-code for all source files."""
-    c.run('find . -name "*.py" -exec python -m py_compile {} \\;', echo=True, pty=True)
+    c.run('find aio_overpass/ -name "*.py" -exec python -m py_compile {} \\;', echo=True, pty=True)
 
 
 @task
@@ -41,8 +41,8 @@ def fmt(c: Context):
 @task
 def install(c: Context):
     """Install all dependencies"""
-    c.run("poetry lock", echo=True, pty=True)
-    c.run("poetry install --all-extras --with notebooks", echo=True, pty=True)
+    c.run("uv lock", echo=True, pty=True)
+    c.run("uv sync --all-extras --all-groups", echo=True, pty=True)
 
 
 @task
@@ -93,7 +93,7 @@ def test_quick(c: Context):
 
 
 def _pytest(c: Context, *, cov: bool, quick: bool):
-    cmd = ["poetry", "run", "pytest", "-vv"]
+    cmd = ["uv", "run", "pytest", "-vv"]
 
     if cov:
         cmd.append("--cov=aio_overpass/")
@@ -114,19 +114,12 @@ def _pytest(c: Context, *, cov: bool, quick: bool):
 
 
 @task
-def test_publish(c: Context):
-    """Perform a dry run of publishing the package"""
-    c.run("poetry publish --build --dry-run --no-interaction", echo=True, pty=True)
-
-
-@task
 def tree(c: Context):
     """Display the tree of dependencies"""
-    c.run("poetry show --without=dev,notebooks --tree", echo=True, pty=True)
+    c.run("uv tree --no-dev", echo=True, pty=True)
 
 
 @task
 def update(c: Context):
     """Update dependencies"""
-    c.run("poetry update", echo=True, pty=True)
-    c.run("poetry show --outdated --why --with=dev,notebooks", echo=True, pty=True)
+    c.run("uv lock --upgrade", echo=True, pty=True)

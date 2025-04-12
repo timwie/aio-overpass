@@ -24,23 +24,25 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
 
       - name: Install dependencies & library
-        run: poetry install --all-extras --no-interaction
+        run: uv sync --all-extras --dev
 
       - name: Test with pytest
-        run: poetry run invoke test
+        run: uv run invoke test
 
       - name: Generate docs with pdoc
-        run: poetry run pdoc -o ./doc aio_overpass/
+        run: uv run pdoc -o ./doc aio_overpass/
 
   publish-package:
     name: Publish new release on PyPI
@@ -56,11 +58,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Build the source and wheels archives
-        run: poetry build --no-interaction
+        run: uv build
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -77,21 +82,22 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: 'poetry'
-          cache-dependency-path: poetry.lock
 
       - name: Install dependencies & library
-        run: poetry install --all-extras --no-interaction
+        run: uv sync --all-extras --dev
 
       - name: Generate docs with pdoc
-        run: poetry run pdoc -o ./doc aio_overpass/
+        run: uv run pdoc -o ./doc aio_overpass/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

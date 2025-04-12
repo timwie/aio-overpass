@@ -27,18 +27,19 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
-      - name: Set up Python ${{ matrix.python }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
-          cache: 'poetry'
-          cache-dependency-path: poetry.lock
+          python-version: "3.11"
 
       - name: Install dependencies & library
-        run: poetry install --all-extras --no-interaction
+        run: uv sync --all-extras --dev
 
       - name: Run test
-        run: poetry run python -m test.integration.${{ matrix.file }}
+        run: uv run python -m test.integration.${{ matrix.file }}

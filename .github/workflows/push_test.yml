@@ -11,11 +11,11 @@ on:
       - 'test/**.py'
       - 'test/**.json'
       - 'test/**.json.gz'
-      - 'poetry.lock'
       - 'pyproject.toml'
       - 'tasks.py'
       - 'aio_overpass/doc/**.md'
       - 'README.md'
+      - 'uv.lock'
 
 jobs:
   test:
@@ -30,23 +30,25 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
 
       - name: Install dependencies & library
-        run: poetry install --all-extras --no-interaction
+        run: uv sync --all-extras --dev
 
       - name: Test with pytest
-        run: poetry run invoke test
+        run: uv run invoke test
 
       - name: Generate docs with pdoc
-        run: poetry run pdoc -o ./doc aio_overpass/
+        run: uv run pdoc -o ./doc aio_overpass/
 
   coverage:
     name: Upload test coverage to Codecov (3.11)
@@ -56,21 +58,22 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
-      - name: Set up Python 3.11
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: 'poetry'
-          cache-dependency-path: poetry.lock
 
       - name: Install dependencies & library
-        run: poetry install --all-extras --no-interaction
+        run: uv sync --all-extras --dev
 
       - name: Test with pytest
-        run: poetry run invoke test-cov
+        run: uv run invoke test-cov
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -86,37 +89,38 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: 'poetry'
-          cache-dependency-path: poetry.lock
 
-      - name: Check if pyproject.toml consistent with poetry.lock
-        run: poetry check --lock --no-interaction
+      - name: Check if pyproject.toml consistent with uv.lock
+        run: uv lock --check
 
       - name: Install dependencies & library
-        run: poetry install --all-extras --no-interaction
+        run: uv sync --all-extras --dev
 
       - name: Check formatting with Ruff
-        run: poetry run ruff format aio_overpass/ --check
+        run: uv run ruff format aio_overpass/ --check
 
       - name: Lint with Ruff
         if: always()  # keep going even if previous step failed
-        run: poetry run ruff check aio_overpass/
+        run: uv run ruff check aio_overpass/
 
       - name: Lint tests with Ruff
         if: always()  # keep going even if previous step failed
-        run: poetry run ruff check test/
+        run: uv run ruff check test/
 
       - name: Check types with mypy
         if: always()  # keep going even if previous step failed
-        run: poetry run mypy aio_overpass/
+        run: uv run mypy aio_overpass/
 
       - name: Validate __slots__
         if: always()  # keep going even if previous step failed
-        run: poetry run slotscheck -m aio_overpass --require-subclass -v
+        run: uv run slotscheck -m aio_overpass --require-subclass -v
