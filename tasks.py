@@ -122,4 +122,7 @@ def tree(c: Context):
 @task
 def update(c: Context):
     """Update dependencies"""
+    c.run("uv self update", echo=True, pty=True)
     c.run("uv lock --upgrade", echo=True, pty=True)
+    install(c)
+    c.run("uv pip list --outdated", echo=True, pty=True)
