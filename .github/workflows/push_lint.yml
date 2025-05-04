@@ -63,3 +63,25 @@ jobs:
       - name: Validate __slots__
         if: always()  # keep going even if previous step failed
         run: uv run slotscheck -m aio_overpass --require-subclass -v
+
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Initialize
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:python"
