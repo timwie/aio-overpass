@@ -1,10 +1,13 @@
-name: Run integration tests
+name: Integration tests
 
 on:
   workflow_dispatch:
   schedule:
-    # run at every half hour
-    - cron: '30 * * * *'
+    - cron: '30 0,6,12,18 * * *'  # run four times a day
+  push:
+    paths:
+      - '.github/workflows/sched_integration_test.yml'
+      - 'test/integration/**.py'
 
 jobs:
   script:
