@@ -1,4 +1,4 @@
-name: Test and lint package
+name: Unit tests
 
 on:
   workflow_dispatch:
@@ -6,15 +6,24 @@ on:
   push:
     paths:
       - '.github/workflows/push_test.yml'
+
+      # source files
       - 'aio_overpass/**.py'
-      - 'examples/**.ipynb'
       - 'test/**.py'
+
+      # test data
       - 'test/**.json'
       - 'test/**.json.gz'
-      - 'pyproject.toml'
+
+      # we use commands from here
       - 'tasks.py'
+
+      # there are tests involving the readme
       - 'aio_overpass/doc/**.md'
       - 'README.md'
+
+      # dependency changes
+      - 'pyproject.toml'
       - 'uv.lock'
 
 jobs:
@@ -80,47 +89,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-
-  lint:
-    name: Lint package (3.11)
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Check if pyproject.toml consistent with uv.lock
-        run: uv lock --check
-
-      - name: Install dependencies & library
-        run: uv sync --all-extras --dev
-
-      - name: Check formatting with Ruff
-        run: uv run ruff format aio_overpass/ --check
-
-      - name: Lint with Ruff
-        if: always()  # keep going even if previous step failed
-        run: uv run ruff check aio_overpass/
-
-      - name: Lint tests with Ruff
-        if: always()  # keep going even if previous step failed
-        run: uv run ruff check test/
-
-      - name: Check types with mypy
-        if: always()  # keep going even if previous step failed
-        run: uv run mypy aio_overpass/
-
-      - name: Validate __slots__
-        if: always()  # keep going even if previous step failed
-        run: uv run slotscheck -m aio_overpass --require-subclass -v
