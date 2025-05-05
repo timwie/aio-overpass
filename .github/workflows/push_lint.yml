@@ -1,4 +1,4 @@
-name: Lint
+name: Linters
 
 on:
   workflow_dispatch:
@@ -16,8 +16,8 @@ on:
       - 'uv.lock'
 
 jobs:
-  lint:
-    name: Lint package (3.11)
+  uv-lock:
+    name: uv lock --check
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
@@ -38,6 +38,25 @@ jobs:
       - name: Check if pyproject.toml consistent with uv.lock
         run: uv lock --check
 
+  ruff-format:
+    name: ruff format --check
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Install dependencies & library
         run: uv sync --all-extras --dev
 
@@ -48,17 +67,83 @@ jobs:
         if: always()  # keep going even if previous step failed
         run: uv run ruff format test/ --check
 
+  ruff-check:
+    name: ruff check
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies & library
+        run: uv sync --all-extras --dev
+
       - name: Lint with Ruff
-        if: always()  # keep going even if previous step failed
+        if: always()
         run: uv run ruff check aio_overpass/
 
       - name: Lint with Ruff (tests)
         if: always()  # keep going even if previous step failed
         run: uv run ruff check test/
 
+  mypy:
+    name: mypy
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies & library
+        run: uv sync --all-extras --dev
+
       - name: Check types with mypy
-        if: always()  # keep going even if previous step failed
+        if: always()
         run: uv run mypy aio_overpass/
+
+  slotscheck:
+    name: slotscheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies & library
+        run: uv sync --all-extras --dev
 
       - name: Validate __slots__
         if: always()  # keep going even if previous step failed
@@ -67,7 +152,7 @@ jobs:
   codeql:
     name: CodeQL
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     permissions:
       actions: read
       contents: read

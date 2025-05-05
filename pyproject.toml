@@ -70,7 +70,7 @@ dev = [
     "mypy>=1.14.1",
     "pdoc>=15.0.1",
     "pytest>=8.3.4",
-    "pytest-asyncio>=0.25.0",
+    "pytest-asyncio>=0.26.0",
     "pytest-cov>=6.0.0",
     "pytest-xdist>=3.6.1",
     "ruff>=0.11.0",
@@ -138,3 +138,4 @@ exclude_also = [
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"  # function, class, module, package, session
+asyncio_default_test_loop_scope = "function"

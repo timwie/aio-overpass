@@ -71,7 +71,7 @@ dev = [
     { name = "mypy", specifier = ">=1.14.1" },
     { name = "pdoc", specifier = ">=15.0.1" },
     { name = "pytest", specifier = ">=8.3.4" },
-    { name = "pytest-asyncio", specifier = ">=0.25.0" },
+    { name = "pytest-asyncio", specifier = ">=0.26.0" },
     { name = "pytest-cov", specifier = ">=6.0.0" },
     { name = "pytest-xdist", specifier = ">=3.6.1" },
     { name = "ruff", specifier = ">=0.11.0" },
