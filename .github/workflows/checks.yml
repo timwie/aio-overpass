@@ -1,11 +1,11 @@
-name: Linters
+name: Checks
 
 on:
   workflow_dispatch:
   pull_request:
   push:
     paths:
-      - '.github/workflows/push_lint.yml'
+      - '.github/workflows/checks.yml'
 
       # source files
       - 'aio_overpass/**.py'

@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - '.github/workflows/push_compat_test.yml'
+      - '.github/workflows/compat_tests.yml'
 
       # source files
       - 'aio_overpass/**.py'

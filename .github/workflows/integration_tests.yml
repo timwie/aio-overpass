@@ -6,7 +6,7 @@ on:
     - cron: '30 0,6,12,18 * * *'  # run four times a day
   push:
     paths:
-      - '.github/workflows/sched_integration_test.yml'
+      - '.github/workflows/integration_tests.yml'
       - 'test/integration/**.py'
 
 jobs:
