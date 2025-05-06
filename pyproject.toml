@@ -52,7 +52,7 @@ dependencies = [
 [project.optional-dependencies]
 joblib = ["joblib>=1.3,<2"]
 networkx = ["networkx>=3,<4"]
-shapely = ["numpy>=2.1,<3", "shapely>=2,<3"]
+shapely = ["shapely>=2,<3"]
 
 [project.urls]
 repository = "https://github.com/timwie/aio-overpass"
