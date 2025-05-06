@@ -6,11 +6,6 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
   test:
     name: Test package
@@ -44,13 +39,14 @@ jobs:
       - name: Generate docs with pdoc
         run: uv run pdoc -o ./doc aio_overpass/
 
-  publish-package:
-    name: Publish new release on PyPI
+  build:  # separate building from publishing since the publishing job has more permissions
+    name: Build distributions
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: test  # do not publish if tests fail
-    # only run on new tag "v*" on main branch
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: read
+      id-token: write
     environment:
       name: pypi
       url: https://pypi.org/p/aio-overpass
@@ -64,8 +60,32 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
-      - name: Build the source and wheels archives
+      - name: Build the distributions
         run: uv build
+
+      - name: Store the distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+  publish-package:
+    name: Publish new release on PyPI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: pypi
+      url: https://pypi.org/p/aio-overpass
+    steps:
+      - name: Download the distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -75,6 +95,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: publish-package  # do not publish docs if release is not published
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
