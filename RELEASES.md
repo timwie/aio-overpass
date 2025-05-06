@@ -2,8 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Changed
+* Changed the build backend to `hatchling` in move from `poetry` to `uv`.
+  This should not result in a breaking change in the build distributions
+
 ## [0.15.0] - 2025-03-16
-The Python versions supported by this release are 3.11-3.13.
+The Python versions supported by this release are 3.11–3.13.
 
 ### Added
 * Add explicit Python 3.13 support
@@ -93,9 +98,9 @@ The Python versions supported by this release are 3.11-3.13.
 ### Changed
 * **Breaking**: Increase `aiohttp` requirement to `~3.9`
 * Change `Client.run_query()` to no longer enforce a rate limit before making a request.
-  This is because we cannot easily know the total amount of slots at an API server
+  This is because we cannot easily know the total number of slots at an API server
   that uses load balancing, as the [default server does](https://github.com/timwie/aio-overpass/issues/6).
-  Previously this would lead to using a maximum of 6 slots instead of the actual 12 slots.
+  Previously, this would lead to using a maximum of 6 slots instead of the actual 12 slots.
   The new behavior is to simply adhere to the cooldown duration when the server tells us
   we're making too many requests
 * The `[timeout:*]` setting is overwritten if `run_timeout_secs` is set, and the remaining
@@ -155,7 +160,7 @@ The Python versions supported by this release are 3.11-3.13.
 * The default query runner will log `ResponseError.body` if such an error occurs
 
 ## [0.9.0] – 2023-10-20
-The Python versions supported by this release are 3.10-3.12.
+The Python versions supported by this release are 3.10–3.12.
 
 ### Added
 * Add Python 3.12 support
@@ -207,7 +212,7 @@ The Python versions supported by this release are 3.10-3.12.
 * **Breaking**: Remove `AreaWay` and `AreaRelation`
   * These subclasses could be confusing since "area" is also specific Overpass terminology
   * There is no good reason to have these subclasses since their only difference
-    is easily modelled through the `geometry` property
+    is easily modeled through the `geometry` property
 
 ## [0.7.0] – 2023-10-06
 ### Added
@@ -256,7 +261,7 @@ The Python versions supported by this release are 3.10-3.12.
 * **Breaking**: Rename `Query.result_size_mib` to `response_size_mib`
 * **Breaking**: `Query.response_size_mib` now returns `None` instead of `0.0` if there is no result set
 * **Breaking**: `Query.query_duration_secs` now returns `None` if there is no result set
-* **Breaking**: `Query.run_duration_secs` now returns `None` if the query has not been not run yet
+* **Breaking**: `Query.run_duration_secs` now returns `None` if the query has not been run yet
 * **Breaking**: `Query.timestamp_osm` and `Query.timestamp_areas` now return `datetime` objects instead of `str`
 * **Breaking**: `Query.result_set` was confusing, since it returned the entire response, and not only the result
   set. It now returns only the result set, which is at the `"elements"` key in the response
@@ -281,7 +286,7 @@ The Python versions supported by this release are 3.10-3.12.
   the time a query is cached for
 
 ## [0.3.0] – 2023-06-29
-* **Breaking**: Drop Python 3.8 support. The Python versions supported by this release are 3.9-3.11.
+* **Breaking**: Drop Python 3.8 support. The Python versions supported by this release are 3.9–3.11.
 * **Breaking**: Increased `joblib` dependency to `~1.3`, which makes it ready for Python 3.12 among other things
 * **Breaking**: `Query`: `maxsize` properties ending in `_mb` now end in `_mib`
 * Relaxed `networkx` dependency to `>=2.7` according to [SPEC 0]

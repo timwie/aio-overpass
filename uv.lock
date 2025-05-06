@@ -1,6 +1,6 @@
 version = 1
 revision = 2
-requires-python = ">=3.11"
+requires-python = ">=3.11, <4"
 resolution-markers = [
     "python_full_version == '3.12.*'",
     "python_full_version != '3.12.*'",
@@ -53,11 +53,11 @@ notebooks = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiohttp", extras = ["speedups"], specifier = ">=3.9" },
-    { name = "joblib", marker = "extra == 'joblib'", specifier = ">=1.3" },
-    { name = "networkx", marker = "extra == 'networkx'", specifier = ">=3" },
-    { name = "numpy", marker = "extra == 'shapely'", specifier = ">=2.1" },
-    { name = "shapely", marker = "extra == 'shapely'", specifier = ">=2" },
+    { name = "aiohttp", extras = ["speedups"], specifier = ">=3.9,<4" },
+    { name = "joblib", marker = "extra == 'joblib'", specifier = ">=1.3,<2" },
+    { name = "networkx", marker = "extra == 'networkx'", specifier = ">=3,<4" },
+    { name = "numpy", marker = "extra == 'shapely'", specifier = ">=2.1,<3" },
+    { name = "shapely", marker = "extra == 'shapely'", specifier = ">=2,<3" },
 ]
 provides-extras = ["joblib", "networkx", "shapely"]
 
