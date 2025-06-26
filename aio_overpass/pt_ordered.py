@@ -370,7 +370,8 @@ def to_ordered_routes(routes: list[Route], n_jobs: int = 1) -> list[OrderedRoute
             view.ordering = _paths(graph, targets)
         return views
 
-    import joblib  # multiprocessing
+    # multiprocessing
+    import joblib  # noqa: PLC0415
 
     # Note: keep in mind that these objects have to be serialized to use in a seperate process,
     # which could take a while for large objects.

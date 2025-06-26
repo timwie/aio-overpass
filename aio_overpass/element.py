@@ -589,7 +589,7 @@ def _collect_relationships(collector: _ElementCollector) -> None:
             rel.members.append(relship)
 
 
-def _try_validate_geometry(geom: G) -> GeometryDetails[G]:
+def _try_validate_geometry(geom: G) -> GeometryDetails[G]:  # noqa: PLR0911
     if geom.is_valid:
         return GeometryDetails(valid=geom)
 
@@ -599,7 +599,12 @@ def _try_validate_geometry(geom: G) -> GeometryDetails[G]:
         # we allow self-intersecting multi-polygons, if
         # (1) the intersection is just lines or points, and
         # (2) all the polygons inside are valid
-        intersection = shapely.intersection_all(geom.geoms)
+        try:
+            intersection = shapely.intersection_all(geom.geoms)
+        except shapely.errors.GEOSException as err:
+            (invalid_reason,) = err.args
+            return GeometryDetails(invalid=geom, invalid_reason=invalid_reason)
+
         accept = not isinstance(intersection, Polygon | MultiPolygon) and all(
             poly.is_valid for poly in geom.geoms
         )
