@@ -104,7 +104,7 @@ def _pytest(c: Context, *, cov: bool, quick: bool):
     if quick:
         cmd.append("--ignore=test/test_large_data.py")
     else:
-        cmd.append("--numprocesses=auto")
+        cmd.append("--numprocesses=logical")
         cmd.append("--dist=loadgroup")
 
     c.run(" ".join(cmd), echo=True, pty=True)

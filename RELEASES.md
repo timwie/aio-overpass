@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Changed
-* Change the build backend to `hatchling` in move from `poetry` to `uv`
+* Change the build backend from `poetry` to `uv`
   (should have no relevant effect on build distributions)
 * `numpy` is no longer a direct dependency, but is still required by `shapely`
 
