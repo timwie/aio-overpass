@@ -30,15 +30,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install uv
+      - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
           python-version: "3.11"
 
       - name: Install dependencies & library
