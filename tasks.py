@@ -1,21 +1,17 @@
 import os
+import sys
 
 from invoke import task, Context
 
 
 IS_CI = os.getenv("GITHUB_ACTIONS") == "true"
-
-
-@task
-def compile(c: Context):
-    """Syntax-check/generate byte-code for all source files."""
-    c.run('find aio_overpass/ -name "*.py" -exec python -m py_compile {} \\;', echo=True, pty=True)
+PTY = sys.platform != "win32"
 
 
 @task
 def doc(c: Context):
     """Generate documentation"""
-    c.run("pdoc -o ./doc aio_overpass/", echo=True, pty=True)
+    c.run("pdoc -o ./doc aio_overpass/", echo=True, pty=PTY)
 
 
 @task
@@ -34,23 +30,23 @@ def doco(c: Context):
 @task
 def fmt(c: Context):
     """Run code formatters"""
-    c.run("isort aio_overpass test", echo=True, pty=True)
-    c.run("ruff format aio_overpass test tasks.py", echo=True, pty=True)
+    c.run("isort aio_overpass test", echo=True, pty=PTY)
+    c.run("ruff format aio_overpass test tasks.py", echo=True, pty=PTY)
 
 
 @task
 def install(c: Context):
     """Install all dependencies"""
-    c.run("uv lock", echo=True, pty=True)
-    c.run("uv sync --all-extras --all-groups", echo=True, pty=True)
+    c.run("uv lock", echo=True, pty=PTY)
+    c.run("uv sync --all-extras --all-groups", echo=True, pty=PTY)
 
 
 @task
 def lint(c: Context):
     """Run linter and type checker"""
-    c.run("ruff check aio_overpass/ test/", echo=True, warn=True, pty=True)
-    c.run("slotscheck -m aio_overpass --require-subclass", echo=True, warn=True, pty=True)
-    c.run("mypy aio_overpass/", echo=True, warn=True, pty=True)
+    c.run("ruff check aio_overpass/ test/", echo=True, warn=True, pty=PTY)
+    c.run("slotscheck -m aio_overpass --require-subclass", echo=True, warn=True, pty=PTY)
+    c.run("mypy aio_overpass/", echo=True, warn=True, pty=PTY)
 
 
 @task
@@ -107,22 +103,22 @@ def _pytest(c: Context, *, cov: bool, quick: bool):
         cmd.append("--numprocesses=logical")
         cmd.append("--dist=loadgroup")
 
-    c.run(" ".join(cmd), echo=True, pty=True)
+    c.run(" ".join(cmd), echo=True, pty=PTY)
 
     if cov and not IS_CI:
-        c.run("rm .coverage*", echo=True, pty=True)
+        c.run("rm .coverage*", echo=True, pty=PTY)
 
 
 @task
 def tree(c: Context):
     """Display the tree of dependencies"""
-    c.run("uv tree --no-dev", echo=True, pty=True)
+    c.run("uv tree --no-dev", echo=True, pty=PTY)
 
 
 @task
 def update(c: Context):
     """Update dependencies"""
-    c.run("uv self update", echo=True, pty=True)
-    c.run("uv lock --upgrade", echo=True, pty=True)
+    c.run("uv self update", echo=True, pty=PTY)
+    c.run("uv lock --upgrade", echo=True, pty=PTY)
     install(c)
-    c.run("uv pip list --outdated", echo=True, pty=True)
+    c.run("uv pip list --outdated", echo=True, pty=PTY)
