@@ -2,13 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.15.1] - 2025-07-28
 ### Changed
 * Change the build backend from `poetry` to `uv`
   (should have no relevant effect on build distributions)
 * `numpy` is no longer a direct dependency, but is still required by `shapely`
 
 ### Fixed
+* Fix a `UnicodeDecodeError` when importing `aio_overpass` on Windows by @RomaCZ
 * Fix an unhandled `shapely.errors.GEOSException` that can be raised when trying
   to validate self-intersecting multi-polygons
 
@@ -338,5 +339,6 @@ The Python versions supported by this release are 3.10–3.12.
 [0.14.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.14.0
 [0.14.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.14.1
 [0.15.0]: https://github.com/timwie/aio-overpass/releases/tag/v0.15.0
+[0.15.1]: https://github.com/timwie/aio-overpass/releases/tag/v0.15.1
 
 [SPEC 0]: https://scientific-python.org/specs/spec-0000/
