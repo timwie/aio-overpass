@@ -40,4 +40,4 @@ from .query import Query
 # extend the module's docstring
 for filename in ("usage.md", "extras.md", "coordinates.md"):
     __doc__ += "\n<br>\n"
-    __doc__ += (Path(__file__).parent / "doc" / filename).read_text()
+    __doc__ += (Path(__file__).parent / "doc" / filename).read_text(encoding="utf-8")
