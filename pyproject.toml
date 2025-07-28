@@ -1,6 +1,6 @@
 [project]
 name = "aio-overpass"
-version = "0.15.0"
+version = "0.15.1"
 description = "Async client for the Overpass API"
 authors = [{ name = "Tim Wiechers", email = "mail@timwie.dev" }]
 license = "MIT"
