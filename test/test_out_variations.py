@@ -28,7 +28,7 @@ import pytest
 async def test_way_out_variations(mock_response, file_name: str):
     test_dir = Path(__file__).resolve().parent
     data_file = test_dir / "out_variations" / file_name
-    response_str = data_file.read_text()
+    response_str = data_file.read_text(encoding="utf-8")
 
     mock_response.post(
         url=URL_INTERPRETER,

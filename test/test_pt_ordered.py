@@ -47,7 +47,7 @@ from shapely import LineString, MultiLineString
 def mock_result_set(mock_response, file_name):
     test_dir = Path(__file__).resolve().parent
     data_file = test_dir / "route_data" / file_name
-    result_set = data_file.read_text()
+    result_set = data_file.read_text(encoding="utf-8")
 
     mock_response.post(
         url=URL_INTERPRETER,

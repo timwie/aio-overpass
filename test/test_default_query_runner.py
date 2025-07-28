@@ -13,7 +13,7 @@ import pytest
 async def test_caching(mock_response):
     test_dir = Path(__file__).resolve().parent
     data_file = test_dir / "route_data" / "ambiguous_stop_name1.json"
-    response_str = data_file.read_text()
+    response_str = data_file.read_text(encoding="utf-8")
 
     with data_file.open(encoding="utf-8") as file:
         response = json.load(file)
@@ -57,7 +57,7 @@ async def test_caching(mock_response):
 async def test_cache_expiration(mock_response):
     test_dir = Path(__file__).resolve().parent
     data_file = test_dir / "route_data" / "ambiguous_stop_name2.json"
-    response_str = data_file.read_text()
+    response_str = data_file.read_text(encoding="utf-8")
 
     with data_file.open(encoding="utf-8") as file:
         response = json.load(file)
