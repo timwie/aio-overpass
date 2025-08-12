@@ -1,7 +1,7 @@
 from aio_overpass import Client
 from aio_overpass.client import Status
 from aio_overpass.error import ResponseError
-from test.util import URL_STATUS, VerifyingQueryRunner
+from test.util import URL_KILL, URL_STATUS, VerifyingQueryRunner
 
 import pytest
 from aioresponses import aioresponses
@@ -40,7 +40,14 @@ Currently running queries (pid, space limit, time limit, start time):
 
     assert actual == expected
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
     _ = str(actual)
     _ = repr(actual)
@@ -80,7 +87,14 @@ Currently running queries (pid, space limit, time limit, start time):
 
     assert actual == expected
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
     _ = str(actual)
     _ = repr(actual)
@@ -120,7 +134,14 @@ Currently running queries (pid, space limit, time limit, start time):
 
     assert actual == expected
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
     _ = str(actual)
     _ = repr(actual)
@@ -161,7 +182,14 @@ Currently running queries (pid, space limit, time limit, start time):
 
     assert actual == expected
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
     _ = str(actual)
     _ = repr(actual)
@@ -201,7 +229,14 @@ Currently running queries (pid, space limit, time limit, start time):
 
     assert actual == expected
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
     _ = str(actual)
     _ = repr(actual)
@@ -226,4 +261,10 @@ open64: 2 No such file or directory /osm3s_osm_base Dispatcher_Client::1. Probab
         with pytest.raises(ResponseError):
             await c.status()
 
-    await c.close()
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()

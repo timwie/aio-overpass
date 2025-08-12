@@ -23,7 +23,15 @@ async def test_cancel_no_queries():
         n_cancelled = await c.cancel_queries()
 
     assert n_cancelled == 0
-    await c.close()
+
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
 
 @pytest.mark.asyncio
@@ -47,7 +55,15 @@ Done!
         n_cancelled = await c.cancel_queries()
 
     assert n_cancelled == 1
-    await c.close()
+
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
 
 @pytest.mark.asyncio
@@ -73,7 +89,15 @@ Done!
         n_cancelled = await c.cancel_queries()
 
     assert n_cancelled == 1
-    await c.close()
+
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
 
 @pytest.mark.asyncio
@@ -99,4 +123,12 @@ Done!
         n_cancelled = await c.cancel_queries()
 
     assert n_cancelled == 2
-    await c.close()
+
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()

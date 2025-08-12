@@ -3,7 +3,7 @@ from pathlib import Path
 
 from aio_overpass import Client, Query
 from aio_overpass.query import _EXPIRATION_KEY, DefaultQueryRunner, _fibo_backoff_secs
-from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
+from test.util import URL_INTERPRETER, URL_KILL, VerifyingQueryRunner, mock_response
 
 import pytest
 
@@ -49,6 +49,12 @@ async def test_caching(mock_response):
     assert q2.response == response
     assert q2.was_cached
 
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await c.close()
 
 
@@ -94,6 +100,12 @@ async def test_cache_expiration(mock_response):
     assert q2.response == response
     assert not q2.was_cached
 
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await c.close()
 
 

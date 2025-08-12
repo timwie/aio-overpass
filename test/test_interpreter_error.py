@@ -12,7 +12,13 @@ from aio_overpass.error import (
     RunnerError,
 )
 from aio_overpass.query import QueryRunner
-from test.util import URL_INTERPRETER, URL_STATUS, VerifyingQueryRunner, verify_query_state
+from test.util import (
+    URL_INTERPRETER,
+    URL_KILL,
+    URL_STATUS,
+    VerifyingQueryRunner,
+    verify_query_state,
+)
 
 import pytest
 from aioresponses import aioresponses
@@ -53,6 +59,13 @@ async def mock_run_query(mock_response, body, content_type, **kwargs):
     )
 
     await c.run_query(q)
+
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await c.close()
 
 
@@ -336,7 +349,14 @@ async def test_connection_refused():
     _ = str(err.value)
     _ = repr(err.value)
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
 
 @pytest.mark.asyncio
@@ -358,7 +378,14 @@ async def test_internal_server_error():
     _ = str(err.value)
     _ = repr(err.value)
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
 
 @pytest.mark.asyncio
@@ -382,7 +409,14 @@ async def test_timeout_error():
     _ = str(err2.value)
     _ = repr(err2.value)
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
 
 @pytest.mark.asyncio
@@ -404,7 +438,14 @@ async def test_runner_error():
     _ = str(err.value)
     _ = repr(err.value)
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
 
 @pytest.mark.asyncio
@@ -449,6 +490,12 @@ async def test_unexpected_message_error(mock_response):
     _ = str(err.value)
     _ = repr(err.value)
 
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await c.close()
 
 
@@ -487,6 +534,12 @@ async def test_no_message_error(mock_response):
     _ = str(err.value)
     _ = repr(err.value)
 
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await c.close()
 
 
@@ -513,6 +566,12 @@ open64: 2 No such file or directory /osm3s_osm_base Dispatcher_Client::1. Probab
     _ = str(err.value)
     _ = repr(err.value)
 
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await c.close()
 
 

@@ -38,7 +38,7 @@ from pathlib import Path
 from aio_overpass.client import Client
 from aio_overpass.pt import RouteQuery, SingleRouteQuery, collect_routes
 from aio_overpass.pt_ordered import OrderedRouteView, collect_ordered_routes, to_ordered_route
-from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response
+from test.util import URL_INTERPRETER, URL_KILL, VerifyingQueryRunner, mock_response
 
 import pytest
 from shapely import LineString, MultiLineString
@@ -56,11 +56,18 @@ def mock_result_set(mock_response, file_name):
     )
 
 
-async def run_single_route_query() -> OrderedRouteView:
+async def run_single_route_query(mock_response) -> OrderedRouteView:
     query = SingleRouteQuery(relation_id=0)
 
     client = Client(runner=VerifyingQueryRunner())
     await client.run_query(query)
+
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await client.close()
 
     (view,) = collect_ordered_routes(
@@ -91,7 +98,7 @@ async def test_simple_linestring(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "simple_linestring.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.id == 1687358
     assert view.route.scheme.version_number == 2
@@ -107,6 +114,13 @@ async def test_simple_linestring_with_two_stop_pos_removed(mock_response):
 
     client = Client(runner=VerifyingQueryRunner())
     await client.run_query(query)
+
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await client.close()
 
     (route,) = collect_routes(
@@ -136,7 +150,7 @@ async def test_ambiguous_stop_name1(mock_response):
     timestamp: 2019-10-04
     """
     mock_result_set(mock_response, "ambiguous_stop_name1.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -153,7 +167,7 @@ async def test_ambiguous_stop_name2(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "ambiguous_stop_name2.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -169,7 +183,7 @@ async def test_bus_mapping1(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "bus_mapping1.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -185,7 +199,7 @@ async def test_bus_mapping2(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "bus_mapping2.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -201,7 +215,7 @@ async def test_bus_mapping_mixed(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "bus_mapping_mixed.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -217,7 +231,7 @@ async def test_gap(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "gap.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert len(view.path.geoms) == 2
@@ -234,7 +248,7 @@ async def test_highway_bus_stop_position(mock_response):
     timestamp: 2019-10-04
     """
     mock_result_set(mock_response, "highway_bus_stop_position.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
 
@@ -256,7 +270,7 @@ async def test_no_roles(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "no_roles.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -272,7 +286,7 @@ async def test_no_stops(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "no_stops.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert len(view.stops) == 0
@@ -303,7 +317,7 @@ async def test_platform_mismatch(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "platform_mismatch.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -319,7 +333,7 @@ async def test_platform_relations(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "platform_relations.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -336,7 +350,7 @@ async def test_recycling_bad(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "recycling_bad.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -352,7 +366,7 @@ async def test_recycling_good(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "recycling_good.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -368,7 +382,7 @@ async def test_role_mismatch(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "role_mismatch.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -385,7 +399,7 @@ async def test_same_stop_no_roles(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "same_stop_no_roles.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
 
@@ -407,7 +421,7 @@ async def test_segmented(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "segmented.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -423,7 +437,7 @@ async def test_stop_on_roundabout(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "stop_on_roundabout.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -440,7 +454,7 @@ async def test_stops_in_same_stop_area(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "stops_in_same_stop_area.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -456,7 +470,7 @@ async def test_unnamed_platforms(mock_response):
     timestamp: 2019-08-26
     """
     mock_result_set(mock_response, "unnamed_platforms.json")
-    view = await run_single_route_query()
+    view = await run_single_route_query(mock_response)
 
     assert view.route.scheme.version_number == 2
     assert_simple_path(view)
@@ -477,6 +491,13 @@ async def test_with_master(mock_response):
 
     client = Client(runner=VerifyingQueryRunner())
     await client.run_query(query)
+
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await client.close()
 
     routes = collect_ordered_routes(

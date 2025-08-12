@@ -2,7 +2,7 @@ from pathlib import Path
 
 from aio_overpass import Client, Query
 from aio_overpass.element import Way, collect_elements
-from test.util import URL_INTERPRETER, VerifyingQueryRunner, mock_response, verify_element
+from test.util import URL_INTERPRETER, URL_KILL, VerifyingQueryRunner, mock_response, verify_element
 
 import pytest
 
@@ -40,6 +40,13 @@ async def test_way_out_variations(mock_response, file_name: str):
 
     client = Client(runner=VerifyingQueryRunner())
     await client.run_query(query)
+
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await client.close()
 
     (way,) = collect_elements(query)

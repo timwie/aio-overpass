@@ -7,6 +7,7 @@ from aio_overpass.pt import RouteQuery, collect_routes
 from aio_overpass.pt_ordered import collect_ordered_routes
 from test.util import (
     URL_INTERPRETER,
+    URL_KILL,
     VerifyingQueryRunner,
     mock_response,
     verify_element,
@@ -34,6 +35,13 @@ async def test_collect_any_element_carabanchel(mock_response):
 
     client = Client(runner=VerifyingQueryRunner())
     await client.run_query(query)
+
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await client.close()
 
     elements = collect_elements(query)
@@ -61,6 +69,13 @@ async def test_collect_any_route_carabanchel(mock_response):
 
     client = Client(runner=VerifyingQueryRunner())
     await client.run_query(query)
+
+    mock_response.get(
+        url=URL_KILL,
+        body="",
+        status=200,
+        content_type="text/plain",
+    )
     await client.close()
 
     routes = collect_routes(query)

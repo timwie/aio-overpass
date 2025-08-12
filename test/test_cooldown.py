@@ -2,7 +2,7 @@ import logging
 
 from aio_overpass import Client, Query
 from aio_overpass.error import GiveupCause, GiveupError
-from test.util import URL_INTERPRETER, URL_STATUS, VerifyingQueryRunner, query_logger
+from test.util import URL_INTERPRETER, URL_KILL, URL_STATUS, VerifyingQueryRunner, query_logger
 
 import pytest
 from aioresponses import aioresponses
@@ -63,7 +63,14 @@ Currently running queries (pid, space limit, time limit, start time):
 
     assert err.value.cause is GiveupCause.RUN_TIMEOUT_BY_COOLDOWN
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
 
 
 @pytest.mark.asyncio
@@ -143,4 +150,11 @@ Currently running queries (pid, space limit, time limit, start time):
     assert query.done
     assert query.result_set == []
 
-    await c.close()
+    with aioresponses() as m:
+        m.get(
+            url=URL_KILL,
+            body="",
+            status=200,
+            content_type="text/plain",
+        )
+        await c.close()
