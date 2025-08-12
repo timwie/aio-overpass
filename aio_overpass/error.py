@@ -103,7 +103,8 @@ class RunnerError(ClientError):
         return False
 
     def __str__(self) -> str:
-        return str(self.cause)
+        msg = str(self.cause) or type(self.cause).__name__
+        return f"query runner raised: {msg}"
 
 
 @dataclass(kw_only=True)
@@ -126,7 +127,9 @@ class CallError(ClientError):
         return True
 
     def __str__(self) -> str:
-        return str(self.cause)
+        if isinstance(self.cause, asyncio.TimeoutError):
+            return "call timed out"
+        return f"call error: {self.cause}"
 
 
 @dataclass(kw_only=True)
@@ -148,7 +151,7 @@ class CallTimeoutError(CallError):
         return True
 
     def __str__(self) -> str:
-        return str(self.cause)
+        return f"call timed out after {self.after_secs:.01f} seconds"
 
 
 ResponseErrorCause: TypeAlias = aiohttp.ClientResponseError | JSONDecodeError | ValueError

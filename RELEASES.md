@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Fixed
+* Fix `str(CallTimeoutError(...))` being empty
+
 ## [0.15.1] - 2025-07-28
 ### Changed
 * Change the build backend from `poetry` to `uv`
