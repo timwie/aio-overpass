@@ -65,7 +65,7 @@ class Instant:
     def __sub__(self, earlier: "Instant") -> float:
         if self.when < earlier.when:
             msg = f"{self} is earlier than {earlier}"
-            raise ValueError(msg)
+            raise ArithmeticError(msg)
         return self.when - earlier.when
 
     def __repr__(self) -> str:
