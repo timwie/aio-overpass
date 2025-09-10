@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6
@@ -40,7 +40,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6
@@ -65,7 +65,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6
@@ -91,7 +91,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6
@@ -113,7 +113,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6
@@ -139,7 +139,7 @@ jobs:
       security-events: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Initialize
         uses: github/codeql-action/init@v3
@@ -161,7 +161,7 @@ jobs:
     timeout-minutes: 2
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6

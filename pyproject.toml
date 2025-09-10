@@ -130,6 +130,12 @@ sections = "STDLIB,FIRSTPARTY,THIRDPARTY,LOCALFOLDER"
 # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-library-stubs-or-py-typed-marker
 ignore_missing_imports = true
 
+[tool.ty.src]
+exclude = ["examples", "test"]
+
+[tool.pyrefly]
+project-excludes = ["test", "tasks.py"]
+
 [tool.coverage.run]
 branch = true
 

@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6
@@ -49,7 +49,7 @@ jobs:
       url: https://pypi.org/p/aio-overpass
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6
@@ -101,7 +101,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6
@@ -120,7 +120,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: './doc'
 
