@@ -34,7 +34,13 @@ jobs:
         networkx: ["3.4.2", "3.5"]
         numpy: ["2.2.6", "2.3.3"]
         shapely: ["2.0.7", "2.1.1"]
+        exclude:
+          - python: "3.14.0rc2"
+            numpy: "2.2.6"
     steps:
+      - name: Install GEOS (in case there are no shapely wheels)
+        run: sudo apt install libgeos-dev
+
       - name: Check out repository
         uses: actions/checkout@v5
 
