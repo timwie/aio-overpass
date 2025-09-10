@@ -35,7 +35,7 @@ if IS_UNIT_TEST:
     time = _clock_mock.mock_time
 else:  # pragma: no cover
     sleep = asyncio.sleep
-    time = lambda: asyncio.get_event_loop().time
+    time = lambda: asyncio.get_event_loop().time()  # noqa: E731
 
 
 @dataclass(kw_only=True, slots=True, frozen=True, repr=False, order=True)
