@@ -3,8 +3,16 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+The Python versions supported by this release are 3.12–3.14.
+
+### Added
+* Add explicit Python 3.14 support
+
 ### Fixed
 * Fix `str(CallTimeoutError(...))` being empty
+
+### Removed
+* **Breaking**: Drop Python 3.11 support
 
 ## [0.15.1] - 2025-07-28
 ### Changed

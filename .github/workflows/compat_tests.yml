@@ -28,14 +28,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.11", "3.12", "3.13", "3.14.0rc2"]
-        aiohttp: ["3.12.15"]
+        python: ["3.12", "3.13", "3.14", "3.14t"]
+        aiohttp: ["3.13.0"]
         joblib: ["1.5.2"]
         networkx: ["3.4.2", "3.5"]
         numpy: ["2.2.6", "2.3.3"]
-        shapely: ["2.0.7", "2.1.1"]
+        shapely: ["2.0.7", "2.1.2"]
         exclude:
-          - python: "3.14.0rc2"
+          - python: "3.14"
+            numpy: "2.2.6"
+          - python: "3.14t"
             numpy: "2.2.6"
     steps:
       - name: Install GEOS (in case there are no shapely wheels)

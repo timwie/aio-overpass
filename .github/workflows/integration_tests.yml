@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.11"]
+        python: ["3.12"]
         file: [
           "any_element_barmbek_nord",
           "any_element_carabanchel",
@@ -35,7 +35,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install dependencies & library
         run: uv sync --all-extras --dev
