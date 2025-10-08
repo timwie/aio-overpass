@@ -3,7 +3,7 @@
 import itertools
 from collections.abc import Callable, Generator, Iterator
 from dataclasses import dataclass, replace
-from typing import Any, Final, TypeAlias, TypeGuard
+from typing import Any, Final, TypeGuard
 
 from aio_overpass._dist import fast_distance
 from aio_overpass.element import Element, Node, Relation, Relationship, Way
@@ -579,7 +579,7 @@ def _paths(route_graph: MultiDiGraph, targets: list[Point | None]) -> list[Order
     return traversal.ordering
 
 
-_GraphNode: TypeAlias = tuple[float, float]
+type _GraphNode = tuple[float, float]
 
 
 @dataclass(kw_only=True, slots=True, repr=False, eq=False, match_args=False)

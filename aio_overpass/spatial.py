@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, TypeAlias
+from typing import Any
 
 
 __docformat__ = "google"
@@ -14,7 +14,7 @@ __all__ = (
 )
 
 
-GeoJsonDict: TypeAlias = dict[str, Any]
+type GeoJsonDict = dict[str, Any]
 """A dictionary representing a GeoJSON object."""
 
 

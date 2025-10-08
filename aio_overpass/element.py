@@ -5,7 +5,7 @@ import re
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, Final, Generic, TypeAlias, TypeVar
+from typing import Any, Final
 
 from aio_overpass import Query
 from aio_overpass.spatial import GeoJsonDict, Spatial
@@ -30,7 +30,7 @@ __all__ = (
 )
 
 
-Bbox: TypeAlias = tuple[float, float, float, float]
+type Bbox = tuple[float, float, float, float]
 """
 The bounding box of a spatial object.
 
@@ -61,11 +61,8 @@ class Metadata:
     user_id: int
 
 
-G = TypeVar("G", bound=BaseGeometry)
-
-
 @dataclass(kw_only=True, slots=True)
-class GeometryDetails(Generic[G]):
+class GeometryDetails[G: BaseGeometry]:
     """
     Element geometry with more info on its validity.
 
@@ -415,13 +412,13 @@ class Relationship(Spatial):
 _KNOWN_ELEMENTS: Final[set[str]] = {"node", "way", "relation"}
 
 
-_ElementKey: TypeAlias = tuple[str, int]
+type _ElementKey = tuple[str, int]
 """Elements are uniquely identified by the tuple (type, id)."""
 
-_MemberKey: TypeAlias = tuple[_ElementKey, str]
+type _MemberKey = tuple[_ElementKey, str]
 """Relation members are identified by their element key and role."""
 
-_OverpassDict: TypeAlias = dict[str, Any]
+type _OverpassDict = dict[str, Any]
 """A dictionary representing a JSON object returned by the Overpass API."""
 
 
@@ -589,7 +586,7 @@ def _collect_relationships(collector: _ElementCollector) -> None:
             rel.members.append(relship)
 
 
-def _try_validate_geometry(geom: G) -> GeometryDetails[G]:  # noqa: PLR0911
+def _try_validate_geometry[G: BaseGeometry](geom: G) -> GeometryDetails[G]:  # noqa: PLR0911
     if geom.is_valid:
         return GeometryDetails(valid=geom)
 

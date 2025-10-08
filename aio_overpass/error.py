@@ -22,7 +22,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from json import JSONDecodeError
-from typing import NoReturn, TypeAlias, TypeGuard
+from typing import NoReturn, TypeGuard
 
 import aiohttp
 import aiohttp.typedefs
@@ -154,7 +154,7 @@ class CallTimeoutError(CallError):
         return f"call timed out after {self.after_secs:.01f} seconds"
 
 
-ResponseErrorCause: TypeAlias = aiohttp.ClientResponseError | JSONDecodeError | ValueError
+type ResponseErrorCause = aiohttp.ClientResponseError | JSONDecodeError | ValueError
 """Causes for a ``ResponseError``."""
 
 
