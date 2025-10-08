@@ -2,6 +2,7 @@
 
 import math
 import re
+import threading
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass
@@ -112,6 +113,7 @@ class Client:
     __slots__ = (
         "_concurrency",
         "_maybe_session",
+        "_maybe_session_lock",
         "_runner",
         "_status_timeout_secs",
         "_url",
@@ -141,27 +143,30 @@ class Client:
         self._status_timeout_secs: Final[float | None] = status_timeout_secs
         self._runner: Final[QueryRunner] = runner or DefaultQueryRunner()
 
+        self._maybe_session_lock: Final[threading.Lock] = threading.Lock()
         self._maybe_session: aiohttp.ClientSession | None = None
 
     def _session(self) -> aiohttp.ClientSession:
         """The session used for all requests of this client."""
-        if not self._maybe_session or self._maybe_session.closed:
-            headers = {"User-Agent": self._user_agent}
-            connector = aiohttp.TCPConnector(limit=self._concurrency)
-            self._maybe_session = aiohttp.ClientSession(headers=headers, connector=connector)
+        with self._maybe_session_lock:  # for free-threaded Python
+            if not self._maybe_session or self._maybe_session.closed:
+                headers = {"User-Agent": self._user_agent}
+                connector = aiohttp.TCPConnector(limit=self._concurrency)
+                self._maybe_session = aiohttp.ClientSession(headers=headers, connector=connector)
 
-        return self._maybe_session
+            return self._maybe_session
 
     async def close(self) -> None:
         """Cancel all running queries and close the underlying session."""
-        if self._maybe_session and not self._maybe_session.closed:
-            # do not care if this fails
-            with suppress(CallError):
-                _ = await self.cancel_queries()
+        with self._maybe_session_lock:  # for free-threaded Python
+            if self._maybe_session and not self._maybe_session.closed:
+                # do not care if this fails
+                with suppress(CallError):
+                    _ = await self.cancel_queries()
 
-            # is raised when there are still active queries. that's ok
-            with suppress(aiohttp.ServerDisconnectedError):
-                await self._maybe_session.close()
+                # is raised when there are still active queries. that's ok
+                with suppress(aiohttp.ServerDisconnectedError):
+                    await self._maybe_session.close()
 
     async def _status(self, timeout: ClientTimeout | None = None) -> "Status":
         endpoint = urljoin(self._url, "status")
