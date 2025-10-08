@@ -53,6 +53,11 @@ jobs:
           cache-dependency-glob: "uv.lock"
           python-version: ${{ matrix.python }}
 
+      - name: Set PYTHON_GIL
+        if: endsWith(matrix.python-version, 't')
+        run: |
+          echo "PYTHON_GIL=0" >> "$GITHUB_ENV"
+
       - name: Install dependencies & library
         run: |
           uv sync --all-extras --dev
