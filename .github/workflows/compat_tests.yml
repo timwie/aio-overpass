@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.12", "3.13t", "3.14t"]
+        python: ["3.12", "3.13", "3.14t"]
         aiohttp: ["3.13.3"]
         joblib: ["1.5.2"]
         networkx: ["3.5", "3.6"]
