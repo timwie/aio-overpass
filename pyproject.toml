@@ -55,8 +55,8 @@ networkx = ["networkx>=3,<4"]
 shapely = ["shapely>=2,<3"]
 
 [project.urls]
-repository = "https://github.com/timwie/aio-overpass"
-documentation = "https://www.timwie.dev/aio-overpass/"
+"Repository" = "https://github.com/timwie/aio-overpass"
+"Documentation" = "https://www.timwie.dev/aio-overpass/"
 "Release Notes" = "https://github.com/timwie/aio-overpass/blob/main/RELEASES.md"
 "Test Coverage" = "https://codecov.io/gh/timwie/aio-overpass"
 
