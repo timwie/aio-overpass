@@ -161,6 +161,16 @@ class Query:
         self._max_timed_out_after_secs: int | None = None
         """maximum of seconds after which the query was cancelled"""
 
+    # copy.deepcopy() apparently uses these pickling functions, which
+    # require a workaround since the lock cannot be pickled
+    def __getstate__(self) -> dict:
+        return {slot: getattr(self, slot) for slot in self.__slots__ if slot != "_run_lock"}
+
+    def __setstate__(self, state: dict) -> None:
+        for k, v in state.items():
+            setattr(self, k, v)
+        self._run_lock = threading.Lock()  # type: ignore[misc]
+
     def reset(self) -> None:
         """Reset the query to its initial state, ignoring previous tries."""
         Query.__init__(
@@ -734,7 +744,7 @@ class DefaultQueryRunner(QueryRunner):
         with Path(file_path).open(mode="w", encoding="utf-8") as file:
             json.dump(response, file)
 
-    async def __call__(self, query: Query) -> None:  # noqa: C901
+    async def __call__(self, query: Query) -> None:
         """Called with the current query state before the client makes an API request."""
         logger = query.logger
 
