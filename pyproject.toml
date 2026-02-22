@@ -62,33 +62,33 @@ documentation = "https://www.timwie.dev/aio-overpass/"
 
 [dependency-groups]
 dev = [
-    "aioresponses>=0.7.6",
-    "codecov>=2.1.13",
-    "geojson>=3.2.0",
-    "invoke>=2.2.0",
-    "isort>=6.0.0",
-    "mypy>=1.14.1",
-    "pdoc>=15.0.1",
-    "pyrefly>=0.19.0",  # TODO: not ready yet
-    "pytest>=8.3.4",
-    "pytest-asyncio>=1.0.0",
-    "pytest-cov>=6.0.0",
-    "pytest-xdist>=3.7.0",
-    "ruff>=0.11.0",
-    "slotscheck>=0.19.0",
-    "ty>=0.0.1a9",  # TODO: not ready yet
+    "aioresponses>=0.7",
+    "codecov>=2.1",
+    "geojson>=3.2",
+    "invoke>=2.2",
+    "isort>=8.0",
+    "mypy>=1.19",
+    "pdoc>=16.0",
+    "pyrefly>=0.53",  # TODO: not ready yet
+    "pytest>=9.0",
+    "pytest-asyncio>=1.3",
+    "pytest-cov>=7.0",
+    "pytest-xdist>=3.8",
+    "ruff>=0.15",
+    "slotscheck>=0.19",
+    "ty>=0.0.18",  # TODO: not ready yet
 ]
 notebooks = [
-    "folium>=0.19.0",
-    "jupyterlab>=4.3.4",
-    "papermill>=2.6.0",
-    "randomcolor>=0.4.4.6",
-    "selenium>=4.27.1",
-    "tabulate>=0.9.0",
+    "folium>=0.20",
+    "jupyterlab>=4.5",
+    "papermill>=2.6",
+    "randomcolor>=0.4.4",
+    "selenium>=4.41",
+    "tabulate>=0.9",
 ]
 
 [build-system]
-requires = ["uv_build>=0.9.0"]
+requires = ["uv_build>=0.10"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
@@ -103,12 +103,36 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "ASYNC109", "COM812", "D105", "D107", "D203", "D212", "FIX", "G004", "I", "ISC001", "PLR2004", "RUF022",
-    "S101", "SLF001", "TD",
+    "ASYNC109",
+    "C90",
+    "COM812",
+    "D105",
+    "D107",
+    "D203",
+    "D212",
+    "FIX",
+    "G004",
+    "I",
+    "ISC001",
+    "PLR2004",
+    "RUF022",
+    "S101",
+    "SLF001",
+    "TD",
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"test/*" = ["ANN", "ASYNC230", "C901", "D", "E501", "F401", "F811", "PLR0915"]
+"test/*" = [
+    "ANN",
+    "ASYNC230",
+    "ASYNC240",
+    "C901",
+    "D",
+    "E501",
+    "F401",
+    "F811",
+    "PLR0915",
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -121,7 +145,7 @@ builtins-ignorelist = ["__doc__"]
 profile = "black"
 line_length = 100
 indent = '    '
-multi_line_output = 6
+multi_line_output = 5
 lines_after_imports = 2
 known_first_party = "aio_overpass,test"
 sections = "STDLIB,FIRSTPARTY,THIRDPARTY,LOCALFOLDER"
