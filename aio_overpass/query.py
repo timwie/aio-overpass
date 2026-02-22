@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Final
+from typing import Final, Literal, Required, TypedDict
 
 from aio_overpass._clock import Instant, sleep
 from aio_overpass._env import FORCE_DISABLE_CACHE
@@ -56,6 +56,12 @@ _NULL_LOGGER: Final[logging.Logger] = logging.getLogger()
 _NULL_LOGGER.addHandler(logging.NullHandler())
 
 
+class _SettingsDict(TypedDict):
+    out: Required[Literal["json"]]
+    maxsize: Required[int]
+    timeout: Required[int]
+
+
 class Query:
     """
     State of a query that is either pending, running, successful, or failed.
@@ -93,7 +99,7 @@ class Query:
         self,
         input_code: str,
         logger: logging.Logger = _NULL_LOGGER,
-        **kwargs: Any,  # noqa: ANN401
+        **kwargs: object,
     ) -> None:
         self._run_lock: Final[threading.Lock] = threading.Lock()
         """a lock used to ensure a query cannot be run more than once at the same time"""
@@ -107,26 +113,30 @@ class Query:
         self._kwargs: Final[dict] = kwargs
         """used to identify this query"""
 
-        self._settings = dict(_SETTING_PATTERN.findall(input_code))
+        found_settings = dict(_SETTING_PATTERN.findall(input_code))
+
+        self._settings: _SettingsDict = {
+            "out": "json",
+            "maxsize": DEFAULT_MAXSIZE_MIB * 1024 * 1024,
+            "timeout": DEFAULT_TIMEOUT_SECS,
+        }
         """all overpass ql settings [k:v];"""
 
-        if "out" in self._settings and self._settings["out"] != "json":
+        if "out" in found_settings and found_settings["out"] != "json":
             msg = "the '[out:*]' setting is implicitly set to 'json' and should be omitted"
             raise ValueError(msg)
 
-        self._settings["out"] = "json"
+        if "maxsize" in found_settings:
+            if not found_settings["maxsize"].isdigit() or int(found_settings["maxsize"]) <= 0:
+                msg = "the '[maxsize:*]' setting must be an integer > 0"
+                raise ValueError(msg)
+            self._settings["maxsize"] = int(found_settings["maxsize"])
 
-        if "maxsize" not in self._settings:
-            self._settings["maxsize"] = DEFAULT_MAXSIZE_MIB * 1024 * 1024
-        elif not self._settings["maxsize"].isdigit() or int(self._settings["maxsize"]) <= 0:
-            msg = "the '[maxsize:*]' setting must be an integer > 0"
-            raise ValueError(msg)
-
-        if "timeout" not in self._settings:
-            self._settings["timeout"] = DEFAULT_TIMEOUT_SECS
-        elif not self._settings["timeout"].isdigit() or int(self._settings["timeout"]) <= 0:
-            msg = "the '[timeout:*]' setting must be an integer > 0"
-            raise ValueError(msg)
+        if "timeout" in found_settings:
+            if not found_settings["timeout"].isdigit() or int(found_settings["timeout"]) <= 0:
+                msg = "the '[timeout:*]' setting must be an integer > 0"
+                raise ValueError(msg)
+            self._settings["timeout"] = int(found_settings["timeout"])
 
         self._run_timeout_secs: float | None = None
         """total time limit for running this query"""
@@ -509,7 +519,7 @@ class Query:
     def __repr__(self) -> str:
         cls_name = type(self).__name__
 
-        details = {
+        details: dict[str, object] = {
             "kwargs": self._kwargs,
             "done": self.done,
         }
