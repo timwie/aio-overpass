@@ -1,5 +1,6 @@
 import asyncio
 import math
+import time
 from dataclasses import dataclass
 
 from aio_overpass._env import IS_UNIT_TEST
@@ -8,7 +9,7 @@ from aio_overpass._env import IS_UNIT_TEST
 __docformat__ = "google"
 __all__ = (
     "sleep",
-    "time",
+    "monotonic",
     "Instant",
 )
 
@@ -32,10 +33,13 @@ class _ClockMock:
 if IS_UNIT_TEST:
     _clock_mock = _ClockMock()
     sleep = _clock_mock.mock_sleep
-    time = _clock_mock.mock_time
+    monotonic = _clock_mock.mock_time
 else:  # pragma: no cover
     sleep = asyncio.sleep
-    time = lambda: asyncio.get_event_loop().time()  # noqa: E731
+    # This is the clock ``loop.time()`` reads, but it does not require a current event
+    # loop: since Python 3.14, ``asyncio.get_event_loop()`` raises a RuntimeError when
+    # called outside a running loop, instead of implicitly creating one.
+    monotonic = time.monotonic
 
 
 @dataclass(kw_only=True, slots=True, frozen=True, repr=False, order=True)
@@ -44,15 +48,15 @@ class Instant:
     Measurement of a monotonic clock.
 
     Attributes:
-        when: the current time, according to the event loop's internal monotonic clock
-              (details are unspecified and may differ per event loop).
+        when: the current time, according to a monotonic clock
+              (the same one used by the event loop; details are unspecified).
     """
 
     when: float
 
     @classmethod
     def now(cls) -> "Instant":
-        return cls(when=time())
+        return cls(when=monotonic())
 
     @property
     def ceil(self) -> int:
@@ -60,7 +64,7 @@ class Instant:
 
     @property
     def elapsed_secs_since(self) -> float:
-        return time() - self.when
+        return monotonic() - self.when
 
     def __sub__(self, earlier: "Instant") -> float:
         if self.when < earlier.when:
