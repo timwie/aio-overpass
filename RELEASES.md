@@ -10,6 +10,9 @@ The Python versions supported by this release are 3.12–3.14.
 
 ### Fixed
 * Fix `str(CallTimeoutError(...))` being empty
+* Fix a `RuntimeError` on Python 3.14 when the clock is read outside a running event
+  loop, which affects synchronous callers like `repr(query)` and `query.run_duration_secs`.
+  `time.monotonic()` is now used instead of `asyncio.get_event_loop().time()`
 
 ### Removed
 * **Breaking**: Drop Python 3.11 support
